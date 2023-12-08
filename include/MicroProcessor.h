@@ -3,7 +3,12 @@
 
 #include <cinttypes>
 
-namespace ToNES {
+#include "Instruction.h"
+#include "InstructionDecoder.h"
+#include "DataBus.h"
+
+namespace tones {
+namespace cpu {
 
 enum class StatusBit {
     Carry,
@@ -37,16 +42,15 @@ class MicroProcessor;
 class ArithmeticAndLogicUnit
 {
 
+public:
+    ArithmeticAndLogicUnit(tones::MicroProcessor &cpu);
+    ~ArithmeticAndLogicUnit();
+
+private:
+    tones::MicroProcessor &_cpu;
 };
 
-/**
- * @brief Decoder
- * 
- */
-class InstructionDecode
-{
-
-};
+} // namespace cpu
 
 /**
  * @brief CPU
@@ -54,13 +58,16 @@ class InstructionDecode
  */
 class MicroProcessor
 {
+
 public:
-    MicroProcessor();
+    MicroProcessor(DataBus &bus);
     ~MicroProcessor();
 
+    void step();
+
 private:
-    friend class ArithmeticAndLogicUnit;
-    friend class InstructionDecode;
+    friend class cpu::InstructionDecoder;
+    friend class cpu::ArithmeticAndLogicUnit;
 
     /* Programmable Registers */
     uint8_t _reg_A; // accumulator
@@ -68,13 +75,18 @@ private:
     uint8_t _reg_Y; // index register Y
     uint8_t _reg_S; // program counter
     uint16_t _reg_PC; // stack pointer
-    StatusRegister_t _reg_P; // processor status register
+    cpu::StatusRegister_t _reg_P; // processor status register
 
     /* Buffers */
     uint8_t _reg_I; // instruction register
     uint8_t _reg_D; // data bus buffer
+
+    cpu::InstructionDecoder _decoder;
+    cpu::ArithmeticAndLogicUnit _alu;
+
+    DataBus &_bus;
 };
 
-} // namespace ToNES
+} // namespace tones
 
 #endif // _TONES_MICROPROCESSOR_H_

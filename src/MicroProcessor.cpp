@@ -1,7 +1,8 @@
 
 #include "MicroProcessor.h"
 
-namespace ToNES {
+namespace tones {
+namespace cpu {
 
 StatusRegister::StatusRegister()
 {
@@ -29,14 +30,36 @@ bool StatusRegister::get(StatusBit bit)
     return status & mask;
 }
 
-MicroProcessor::MicroProcessor()
+ArithmeticAndLogicUnit::ArithmeticAndLogicUnit(tones::MicroProcessor &cpu)
+    : _cpu(cpu)
 {
 
 }
 
- MicroProcessor::~MicroProcessor()
- {
+ArithmeticAndLogicUnit::~ArithmeticAndLogicUnit()
+{
 
- }
+}
 
-} // namespace ToNES
+} // namespace cpu
+
+MicroProcessor::MicroProcessor(DataBus &bus)
+    : _decoder(*this)
+    , _alu(*this)
+    , _bus(bus)
+{
+
+}
+
+MicroProcessor::~MicroProcessor()
+{
+
+}
+
+void MicroProcessor::step()
+{
+    // TODO: compile rrror
+    //_reg_I = _bus.read(_reg_PC++);
+}
+
+} // namespace tones
