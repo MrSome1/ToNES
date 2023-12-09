@@ -3,20 +3,26 @@
 
 namespace tones {
 
-Device::Device()
-{
-
-}
-
-Device::~Device()
-{
-
-}
+/* Device */
 
 void Device::attach(DataBus &bus)
 {
     _bus = &bus;
 }
+
+void Device::read(uint8_t &buffer)
+{
+    if (contains(_bus->address()))
+        read(_bus->address(), buffer);
+}
+
+void Device::write(uint8_t data)
+{
+    if (contains(_bus->address()))
+        write(_bus->address(), data);
+}
+
+/* DataBus */
 
 DataBus::DataBus()
 {
@@ -33,26 +39,23 @@ void DataBus::attach(Device &device)
     _devices.push_back(&device);
 }
 
-uint8_t DataBus::read(uint16_t addr)
+uint16_t DataBus::address() const
 {
-    Device *device = searchDevice(addr);
-    return device == nullptr ? 0 : device->read(addr);
+    return _address;
 }
 
-void DataBus::write(uint16_t addr, uint8_t data)
+void DataBus::read(uint16_t address, uint8_t &buffer)
 {
-    Device *device = searchDevice(addr);
-    if (device != nullptr)
-        device->write(addr, data);
+    _address = address;
+    for (auto it = _devices.begin(); it != _devices.end(); ++it)
+        (*it)->read(buffer);
 }
 
-Device* DataBus::searchDevice(uint16_t addr)
+void DataBus::write(uint16_t address, uint8_t data)
 {
-    for (auto it = _devices.begin(); it != _devices.end(); ++it) {
-        if ((*it)->contains(addr))
-            return *it;
-    }
-    return nullptr; // should never be here
+    _address = address;
+    for (auto it = _devices.begin(); it != _devices.end(); ++it)
+        (*it)->write(data);
 }
 
 } // namespace tones

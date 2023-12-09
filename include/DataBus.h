@@ -12,18 +12,21 @@ class Device
 {
 
 public:
-    Device();
-    virtual ~Device(); 
 
     virtual void attach(DataBus &bus);
 
+    virtual void read(uint8_t &buffer);
+
+    virtual void write(uint8_t data);
+
     virtual bool contains(uint16_t addr) = 0;
 
-    virtual uint8_t read(uint16_t addr) = 0;
+    virtual void read(uint16_t address, uint8_t &buffer) = 0;
 
-    virtual void write(uint16_t addr, uint8_t data) = 0;
+    virtual void write(uint16_t address, uint8_t data) = 0;
 
 protected:
+
     DataBus *_bus;
 };
 
@@ -36,13 +39,16 @@ public:
 
     void attach(Device &device);
 
-    uint8_t read(uint16_t addr);
-    void write(uint16_t addr, uint8_t data);
+    uint16_t address() const;
 
-protected:
-    Device* searchDevice(uint16_t addr);
+    void read(uint16_t address, uint8_t &buffer);
+
+    void write(uint16_t address, uint8_t data);
 
 private:
+
+    uint16_t _address;
+
     std::vector<Device*> _devices;
 };
 
