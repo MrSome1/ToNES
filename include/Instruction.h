@@ -1,6 +1,7 @@
 #ifndef _TONES_INSTRUCTION_H_
 #define _TONES_INSTRUCTION_H_
 
+#include <array>
 #include <cinttypes>
 
 namespace tones {
@@ -16,8 +17,12 @@ const uint8_t InstructionNumberMask = 0b11100000;
 const int InstructionNumberShift = 5;
 
 const int AddressingModeCount = 13;
+const int InstructionSetSize = 256;
 
-typedef enum class AddressingMode{
+namespace code {
+
+/* Addressing Mode */
+typedef enum AddressingMode {
     Accumulator,      // Accum
     Immediate,        // IMM
     Absolute,         // ABS
@@ -30,71 +35,101 @@ typedef enum class AddressingMode{
     Relative,         //
     IndexedIndirect,  // (IND, X)
     IndirectIndexed,  // (IND), Y
-    AbsoluteIndirect  //
+    AbsoluteIndirect, // Indirect  
+
+    Invalid
 } AddressingMode_t;
 
-/* Instruction Group 1 */
-
-const int InstructionGroupSize0 = 0; // TODO
-
-typedef enum class InstructionGroup0 {
-    // TODO
-} InstructionGroup0_t;
-
-const AddressingMode_t AddressingModeGroup0[] = {
-    // TODO
-};
-
-/* Instruction Group 1 */
-
-const int InstructionGroupSize1 = 8;
-
-typedef enum class InstructionGroup1 {
-    ORA, // 'OR' memory with Accumulator
-    AND, // 'AND' memory with Accumulator
-    EOR, // 'Exclusive OR' with Accumulator
+/* Alphabetic List of Instruction Set */
+typedef enum InstructionName {
     ADC, // Add Memory to Accumulator with Carry
-    STA, // Store Accumulator in Memory
-    LDA, // Load Accumulator with Memory
+    AND, // 'AND' Memory with Accumulator
+    ASL, // Shift one Bit Left (Memory or Accumulator)
+
+    BCC, // Branch on Carry Clear
+    BCS, // Branch on Carry Set
+    BEQ, // Branch on Result Zero
+    BIT, // Test Bits in Memory with Accumulator
+    BMI, // Branch on Result Minus
+    BNE, // Branch on Result not Zero
+    BPL, // Branch on Result Plus
+    BRK, // Force Break
+    BVC, // Branch on Overflow Clear
+    BVS, // Branch on Overflow Set
+
+    CLC, // Clear Carry Flag
+    CLD, // Clear Decimal Mode
+    CLI, // Clear Interrupt Disable Bit
+    CLV, // Clear Overflow Flag
     CMP, // Compare Memory and Accumulator
+    CPX, // Compare Memory and Index X
+    CPY, // Compare Memory and Index Y
+
+    DEC, // Decrement Memory by One
+    DEX, // Decrement Index X by One
+    DEY, // Decrement Index Y by One
+
+    EOR, // 'Exclusive OR' with Accumulator
+
+    INC, // Increment Memory by One
+    INX, // Increment Index X by One
+    INY, // Increment Index Y by One
+
+    JMP, // Jump to New Location
+    JSR, // Jump to New Location Saving Return Address
+
+    LDA, // Load Accumulator with Memory
+    LDX, // Load Index X with Memory
+    LDY, // Load Index Y with Memory
+    LSR, // Shift one Bit Right (Memory or Accumulator)
+
+    NOP, // No Operation
+
+    ORA, // 'OR' Memory with Accumulator
+
+    PHA, // Push Accumulator on Stack
+    PHP, // Push Processor Status on Stack
+    PLA, // Pull Accumulator from Stack
+    PLP, // Pull Processor Status on Stack
+
+    ROL, // Rotate one Bit Left (Memory or Accumulator)
+    ROR, // Rotate one Bit Right (Memory or Accumulator)
+    RTI, // Return from Interrupt
+    RTS, // Return from Subroutine
+
     SBC, // Subtract Memory from Accumulator with Borrow
-} InstructionGroup1_t;
+    SEC, // Set Carry Flag
+    SED, // Set Decimal Mode
+    SEI, // Set Interrupt Disable Status
+    STA, // Store Accumulator in Memory
+    STX, // Store Index X in Memory
+    STY, // Store Index Y in Memory
 
-const AddressingMode_t AddressingModeGroup1[] = {
-    AddressingMode::IndexedIndirect,  // (IND, X)
-    AddressingMode::ZeroPage,         // ZP
-    AddressingMode::Immediate,        // IMM
-    AddressingMode::Absolute,         // ABS
-    AddressingMode::IndirectIndexed,  // (IND), Y
-    AddressingMode::IndexedZeroPageX, // ZP,X
-    AddressingMode::IndexedAbsoluteY, // ABS, Y
-    AddressingMode::IndexedAbsoluteX, // ABS, X
+    TAX, // Transfer Accumulator to Index X
+    TAY, // Transfer Accumulator to Index Y
+    TSX, // Transfer Stack Pointer to Index X
+    TXA, // Transfer Index X to Accumulator
+    TXS, // Transfer Index X to Stack Register
+    TYA, // Transfer Index Y to Accumulator
+
+    Unknown
+} InstructionName_t;
+
+typedef struct Instruction {
+    InstructionName_t name;
+    AddressingMode mode;
+    int cycles;
+} Instruction_t;
+
+const Instruction_t UnknownInstruction = {
+    Unknown,
+    Invalid,
+    0
 };
 
-/* Instruction Group 1 */
+extern const std::array<const Instruction_t*, InstructionSetSize> InstructionSet;
 
-const int InstructionGroupSize2 = 0; // TODO
-
-typedef enum class InstructionGroup2 {
-    // TODO
-} InstructionGroup2_t;
-
-const AddressingMode_t AddressingModeGroup2[] = {
-    // TODO
-};
-
-/* Instruction Group 1 */
-
-const int InstructionGroupSize3 = 0; // TODO
-
-typedef enum class InstructionGroup3 {
-    // TODO
-} InstructionGroup3_t;
-
-const AddressingMode_t AddressingModeGroup3[] = {
-    // TODO
-};
-
+} // namespace code
 } // namespace cpu
 } // namespace tones
 

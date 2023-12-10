@@ -23,7 +23,7 @@ public:
     InstructionDecoder(tones::MicroProcessor &cpu);
     ~InstructionDecoder();
 
-    AddressingMode_t decode();
+    code::AddressingMode_t decode();
 
     void execute();
 
@@ -31,13 +31,13 @@ protected:
 
     /* Instruction Group 0 */
 
-    static void decodeGroup0(InstructionDecoder &decoder);
+    //static void decodeGroup0(InstructionDecoder &decoder);
 
     // TODO: Operations
 
     /* Instruction Group 1 */
 
-    static void decodeGroup1(InstructionDecoder &decoder);
+    //static void decodeGroup1(InstructionDecoder &decoder);
 
     static void ORA(tones::MicroProcessor &cpu);
 
@@ -57,13 +57,13 @@ protected:
 
     /* Instruction Group 2 */
 
-    static void decodeGroup2(InstructionDecoder &decoder);
+    //static void decodeGroup2(InstructionDecoder &decoder);
 
     // TODO: Operations
 
     /* Instruction Group 3 */
 
-    static void decodeGroup3(InstructionDecoder &decoder);
+    //static void decodeGroup3(InstructionDecoder &decoder);
 
     // TODO: Operations
 
@@ -71,24 +71,24 @@ private:
 
     tones::MicroProcessor &_cpu;
 
-    AddressingMode_t _mode;
+    code::AddressingMode_t _mode;
 
     std::function<void(tones::MicroProcessor&)> _operation;
 
-    static const std::array<std::function<void(InstructionDecoder&)>,
-                      InstructionGroupCount> _groupDecoders;
+    //static const std::array<std::function<void(InstructionDecoder&)>,
+    //                  InstructionGroupCount> _groupDecoders;
 
-    static const std::array<std::function<void(tones::MicroProcessor&)>,
-                      InstructionGroupSize0> _operationGroup0;
+    //static const std::array<std::function<void(tones::MicroProcessor&)>,
+    //                  InstructionGroupSize0> _operationGroup0;
 
-    static const std::array<std::function<void(tones::MicroProcessor&)>,
-                      InstructionGroupSize1> _operationGroup1;
+    //static const std::array<std::function<void(tones::MicroProcessor&)>,
+    //                  InstructionGroupSize1> _operationGroup1;
 
-    static const std::array<std::function<void(tones::MicroProcessor&)>,
-                      InstructionGroupSize2> _operationGroup2;
+    //static const std::array<std::function<void(tones::MicroProcessor&)>,
+    //                  InstructionGroupSize2> _operationGroup2;
 
-    static const std::array<std::function<void(tones::MicroProcessor&)>,
-                      InstructionGroupSize3> _operationGroup3;
+    //static const std::array<std::function<void(tones::MicroProcessor&)>,
+    //                  InstructionGroupSize3> _operationGroup3;
 };
 
 } // namespace cpu

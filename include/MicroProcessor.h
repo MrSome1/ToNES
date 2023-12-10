@@ -13,15 +13,23 @@ namespace tones {
 namespace cpu {
 
 enum class StatusBit {
-    Carry,
-    Zero,
-    Interupt,
-    Decimal,
-    Break,
-    Overflow = 6,
-    Negative
+    Carry,    // C
+    Zero,     // Z
+    Interupt, // I
+    Decimal,  // D
+    Break,    // B
+    Null,
+    Overflow, // V
+    Negative  // N
 };
 
+/**
+ * @brief Processor Status Register
+ * 
+ * Bit Map:
+ *   7  6  5  4  3  2  1  0
+ *   N  V     B  D  I  Z  C
+ */
 typedef struct StatusRegister {
     uint8_t status;
 
@@ -69,6 +77,19 @@ public:
 
 private:
 
+    inline void checkCarry();
+
+    inline void checkZero();
+
+    inline void checkOverflow();
+
+    inline void checkNegative();
+
+    /* Not sure if there is a real register in ALU, just
+     * for convtnience to check overflow and carry here
+     */
+    uint16_t _reg;
+
     tones::MicroProcessor &_cpu;
 };
 
@@ -90,9 +111,9 @@ public:
 
 protected:
 
-    inline void read();
+    /*inline*/ void read();
 
-    inline void write();
+    /*inline*/ void write();
 
     /* Functions to fetch operands */
 

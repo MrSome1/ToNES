@@ -34,6 +34,7 @@ class DataBus
 {
 
 public:
+
     DataBus();
     ~DataBus();
 

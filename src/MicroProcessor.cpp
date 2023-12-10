@@ -47,32 +47,77 @@ ArithmeticAndLogicUnit::~ArithmeticAndLogicUnit()
 
 void ArithmeticAndLogicUnit::ORA()
 {
-    _cpu._reg_A = _cpu._reg_A | _cpu._reg_DBB;
+    _reg = _cpu._reg_DBB;
+    _reg |= _cpu._reg_A;
+    checkZero();
+    checkNegative();
+    _cpu._reg_A = _reg;
 }
 
 void ArithmeticAndLogicUnit::AND()
 {
-    _cpu._reg_A = _cpu._reg_A & _cpu._reg_DBB;
+    _reg = _cpu._reg_DBB;
+    _reg &= _cpu._reg_A;
+    checkZero();
+    checkNegative();
+    _cpu._reg_A = _reg;
 }
 
 void ArithmeticAndLogicUnit::EOR()
 {
-    _cpu._reg_A = _cpu._reg_A ^ _cpu._reg_DBB;
+    _reg = _cpu._reg_DBB;
+    _reg ^= _cpu._reg_A;
+    checkZero();
+    checkNegative();
+    _cpu._reg_A = _reg;
 }
 
 void ArithmeticAndLogicUnit::ADC()
 {
-
+    // TODO: Decimal ???
+    _reg = _cpu._reg_DBB;
+    _reg += _cpu._reg_A;
+    // TODO: check status
+    _cpu._reg_A = _reg;
 }
 
 void ArithmeticAndLogicUnit::SBC()
 {
-
+    // TODO: Decimal ???
+    _reg = _cpu._reg_A;
+    _reg -= _cpu._reg_DBB;
+    // TODO: check status
+    _cpu._reg_A = _reg;
 }
 
 void ArithmeticAndLogicUnit::CMP()
 {
+    _reg = _cpu._reg_A;
+    _reg -= _cpu._reg_DBB;
+    checkCarry();
+    checkZero();
+    checkNegative();
+    _cpu._reg_A = _reg;
+}
 
+inline void ArithmeticAndLogicUnit::checkCarry()
+{
+    _cpu._reg_P.set(StatusBit::Zero, _reg & 0x0100); // ???
+}
+
+inline void ArithmeticAndLogicUnit::checkZero()
+{
+    _cpu._reg_P.set(StatusBit::Zero, !_reg);
+}
+
+inline void ArithmeticAndLogicUnit::checkOverflow()
+{
+    _cpu._reg_P.set(StatusBit::Overflow, _reg & 0x0100); // ???
+}
+
+inline void ArithmeticAndLogicUnit::checkNegative()
+{
+    _cpu._reg_P.set(StatusBit::Negative, _reg & 0x8000);
 }
 
 } // namespace cpu
@@ -124,12 +169,12 @@ void MicroProcessor::step()
     _decoder.execute();
 }
 
-inline void MicroProcessor::read()
+/*inline*/ void MicroProcessor::read()
 {
     _bus.read(_reg_AB, _reg_DBB);
 }
 
-inline void MicroProcessor::write()
+/*inline*/ void MicroProcessor::write()
 {
     _bus.write(_reg_AB, _reg_DBB);
 }
@@ -159,7 +204,7 @@ void MicroProcessor::fetchAbsolute(MicroProcessor &cpu)
 
     // Fetch operand
     cpu.setAB(cpu._reg_DBB, cpu._reg_DL);
-    cpu.read();
+    //cpu.read();
 }
 
 void MicroProcessor::fetchZeroPage(MicroProcessor &cpu)
@@ -170,7 +215,7 @@ void MicroProcessor::fetchZeroPage(MicroProcessor &cpu)
 
     // Fetch operand
     cpu._reg_AB = cpu._reg_DBB;
-    cpu.read();
+    //cpu.read();
 }
 
 void MicroProcessor::fetchIndexedZeroPage(MicroProcessor &cpu, uint8_t index)
@@ -181,7 +226,7 @@ void MicroProcessor::fetchIndexedZeroPage(MicroProcessor &cpu, uint8_t index)
 
     // Fetch operand
     cpu._reg_AB = (uint8_t)(cpu._reg_DBB + index);
-    cpu.read();
+    //cpu.read();
 }
 
 void MicroProcessor::fetchIndexedZeroPageX(MicroProcessor &cpu)
@@ -209,7 +254,7 @@ void MicroProcessor::fetchIndexedAbsolute(MicroProcessor &cpu, uint8_t index)
     // Fetch operand
     cpu.setAB(cpu._reg_DBB, cpu._reg_DL);
     cpu._reg_AB += index;
-    cpu.read();
+    //cpu.read();
 }
 
 void MicroProcessor::fetchIndexedAbsoluteX(MicroProcessor &cpu)
@@ -253,7 +298,7 @@ void MicroProcessor::fetchIndexedIndirect(MicroProcessor &cpu)
 
     // Fetch operand
     cpu.setAB(cpu._reg_DBB, cpu._reg_DL);
-    cpu.read();
+    //cpu.read();
 }
 
 void MicroProcessor::fetchIndirectIndexed(MicroProcessor &cpu)
@@ -275,7 +320,7 @@ void MicroProcessor::fetchIndirectIndexed(MicroProcessor &cpu)
     // Fetch operand
     cpu.setAB(cpu._reg_DBB, cpu._reg_DL);
     cpu._reg_AB += cpu._reg_Y;
-    cpu.read();
+    //cpu.read();
 }
 
 void MicroProcessor::fetchAbsoluteIndirect(MicroProcessor &cpu)
@@ -302,7 +347,7 @@ void MicroProcessor::fetchAbsoluteIndirect(MicroProcessor &cpu)
 
     // Fetch operand
     cpu.setAB(cpu._reg_DBB, cpu._reg_DL);
-    cpu.read();
+    //cpu.read();
 }
 
 inline void MicroProcessor::setABL(uint8_t val)
