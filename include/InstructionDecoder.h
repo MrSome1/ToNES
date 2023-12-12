@@ -31,13 +31,17 @@ protected:
 
     /* Instruction Group 0 */
 
-    //static void decodeGroup0(InstructionDecoder &decoder);
+    static void BIT(tones::MicroProcessor &cpu);
 
-    // TODO: Operations
+    static void STY(tones::MicroProcessor &cpu);
+
+    static void LDY(tones::MicroProcessor &cpu);
+
+    static void CPY(tones::MicroProcessor &cpu);
+
+    static void CPX(tones::MicroProcessor &cpu);
 
     /* Instruction Group 1 */
-
-    //static void decodeGroup1(InstructionDecoder &decoder);
 
     static void ORA(tones::MicroProcessor &cpu);
 
@@ -57,15 +61,93 @@ protected:
 
     /* Instruction Group 2 */
 
-    //static void decodeGroup2(InstructionDecoder &decoder);
+    static void ASL(tones::MicroProcessor &cpu);
 
-    // TODO: Operations
+    static void ROL(tones::MicroProcessor &cpu);
 
-    /* Instruction Group 3 */
+    static void LSR(tones::MicroProcessor &cpu);
 
-    //static void decodeGroup3(InstructionDecoder &decoder);
+    static void ROR(tones::MicroProcessor &cpu);
 
-    // TODO: Operations
+    static void STX(tones::MicroProcessor &cpu);
+
+    static void LDX(tones::MicroProcessor &cpu);
+
+    static void DEC(tones::MicroProcessor &cpu);
+
+    static void INC(tones::MicroProcessor &cpu);
+
+    /* Un-grouped Instructions */
+
+    static void BRK(tones::MicroProcessor &cpu);
+
+    static void BPL(tones::MicroProcessor &cpu);
+
+    static void JSR(tones::MicroProcessor &cpu);
+
+    static void BMI(tones::MicroProcessor &cpu);
+
+    static void RTI(tones::MicroProcessor &cpu);
+
+    static void BVC(tones::MicroProcessor &cpu);
+
+    static void RTS(tones::MicroProcessor &cpu);
+
+    static void BVS(tones::MicroProcessor &cpu);
+
+    static void BCC(tones::MicroProcessor &cpu);
+
+    static void BCS(tones::MicroProcessor &cpu);
+
+    static void BNE(tones::MicroProcessor &cpu);
+
+    static void BEQ(tones::MicroProcessor &cpu);
+
+    static void PHP(tones::MicroProcessor &cpu);
+
+    static void CLC(tones::MicroProcessor &cpu);
+
+    static void PLP(tones::MicroProcessor &cpu);
+
+    static void SEC(tones::MicroProcessor &cpu);
+
+    static void PHA(tones::MicroProcessor &cpu);
+
+    static void CLI(tones::MicroProcessor &cpu);
+
+    static void PLA(tones::MicroProcessor &cpu);
+
+    static void SEI(tones::MicroProcessor &cpu);
+
+    static void DEY(tones::MicroProcessor &cpu);
+
+    static void TYA(tones::MicroProcessor &cpu);
+
+    static void TAY(tones::MicroProcessor &cpu);
+
+    static void CLV(tones::MicroProcessor &cpu);
+
+    static void INY(tones::MicroProcessor &cpu);
+
+    static void CLD(tones::MicroProcessor &cpu);
+
+    static void INX(tones::MicroProcessor &cpu);
+
+    static void SED(tones::MicroProcessor &cpu);
+
+    static void TXA(tones::MicroProcessor &cpu);
+
+    static void TXS(tones::MicroProcessor &cpu);
+
+    static void TAX(tones::MicroProcessor &cpu);
+
+    static void TSX(tones::MicroProcessor &cpu);
+
+    static void DEX(tones::MicroProcessor &cpu);
+
+    static void NOP(tones::MicroProcessor &cpu);
+
+    static void JMP(tones::MicroProcessor &cpu);
 
 private:
 
@@ -75,20 +157,8 @@ private:
 
     std::function<void(tones::MicroProcessor&)> _operation;
 
-    //static const std::array<std::function<void(InstructionDecoder&)>,
-    //                  InstructionGroupCount> _groupDecoders;
-
-    //static const std::array<std::function<void(tones::MicroProcessor&)>,
-    //                  InstructionGroupSize0> _operationGroup0;
-
-    //static const std::array<std::function<void(tones::MicroProcessor&)>,
-    //                  InstructionGroupSize1> _operationGroup1;
-
-    //static const std::array<std::function<void(tones::MicroProcessor&)>,
-    //                  InstructionGroupSize2> _operationGroup2;
-
-    //static const std::array<std::function<void(tones::MicroProcessor&)>,
-    //                  InstructionGroupSize3> _operationGroup3;
+    static const std::array<std::function<void(tones::MicroProcessor&)>,
+                            code::Unknown> _operations;
 };
 
 } // namespace cpu

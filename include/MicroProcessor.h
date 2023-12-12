@@ -111,11 +111,13 @@ public:
 
 protected:
 
-    /*inline*/ void read();
+    //! Read one byte from memory
+    inline void read() { _bus.read(_reg_AB, _reg_DBB); };
 
-    /*inline*/ void write();
+    //! Write one byte to memory
+    inline void write() { _bus.write(_reg_AB, _reg_DBB); };
 
-    /* Functions to fetch operands */
+    /* Functions for addressing modes */
 
     //! Accum
     static void fetchAccumulator(MicroProcessor &cpu);
@@ -129,17 +131,11 @@ protected:
     //! ZP
     static void fetchZeroPage(MicroProcessor &cpu);
 
-    //! ZP, X or Y
-    static void fetchIndexedZeroPage(MicroProcessor &cpu, uint8_t index);
-
     //! ZP, X
     static void fetchIndexedZeroPageX(MicroProcessor &cpu);
 
     //! ZP, Y
     static void fetchIndexedZeroPageY(MicroProcessor &cpu);
-
-    //! ABS, X or Y
-    static void fetchIndexedAbsolute(MicroProcessor &cpu, uint8_t index);
 
     //! ABS, X
     static void fetchIndexedAbsoluteX(MicroProcessor &cpu);
@@ -168,7 +164,29 @@ protected:
 
     [[deprecated]] inline void setABH(uint8_t val);
 
+    //! Setup the register AB with two seperate bytes
     inline void setAB(uint8_t abh, uint8_t abl);
+
+    /* Fetch one operand from memory
+     * 
+     * Fetch the operand of a two bytes instruction, and
+     * store the operand in register DBB
+     */
+    static inline void fetchOne(MicroProcessor &cpu);
+
+    /* Fetch two operands from memory
+     *
+     * Fetch the operands of a three bytes instruction, 
+     * and store the first operand in register DL, the
+     * second one in register DBB
+     */ 
+    static inline void fetchTwo(MicroProcessor &cpu);
+
+    //! Fetch operands for addressing mode ZP, X or Y
+    static inline void fetchIndexedZeroPage(MicroProcessor &cpu, uint8_t index);
+
+    //! Fetch operands for addressing mode ABS, X or Y
+    static inline void fetchIndexedAbsolute(MicroProcessor &cpu, uint8_t index);
 
 private:
 

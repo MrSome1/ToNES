@@ -169,16 +169,6 @@ void MicroProcessor::step()
     _decoder.execute();
 }
 
-/*inline*/ void MicroProcessor::read()
-{
-    _bus.read(_reg_AB, _reg_DBB);
-}
-
-/*inline*/ void MicroProcessor::write()
-{
-    _bus.write(_reg_AB, _reg_DBB);
-}
-
 void MicroProcessor::fetchAccumulator(MicroProcessor &cpu)
 {
     // Operand already in accumulator
@@ -186,21 +176,12 @@ void MicroProcessor::fetchAccumulator(MicroProcessor &cpu)
 
 void MicroProcessor::fetchImmediate(MicroProcessor &cpu)
 {
-    cpu._reg_AB = cpu._reg_PC++;
-    cpu.read();
+    fetchOne(cpu);
 }
 
 void MicroProcessor::fetchAbsolute(MicroProcessor &cpu)
 {
-    // Fetch ABL
-    cpu._reg_AB = cpu._reg_PC++;
-    cpu.read();
-
-    cpu._reg_DL = cpu._reg_DBB;
-
-    // Fetch ABH
-    cpu._reg_AB = cpu._reg_PC++;
-    cpu.read();
+    fetchTwo(cpu);
 
     // Fetch operand
     cpu.setAB(cpu._reg_DBB, cpu._reg_DL);
@@ -209,23 +190,10 @@ void MicroProcessor::fetchAbsolute(MicroProcessor &cpu)
 
 void MicroProcessor::fetchZeroPage(MicroProcessor &cpu)
 {
-    // Fetch ABL
-    cpu._reg_AB = cpu._reg_PC++;
-    cpu.read();
+    fetchOne(cpu);
 
     // Fetch operand
     cpu._reg_AB = cpu._reg_DBB;
-    //cpu.read();
-}
-
-void MicroProcessor::fetchIndexedZeroPage(MicroProcessor &cpu, uint8_t index)
-{
-    // Fetch ABL
-    cpu._reg_AB = cpu._reg_PC++;
-    cpu.read();
-
-    // Fetch operand
-    cpu._reg_AB = (uint8_t)(cpu._reg_DBB + index);
     //cpu.read();
 }
 
@@ -237,24 +205,6 @@ void MicroProcessor::fetchIndexedZeroPageX(MicroProcessor &cpu)
 void MicroProcessor::fetchIndexedZeroPageY(MicroProcessor &cpu)
 {
     fetchIndexedZeroPage(cpu, cpu._reg_Y);
-}
-
-void MicroProcessor::fetchIndexedAbsolute(MicroProcessor &cpu, uint8_t index)
-{
-    // Fetch ABL
-    cpu._reg_AB = cpu._reg_PC++;
-    cpu.read();
-
-    cpu._reg_DL = cpu._reg_DBB;
-
-    // Fetch ABH
-    cpu._reg_AB = cpu._reg_PC++;
-    cpu.read();
-
-    // Fetch operand
-    cpu.setAB(cpu._reg_DBB, cpu._reg_DL);
-    cpu._reg_AB += index;
-    //cpu.read();
 }
 
 void MicroProcessor::fetchIndexedAbsoluteX(MicroProcessor &cpu)
@@ -274,17 +224,14 @@ void MicroProcessor::fetchImplied(MicroProcessor &cpu)
 
 void MicroProcessor::fetchRelative(MicroProcessor &cpu)
 {
-    // Fetch branch offset
-    cpu._reg_AB = cpu._reg_PC++;
-    cpu.read();
+    fetchOne(cpu); // branch offset
     // TODO: What to do with the offset ??
 }
 
 void MicroProcessor::fetchIndexedIndirect(MicroProcessor &cpu)
 {
     // Fetch indirect ABL
-    cpu._reg_AB = cpu._reg_PC++;
-    cpu.read();
+    fetchOne(cpu);
 
     // Fetch ABL
     cpu._reg_AB = (uint8_t)(cpu._reg_DBB + cpu._reg_X);
@@ -304,8 +251,7 @@ void MicroProcessor::fetchIndexedIndirect(MicroProcessor &cpu)
 void MicroProcessor::fetchIndirectIndexed(MicroProcessor &cpu)
 {
     // Fetch indirect ABL
-    cpu._reg_AB = cpu._reg_PC++;
-    cpu.read();
+    fetchOne(cpu);
 
     // Fetch ABL
     cpu._reg_AB = cpu._reg_DBB;
@@ -325,15 +271,7 @@ void MicroProcessor::fetchIndirectIndexed(MicroProcessor &cpu)
 
 void MicroProcessor::fetchAbsoluteIndirect(MicroProcessor &cpu)
 {
-    // Fetch indirect ABL
-    cpu._reg_AB = cpu._reg_PC++;
-    cpu.read();
-
-    cpu._reg_DL = cpu._reg_DBB;
-
-    // Fetch indirect ABH
-    cpu._reg_AB = cpu._reg_PC++;
-    cpu.read();
+    fetchTwo(cpu);
 
     // Fetch ABL
     cpu.setAB(cpu._reg_DBB, cpu._reg_DL);
@@ -365,6 +303,42 @@ inline void MicroProcessor::setABH(uint8_t val)
 inline void MicroProcessor::setAB(uint8_t abh, uint8_t abl)
 {
     _reg_AB = (uint16_t)abh << 8 | (uint16_t)abl;
+}
+
+inline void MicroProcessor::fetchOne(MicroProcessor &cpu)
+{
+    cpu._reg_AB = cpu._reg_PC++;
+    cpu.read();
+}
+
+inline void MicroProcessor::fetchTwo(MicroProcessor &cpu)
+{
+    cpu._reg_AB = cpu._reg_PC++;
+    cpu.read();
+
+    cpu._reg_DL = cpu._reg_DBB;
+
+    cpu._reg_AB = cpu._reg_PC++;
+    cpu.read();
+}
+
+inline void MicroProcessor::fetchIndexedZeroPage(MicroProcessor &cpu, uint8_t index)
+{
+    fetchOne(cpu);
+
+    // Fetch operand
+    cpu._reg_AB = (uint8_t)(cpu._reg_DBB + index);
+    //cpu.read();
+}
+
+inline void MicroProcessor::fetchIndexedAbsolute(MicroProcessor &cpu, uint8_t index)
+{
+    fetchTwo(cpu);
+
+    // Fetch operand
+    cpu.setAB(cpu._reg_DBB, cpu._reg_DL);
+    cpu._reg_AB += index;
+    //cpu.read();
 }
 
 } // namespace tones
