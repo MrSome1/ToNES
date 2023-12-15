@@ -53,6 +53,195 @@ void InstructionDecoder::execute()
     _operation(_cpu);
 }
 
+/* Routine Instructions */
+
+void InstructionDecoder::BRK(tones::MicroProcessor &cpu)
+{
+
+}
+
+void InstructionDecoder::JSR(tones::MicroProcessor &cpu)
+{
+
+}
+
+void InstructionDecoder::RTI(tones::MicroProcessor &cpu)
+{
+
+}
+
+void InstructionDecoder::RTS(tones::MicroProcessor &cpu)
+{
+
+}
+
+void InstructionDecoder::JMP(tones::MicroProcessor &cpu)
+{
+
+}
+
+/* Branch Instructions */
+
+void InstructionDecoder::BPL(tones::MicroProcessor &cpu)
+{
+
+}
+
+void InstructionDecoder::BMI(tones::MicroProcessor &cpu)
+{
+
+}
+
+void InstructionDecoder::BVC(tones::MicroProcessor &cpu)
+{
+
+}
+
+void InstructionDecoder::BVS(tones::MicroProcessor &cpu)
+{
+
+}
+
+void InstructionDecoder::BCC(tones::MicroProcessor &cpu)
+{
+
+}
+
+void InstructionDecoder::BCS(tones::MicroProcessor &cpu)
+{
+
+}
+
+void InstructionDecoder::BNE(tones::MicroProcessor &cpu)
+{
+
+}
+
+void InstructionDecoder::BEQ(tones::MicroProcessor &cpu)
+{
+
+}
+
+/* Stack Instructions */
+
+void InstructionDecoder::PHP(tones::MicroProcessor &cpu)
+{
+
+}
+
+void InstructionDecoder::PLP(tones::MicroProcessor &cpu)
+{
+
+}
+
+void InstructionDecoder::PHA(tones::MicroProcessor &cpu)
+{
+
+}
+
+void InstructionDecoder::PLA(tones::MicroProcessor &cpu)
+{
+
+}
+
+/* Status Instructions */
+
+void InstructionDecoder::CLC(tones::MicroProcessor &cpu)
+{
+    cpu._reg_P.set(StatusBit::Carry, false);
+}
+
+void InstructionDecoder::SEC(tones::MicroProcessor &cpu)
+{
+    cpu._reg_P.set(StatusBit::Carry, true);
+}
+
+void InstructionDecoder::CLI(tones::MicroProcessor &cpu)
+{
+    cpu._reg_P.set(StatusBit::Interupt, false);
+}
+
+void InstructionDecoder::SEI(tones::MicroProcessor &cpu)
+{
+    cpu._reg_P.set(StatusBit::Interupt, true);
+}
+
+void InstructionDecoder::CLV(tones::MicroProcessor &cpu)
+{
+    cpu._reg_P.set(StatusBit::Overflow, false);
+}
+
+void InstructionDecoder::CLD(tones::MicroProcessor &cpu)
+{
+    cpu._reg_P.set(StatusBit::Decimal, false);
+}
+
+void InstructionDecoder::SED(tones::MicroProcessor &cpu)
+{
+    cpu._reg_P.set(StatusBit::Decimal, true);
+}
+
+/* Index Instructions */
+
+void InstructionDecoder::DEY(tones::MicroProcessor &cpu)
+{
+
+}
+
+void InstructionDecoder::INY(tones::MicroProcessor &cpu)
+{
+
+}
+
+void InstructionDecoder::INX(tones::MicroProcessor &cpu)
+{
+
+}
+
+void InstructionDecoder::DEX(tones::MicroProcessor &cpu)
+{
+
+}
+
+/* Transfer Instructions */
+
+void InstructionDecoder::TYA(tones::MicroProcessor &cpu)
+{
+    cpu._alu.load(cpu._reg_Y);
+}
+
+void InstructionDecoder::TAY(tones::MicroProcessor &cpu)
+{
+    cpu._reg_Y = cpu._reg_A;
+}
+
+void InstructionDecoder::TXA(tones::MicroProcessor &cpu)
+{
+    cpu._alu.load(cpu._reg_X);
+}
+
+void InstructionDecoder::TXS(tones::MicroProcessor &cpu)
+{
+    cpu._reg_S = cpu._reg_X;
+}
+
+void InstructionDecoder::TAX(tones::MicroProcessor &cpu)
+{
+    cpu._reg_X = cpu._reg_A;
+}
+
+void InstructionDecoder::TSX(tones::MicroProcessor &cpu)
+{
+    cpu._reg_X = cpu._reg_S; // check zero and negative ???
+}
+
+/* No Operation */
+
+void InstructionDecoder::NOP(tones::MicroProcessor &cpu)
+{
+    /* Just does nothing as all, as named */
+}
+
 /* Instruction Group 0 */
 
 void InstructionDecoder::BIT(tones::MicroProcessor &cpu)
@@ -168,183 +357,6 @@ void InstructionDecoder::DEC(tones::MicroProcessor &cpu)
 }
 
 void InstructionDecoder::INC(tones::MicroProcessor &cpu)
-{
-
-}
-
-/* Un-grouped Instructions */
-
-void InstructionDecoder::BRK(tones::MicroProcessor &cpu)
-{
-
-}
-
-void InstructionDecoder::BPL(tones::MicroProcessor &cpu)
-{
-
-}
-
-void InstructionDecoder::JSR(tones::MicroProcessor &cpu)
-{
-
-}
-
-void InstructionDecoder::BMI(tones::MicroProcessor &cpu)
-{
-
-}
-
-void InstructionDecoder::RTI(tones::MicroProcessor &cpu)
-{
-
-}
-
-void InstructionDecoder::BVC(tones::MicroProcessor &cpu)
-{
-
-}
-
-void InstructionDecoder::RTS(tones::MicroProcessor &cpu)
-{
-
-}
-
-void InstructionDecoder::BVS(tones::MicroProcessor &cpu)
-{
-
-}
-
-void InstructionDecoder::BCC(tones::MicroProcessor &cpu)
-{
-
-}
-
-void InstructionDecoder::BCS(tones::MicroProcessor &cpu)
-{
-
-}
-
-void InstructionDecoder::BNE(tones::MicroProcessor &cpu)
-{
-
-}
-
-void InstructionDecoder::BEQ(tones::MicroProcessor &cpu)
-{
-
-}
-
-void InstructionDecoder::PHP(tones::MicroProcessor &cpu)
-{
-
-}
-
-void InstructionDecoder::CLC(tones::MicroProcessor &cpu)
-{
-
-}
-
-void InstructionDecoder::PLP(tones::MicroProcessor &cpu)
-{
-
-}
-
-void InstructionDecoder::SEC(tones::MicroProcessor &cpu)
-{
-
-}
-
-void InstructionDecoder::PHA(tones::MicroProcessor &cpu)
-{
-
-}
-
-void InstructionDecoder::CLI(tones::MicroProcessor &cpu)
-{
-
-}
-
-void InstructionDecoder::PLA(tones::MicroProcessor &cpu)
-{
-
-}
-
-void InstructionDecoder::SEI(tones::MicroProcessor &cpu)
-{
-
-}
-
-void InstructionDecoder::DEY(tones::MicroProcessor &cpu)
-{
-
-}
-
-void InstructionDecoder::TYA(tones::MicroProcessor &cpu)
-{
-
-}
-
-void InstructionDecoder::TAY(tones::MicroProcessor &cpu)
-{
-
-}
-
-void InstructionDecoder::CLV(tones::MicroProcessor &cpu)
-{
-
-}
-
-void InstructionDecoder::INY(tones::MicroProcessor &cpu)
-{
-
-}
-
-void InstructionDecoder::CLD(tones::MicroProcessor &cpu)
-{
-
-}
-
-void InstructionDecoder::INX(tones::MicroProcessor &cpu)
-{
-
-}
-
-void InstructionDecoder::SED(tones::MicroProcessor &cpu)
-{
-
-}
-
-void InstructionDecoder::TXA(tones::MicroProcessor &cpu)
-{
-
-}
-
-void InstructionDecoder::TXS(tones::MicroProcessor &cpu)
-{
-
-}
-
-void InstructionDecoder::TAX(tones::MicroProcessor &cpu)
-{
-
-}
-
-void InstructionDecoder::TSX(tones::MicroProcessor &cpu)
-{
-
-}
-
-void InstructionDecoder::DEX(tones::MicroProcessor &cpu)
-{
-
-}
-
-void InstructionDecoder::NOP(tones::MicroProcessor &cpu)
-{
-
-}
-
-void InstructionDecoder::JMP(tones::MicroProcessor &cpu)
 {
 
 }

@@ -29,6 +29,90 @@ public:
 
 protected:
 
+    /* Routine Instructions */
+
+    static void BRK(tones::MicroProcessor &cpu);
+
+    static void JSR(tones::MicroProcessor &cpu);
+
+    static void RTI(tones::MicroProcessor &cpu);
+
+    static void RTS(tones::MicroProcessor &cpu);
+
+    static void JMP(tones::MicroProcessor &cpu);
+
+    /* Branch Instructions */
+
+    static void BPL(tones::MicroProcessor &cpu);
+
+    static void BMI(tones::MicroProcessor &cpu);
+
+    static void BVC(tones::MicroProcessor &cpu);
+
+    static void BVS(tones::MicroProcessor &cpu);
+
+    static void BCC(tones::MicroProcessor &cpu);
+
+    static void BCS(tones::MicroProcessor &cpu);
+
+    static void BNE(tones::MicroProcessor &cpu);
+
+    static void BEQ(tones::MicroProcessor &cpu);
+
+    /* Stack Instructions */
+
+    static void PHP(tones::MicroProcessor &cpu);
+
+    static void PLP(tones::MicroProcessor &cpu);
+
+    static void PHA(tones::MicroProcessor &cpu);
+
+    static void PLA(tones::MicroProcessor &cpu);
+
+    /* Status Instructions */
+
+    static void CLC(tones::MicroProcessor &cpu);
+
+    static void SEC(tones::MicroProcessor &cpu);
+
+    static void CLI(tones::MicroProcessor &cpu);
+
+    static void SEI(tones::MicroProcessor &cpu);
+
+    static void CLV(tones::MicroProcessor &cpu);
+
+    static void CLD(tones::MicroProcessor &cpu);
+
+    static void SED(tones::MicroProcessor &cpu);
+
+    /* Index Instructions */
+
+    static void DEY(tones::MicroProcessor &cpu);
+
+    static void INY(tones::MicroProcessor &cpu);
+
+    static void INX(tones::MicroProcessor &cpu);
+
+    static void DEX(tones::MicroProcessor &cpu);
+
+    /* Transfer Instructions */
+
+    static void TYA(tones::MicroProcessor &cpu);
+
+    static void TAY(tones::MicroProcessor &cpu);
+
+    static void TXA(tones::MicroProcessor &cpu);
+
+    static void TXS(tones::MicroProcessor &cpu);
+
+    static void TAX(tones::MicroProcessor &cpu);
+
+    static void TSX(tones::MicroProcessor &cpu);
+
+    /* No Operation */
+
+    static void NOP(tones::MicroProcessor &cpu);
+
     /* Instruction Group 0 */
 
     static void BIT(tones::MicroProcessor &cpu);
@@ -76,78 +160,6 @@ protected:
     static void DEC(tones::MicroProcessor &cpu);
 
     static void INC(tones::MicroProcessor &cpu);
-
-    /* Un-grouped Instructions */
-
-    static void BRK(tones::MicroProcessor &cpu);
-
-    static void BPL(tones::MicroProcessor &cpu);
-
-    static void JSR(tones::MicroProcessor &cpu);
-
-    static void BMI(tones::MicroProcessor &cpu);
-
-    static void RTI(tones::MicroProcessor &cpu);
-
-    static void BVC(tones::MicroProcessor &cpu);
-
-    static void RTS(tones::MicroProcessor &cpu);
-
-    static void BVS(tones::MicroProcessor &cpu);
-
-    static void BCC(tones::MicroProcessor &cpu);
-
-    static void BCS(tones::MicroProcessor &cpu);
-
-    static void BNE(tones::MicroProcessor &cpu);
-
-    static void BEQ(tones::MicroProcessor &cpu);
-
-    static void PHP(tones::MicroProcessor &cpu);
-
-    static void CLC(tones::MicroProcessor &cpu);
-
-    static void PLP(tones::MicroProcessor &cpu);
-
-    static void SEC(tones::MicroProcessor &cpu);
-
-    static void PHA(tones::MicroProcessor &cpu);
-
-    static void CLI(tones::MicroProcessor &cpu);
-
-    static void PLA(tones::MicroProcessor &cpu);
-
-    static void SEI(tones::MicroProcessor &cpu);
-
-    static void DEY(tones::MicroProcessor &cpu);
-
-    static void TYA(tones::MicroProcessor &cpu);
-
-    static void TAY(tones::MicroProcessor &cpu);
-
-    static void CLV(tones::MicroProcessor &cpu);
-
-    static void INY(tones::MicroProcessor &cpu);
-
-    static void CLD(tones::MicroProcessor &cpu);
-
-    static void INX(tones::MicroProcessor &cpu);
-
-    static void SED(tones::MicroProcessor &cpu);
-
-    static void TXA(tones::MicroProcessor &cpu);
-
-    static void TXS(tones::MicroProcessor &cpu);
-
-    static void TAX(tones::MicroProcessor &cpu);
-
-    static void TSX(tones::MicroProcessor &cpu);
-
-    static void DEX(tones::MicroProcessor &cpu);
-
-    static void NOP(tones::MicroProcessor &cpu);
-
-    static void JMP(tones::MicroProcessor &cpu);
 
 private:
 

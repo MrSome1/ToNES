@@ -45,6 +45,14 @@ ArithmeticAndLogicUnit::~ArithmeticAndLogicUnit()
 
 }
 
+void ArithmeticAndLogicUnit::load(uint8_t reg)
+{
+    _reg = reg;
+    checkZero();
+    checkNegative();
+    _cpu._reg_A = _reg;
+}
+
 void ArithmeticAndLogicUnit::ORA()
 {
     _reg = _cpu._reg_DBB;

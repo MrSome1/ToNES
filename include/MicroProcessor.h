@@ -57,6 +57,9 @@ public:
     ArithmeticAndLogicUnit(tones::MicroProcessor &cpu);
     ~ArithmeticAndLogicUnit();
 
+    //! Copy another register to accumultor
+    void load(uint8_t reg);
+
     //! Operation logic 'OR'
     void ORA();
 

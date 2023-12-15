@@ -7,6 +7,31 @@
 namespace tones {
 namespace cpu {
 
+/* The Instruction Code
+ *
+ * According to the op code matrix, 6502 processors
+ * use one byte as the operation code, as bellow:
+ * 
+ *   Bit  7  6  5  4  3  2  1  0
+ *        -------  -------  ----
+ *           |        |      |
+ *           |        |      +-- Instruction Group
+ *           |        +--------- Addressing Mode
+ *           +------------------ Instruction Number
+ * 
+ * Instructions in the same group do have something
+ * in common, and share similar addressing modes.
+ * 
+ * Group 0 is especially for implied instructions,
+ * like routines, branch, stack and transfer.
+ * 
+ * Group 1 and 2 mainly hold arithmetic and logic
+ * instructions.
+ *
+ * Group 3 is totally empty by now, maybe used for
+ * some extention operations
+ */
+
 const uint8_t InstructionGroupMask = 0b00000011;
 const uint8_t InstructionGroupCount = 4;
 

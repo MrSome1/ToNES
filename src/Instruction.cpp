@@ -5,6 +5,158 @@ namespace tones {
 namespace cpu {
 namespace code {
 
+/* Routine Instructions
+ *
+ *   Total: 6
+ * 
+ *   Code Shape: 0XX0 XX00
+ */
+
+// BRK - 0000 0000
+const Instruction_t BRK_Implied = {BRK, Implied, 7};
+
+// JSR - 0010 0000
+const Instruction_t JSR_Absolute = {JSR, Absolute, 6};
+
+// RTI - 0100 0000
+const Instruction_t RTI_Implied = {BRK, Implied, 6};
+
+// RTS - 0110 0000
+const Instruction_t RTS_Implied = {RTS, Implied, 6};
+
+// JMP - 01X0 1100
+const Instruction_t JMP_ABS = {JMP, Absolute, 3};
+const Instruction_t JMP_Indirect = {JMP, AbsoluteIndirect, 5};
+
+/* Branch Instructions
+ *
+ *   Total: 8
+ * 
+ *   Code Shape: XXX1 0000
+ */
+
+// BPL - 0001 0000
+const Instruction_t BPL_Relative = {BPL, Relative, 2};
+
+// BMI - 0011 0000
+const Instruction_t BMI_Relative = {BMI, Relative, 2};
+
+// BVC - 0101 0000
+const Instruction_t BVC_Relative = {BVC, Relative, 2};
+
+// BVS - 0111 0000
+const Instruction_t BVS_Relative = {BVS, Relative, 2};
+
+// BCC - 1001 0000
+const Instruction_t BCC_Relative = {BCC, Relative, 2};
+
+// BCS - 1011 0000
+const Instruction_t BCS_Relative = {BCS, Relative, 2};
+
+// BNE - 1101 0000
+const Instruction_t BNE_Relative = {BNE, Relative, 2};
+
+// BEQ - 1111 0000
+const Instruction_t BEQ_Relative = {BEQ, Relative, 2};
+
+/* Stack Instructions
+ *
+ *   Total: 4
+ * 
+ *   Code Shape: 0XX0 1000
+ */
+
+// PHP - 0000 1000
+const Instruction_t PHP_Implied = {PHP, Implied, 3};
+
+// PLP - 0010 1000
+const Instruction_t PLP_Implied = {PLP, Implied, 4};
+
+// PHA - 0100 1000
+const Instruction_t PHA_Implied = {PHA, Implied, 3};
+
+// PLA - 0110 1000
+const Instruction_t PLA_Implied = {PLA, Implied, 4};
+
+/* 
+
+/* Status Instructions
+ *
+ *   Total: 7
+ * 
+ *   Code Shape: XXX1 1000
+ */
+
+// CLC - 0001 1000
+const Instruction_t CLC_Implied = {CLC, Implied, 2};
+
+// SEC - 0011 1000
+const Instruction_t SEC_Implied = {SEC, Implied, 2};
+
+// CLI - 0101 1000
+const Instruction_t CLI_Implied = {CLI, Implied, 2};
+
+// SEI - 0111 1000
+const Instruction_t SEI_Implied = {SEI, Implied, 2};
+
+// CLV - 1011 1000
+const Instruction_t CLV_Implied = {CLV, Implied, 2};
+
+// CLD - 1101 1000
+const Instruction_t CLD_Implied = {CLD, Implied, 2};
+
+// SED - 1111 1000
+const Instruction_t SED_Implied = {SED, Implied, 2};
+
+/* Index Instructions
+ *
+ *   Total: 4
+ * 
+ *   Code Shape: 1XX0 10X0
+ */
+
+// DEY - 1000 1000
+const Instruction_t DEY_Implied = {DEY, Implied, 2};
+
+// INY - 1100 1000
+const Instruction_t INY_Implied = {INY, Implied, 2};
+
+// INX - 1110 1000
+const Instruction_t INX_Implied = {INX, Implied, 2};
+
+// DEX - 1100 1010
+const Instruction_t DEX_Implied = {DEX, Implied, 2};
+
+/* Transfer Instructions
+ *
+ *   Total: 6
+ * 
+ *   Code Shape: 10XX 10X0
+ */
+
+// TYA - 1001 1000
+const Instruction_t TYA_Implied = {TYA, Implied, 2};
+
+// TAY - 1010 1000
+const Instruction_t TAY_Implied = {TAY, Implied, 2};
+
+// TXA - 1000 1010
+const Instruction_t TXA_Implied = {TXA, Implied, 2};
+
+// TXS - 1001 1010
+const Instruction_t TXS_Implied = {TXS, Implied, 2};
+
+// TAX - 1010 1010
+const Instruction_t TAX_Implied = {TAX, Implied, 2};
+
+// TSX - 1011 1010
+const Instruction_t TSX_Implied = {TSX, Implied, 2};
+
+/* No Operation */
+
+// NOP - 1110 1010
+const Instruction_t NOP_Implied = {NOP, Implied, 2};
+
 const Instruction_t *Null = &UnknownInstruction;
 
 /* Instruction Group 0
@@ -207,126 +359,10 @@ const Instruction_t INC_ABS   = {INC, Absolute, 6};
 const Instruction_t INC_ZP_X  = {INC, IndexedZeroPageX, 6};
 const Instruction_t INC_ABS_X = {INC, IndexedAbsoluteX, 7};
 
-/* Instruction Group 3
- * 
- * Group 3 is totally empty according to the manual of 6502
- * processor, just for future extention instructions here
- */
-
-/* Un-grouped Instructions
- *
- */
-
-// BRK
-const Instruction_t BRK_Implied = {BRK, Implied, 7};
-
-// BPL
-const Instruction_t BPL_Relative = {BPL, Relative, 2};
-
-// JSR
-const Instruction_t JSR_Absolute = {JSR, Absolute, 6};
-
-// BMI
-const Instruction_t BMI_Relative = {BMI, Relative, 2};
-
-// RTI
-const Instruction_t RTI_Implied = {BRK, Implied, 6};
-
-// BVC
-const Instruction_t BVC_Relative = {BVC, Relative, 2};
-
-// RTS
-const Instruction_t RTS_Implied = {RTS, Implied, 6};
-
-// BVS
-const Instruction_t BVS_Relative = {BVS, Relative, 2};
-
-// BCC
-const Instruction_t BCC_Relative = {BCC, Relative, 2};
-
-// BCS
-const Instruction_t BCS_Relative = {BCS, Relative, 2};
-
-// BNE
-const Instruction_t BNE_Relative = {BNE, Relative, 2};
-
-// BEQ
-const Instruction_t BEQ_Relative = {BEQ, Relative, 2};
-
-// PHP
-const Instruction_t PHP_Implied = {PHP, Implied, 3};
-
-// CLC
-const Instruction_t CLC_Implied = {CLC, Implied, 2};
-
-// PLP
-const Instruction_t PLP_Implied = {PLP, Implied, 4};
-
-// SEC
-const Instruction_t SEC_Implied = {SEC, Implied, 2};
-
-// PHA
-const Instruction_t PHA_Implied = {PHA, Implied, 3};
-
-// CLI
-const Instruction_t CLI_Implied = {CLI, Implied, 2};
-
-// PLA
-const Instruction_t PLA_Implied = {PLA, Implied, 4};
-
-// SEI
-const Instruction_t SEI_Implied = {SEI, Implied, 2};
-
-// DEY
-const Instruction_t DEY_Implied = {DEY, Implied, 2};
-
-// TYA
-const Instruction_t TYA_Implied = {TYA, Implied, 2};
-
-// TAY
-const Instruction_t TAY_Implied = {TAY, Implied, 2};
-
-// CLV
-const Instruction_t CLV_Implied = {CLV, Implied, 2};
-
-// INY
-const Instruction_t INY_Implied = {INY, Implied, 2};
-
-// CLD
-const Instruction_t CLD_Implied = {CLD, Implied, 2};
-
-// INX
-const Instruction_t INX_Implied = {INX, Implied, 2};
-
-// SED
-const Instruction_t SED_Implied = {SED, Implied, 2};
-
-// TXA
-const Instruction_t TXA_Implied = {TXA, Implied, 2};
-
-// TXS
-const Instruction_t TXS_Implied = {TXS, Implied, 2};
-
-// TAX
-const Instruction_t TAX_Implied = {TAX, Implied, 2};
-
-// TSX
-const Instruction_t TSX_Implied = {TSX, Implied, 2};
-
-// DEX
-const Instruction_t DEX_Implied = {DEX, Implied, 2};
-
-// NOP
-const Instruction_t NOP_Implied = {NOP, Implied, 2};
-
-// JMP
-const Instruction_t JMP_ABS = {JMP, Absolute, 3};
-const Instruction_t JMP_Indirect = {JMP, AbsoluteIndirect, 5};
-
-/* Instruction Set
+/* Instruction Set Op Code Matrix
  *
  * This the whole instruction set of 6502 processor, an 1:1
- * copy of the manual
+ * copy of the manual, thank god there are only 256 ones
  */
 const std::array<const Instruction_t*, InstructionSetSize> InstructionSet = {
 /*      0              1           2         3     4          5          6          7     8             9           A             B              C     D           E           F */
