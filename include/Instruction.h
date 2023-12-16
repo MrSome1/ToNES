@@ -32,22 +32,26 @@ namespace cpu {
  * some extention operations
  */
 
-const uint8_t InstructionGroupMask = 0b00000011;
+const uint8_t InstructionGroupMask = 0x3;   // 0000 0011
 const uint8_t InstructionGroupCount = 4;
 
-const uint8_t AddressingModeMask = 0b00011100;
+const uint8_t AddressingModeMask = 0x1c;    // 0001 1100
 const int AddressingModeShift = 2;
 
-const uint8_t InstructionNumberMask = 0b11100000;
+const uint8_t InstructionNumberMask = 0xe0; // 1110 0000
 const int InstructionNumberShift = 5;
 
 const int AddressingModeCount = 13;
 const int InstructionSetSize = 256;
 
+const int InstructionReadMask = 0x01;       // 0000 0001
+const int InstructionWriteMask = 0x02;      // 0000 0010
+
 namespace code {
 
 /* Addressing Mode */
 typedef enum AddressingMode {
+    Implied,          //
     Accumulator,      // Accum
     Immediate,        // IMM
     Absolute,         // ABS
@@ -56,7 +60,6 @@ typedef enum AddressingMode {
     IndexedZeroPageY, // ZP, Y
     IndexedAbsoluteX, // ABS, X
     IndexedAbsoluteY, // ABS, Y
-    Implied,          //
     Relative,         //
     IndexedIndirect,  // (IND, X)
     IndirectIndexed,  // (IND), Y
@@ -69,7 +72,7 @@ typedef enum AddressingMode {
 typedef enum InstructionName {
     ADC, // Add Memory to Accumulator with Carry
     AND, // 'AND' Memory with Accumulator
-    ASL, // Shift one Bit Left (Memory or Accumulator)
+    ASL, // Shift Left One Bit (Memory or Accumulator)
 
     BCC, // Branch on Carry Clear
     BCS, // Branch on Carry Set
@@ -106,7 +109,7 @@ typedef enum InstructionName {
     LDA, // Load Accumulator with Memory
     LDX, // Load Index X with Memory
     LDY, // Load Index Y with Memory
-    LSR, // Shift one Bit Right (Memory or Accumulator)
+    LSR, // Shift One Bit Right (Memory or Accumulator)
 
     NOP, // No Operation
 
@@ -140,9 +143,24 @@ typedef enum InstructionName {
     Unknown
 } InstructionName_t;
 
+/* Read and Write Mode
+ *
+ * This means if an instruction needs to read from or
+ * write to the main memory. This is specific for each
+ * instruction actually, so this mode was not defined
+ * explicitly in the 6502 manual, defined it here just
+ * for decoding the instructions conveniently
+ */
+typedef enum ReadWriteMode {
+    NO,
+    R,
+    W,
+    RW
+} ReadWriteMode_t;
+
 typedef struct Instruction {
     InstructionName_t name;
-    AddressingMode mode;
+    AddressingMode_t mode;
     int cycles;
 } Instruction_t;
 
@@ -152,10 +170,14 @@ const Instruction_t UnknownInstruction = {
     0
 };
 
+//! Instruction Set Op Code Matrix
 extern const std::array<const Instruction_t*, InstructionSetSize> InstructionSet;
+
+//! Read Write Mode for Each Instruction
+extern const std::array<ReadWriteMode_t, Unknown> ReadWriteModeSet;
 
 } // namespace code
 } // namespace cpu
 } // namespace tones
 
-#endif // _TONES_INSTRUCTION_H_ 
+#endif // _TONES_INSTRUCTION_H_

@@ -31,13 +31,13 @@ enum class StatusBit {
  *   N  V     B  D  I  Z  C
  */
 typedef struct StatusRegister {
-    uint8_t status;
+    uint8_t value;
 
     StatusRegister();
 
     void reset();
 
-    void set(StatusBit bit, bool value);
+    void set(StatusBit bit, bool val);
 
     bool get(StatusBit bit);
 
@@ -57,8 +57,37 @@ public:
     ArithmeticAndLogicUnit(tones::MicroProcessor &cpu);
     ~ArithmeticAndLogicUnit();
 
-    //! Copy another register to accumultor
-    void load(uint8_t reg);
+    /* One operand operations
+     *
+     * These operations only work on the accumulator
+     */
+
+    //! Increment the accumulator by one
+    void INC();
+    
+    //! Decrement the accumulator by one
+    void DEC();
+
+    //! Shift one bit left
+    void ASL();
+
+    //! Shift one bit right
+    void LSR();
+
+    //! Rotate one bit left
+    void ROL();
+
+    //! Rotate one bit right
+    void ROR();
+
+    /* Two operands operations
+     *
+     * These operations use the accumulator and the
+     * data bus buffer register simultaneously
+     */
+
+    //! Copy to the accumultor with status
+    void LDA();
 
     //! Operation logic 'OR'
     void ORA();
@@ -88,12 +117,15 @@ private:
 
     inline void checkNegative();
 
+    /* Registers refered to the cpu */
+    uint8_t &_reg_A;
+    uint8_t &_reg_DBB;
+    StatusRegister_t &_reg_P;
+
     /* Not sure if there is a real register in ALU, just
      * for convtnience to check overflow and carry here
      */
     uint16_t _reg;
-
-    tones::MicroProcessor &_cpu;
 };
 
 } // namespace cpu
@@ -120,10 +152,19 @@ protected:
     //! Write one byte to memory
     inline void write() { _bus.write(_reg_AB, _reg_DBB); };
 
-    /* Functions for addressing modes */
+    //! Push into stack
+    inline void push() { _reg_AB = _reg_S--; write(); };
 
-    //! Accum
-    static void fetchAccumulator(MicroProcessor &cpu);
+    //! Pop from stack
+    inline void pop() { _reg_AB = ++_reg_S; read(); };
+
+    //! Take the execution branch
+    inline void branch() { read(); _reg_PC += _reg_DBB; };
+
+    /* Functions for addressing modes */
+    
+    //! Dose not fetch
+    static void fetchNull(MicroProcessor &cpu);
 
     //! IMM
     static void fetchImmediate(MicroProcessor &cpu);
@@ -145,9 +186,6 @@ protected:
 
     //! ABS, Y
     static void fetchIndexedAbsoluteY(MicroProcessor &cpu);
-    
-    //! Implied
-    static void fetchImplied(MicroProcessor &cpu);
 
     //! Relative
     static void fetchRelative(MicroProcessor &cpu);
@@ -163,12 +201,11 @@ protected:
 
     /* Helper Functions */
 
-    [[deprecated]] inline void setABL(uint8_t val);
-
-    [[deprecated]] inline void setABH(uint8_t val);
-
     //! Setup the register AB with two seperate bytes
     inline void setAB(uint8_t abh, uint8_t abl);
+
+    //! Pop from stack twice, continuously
+    inline void popTwo() { pop(); _reg_DL = _reg_DBB; pop(); };
 
     /* Fetch one operand from memory
      * 

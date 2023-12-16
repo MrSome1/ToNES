@@ -39,13 +39,13 @@ InstructionDecoder::~InstructionDecoder()
 
 code::AddressingMode_t InstructionDecoder::decode()
 {
-    auto *instruction = code::InstructionSet[_cpu._reg_IR];
-    if (code::Unknown == instruction ->name) {
-        _operation = nullptr;
+    _instruction = code::InstructionSet[_cpu._reg_IR];
+    if (code::Unknown == _instruction->name) {
+        _operation = nullptr; // TODO: safe ?
     } else {
-        _operation = _operations[instruction->name];
+        _operation = _operations[_instruction->name];
     }
-    return instruction->mode;
+    return _instruction->mode;
 }
 
 void InstructionDecoder::execute()
@@ -53,95 +53,131 @@ void InstructionDecoder::execute()
     _operation(_cpu);
 }
 
+void InstructionDecoder::load()
+{
+    if (hasOperands(_instruction) && needsToLoad(_instruction))
+        _cpu.read();
+}
+
+void InstructionDecoder::save()
+{
+    if (hasOperands(_instruction) && needsToSave(_instruction))
+        _cpu.write();
+}
+
 /* Routine Instructions */
 
 void InstructionDecoder::BRK(tones::MicroProcessor &cpu)
 {
-
+    // TODO: ???
 }
 
 void InstructionDecoder::JSR(tones::MicroProcessor &cpu)
 {
-
+    // TODO: ???
+    cpu._reg_DBB = (cpu._reg_PC + 1) >> 8;
+    cpu.push();
+    cpu._reg_DBB = (cpu._reg_PC + 1);
+    cpu.push();
+    JMP(cpu);
 }
 
 void InstructionDecoder::RTI(tones::MicroProcessor &cpu)
 {
-
+    cpu.pop();
+    cpu._reg_P.value = cpu._reg_DBB;
+    cpu.popTwo();
+    JMP(cpu);
 }
 
 void InstructionDecoder::RTS(tones::MicroProcessor &cpu)
 {
-
+    cpu.popTwo();
+    JMP(cpu);
+    ++cpu._reg_PC; // TODO: ???
 }
 
 void InstructionDecoder::JMP(tones::MicroProcessor &cpu)
 {
-
+    cpu._reg_PC = cpu._reg_DBB;
+    cpu._reg_PC <<= 8;
+    cpu._reg_PC |= cpu._reg_DL;
 }
 
 /* Branch Instructions */
 
 void InstructionDecoder::BPL(tones::MicroProcessor &cpu)
 {
-
+    if (!cpu._reg_P.get(StatusBit::Negative))
+        cpu.branch();
 }
 
 void InstructionDecoder::BMI(tones::MicroProcessor &cpu)
 {
-
+    if (cpu._reg_P.get(StatusBit::Negative))
+        cpu.branch();
 }
 
 void InstructionDecoder::BVC(tones::MicroProcessor &cpu)
 {
-
+    if (!cpu._reg_P.get(StatusBit::Overflow))
+        cpu.branch();
 }
 
 void InstructionDecoder::BVS(tones::MicroProcessor &cpu)
 {
-
+    if (cpu._reg_P.get(StatusBit::Overflow))
+        cpu.branch();
 }
 
 void InstructionDecoder::BCC(tones::MicroProcessor &cpu)
 {
-
+    if (!cpu._reg_P.get(StatusBit::Carry))
+        cpu.branch();
 }
 
 void InstructionDecoder::BCS(tones::MicroProcessor &cpu)
 {
-
+    if (cpu._reg_P.get(StatusBit::Carry))
+        cpu.branch();
 }
 
 void InstructionDecoder::BNE(tones::MicroProcessor &cpu)
 {
-
+    if (!cpu._reg_P.get(StatusBit::Zero))
+        cpu.branch();
 }
 
 void InstructionDecoder::BEQ(tones::MicroProcessor &cpu)
 {
-
+    if (cpu._reg_P.get(StatusBit::Zero))
+        cpu.branch();
 }
 
 /* Stack Instructions */
 
 void InstructionDecoder::PHP(tones::MicroProcessor &cpu)
 {
-
+    cpu._reg_DBB = cpu._reg_P.value;
+    cpu.push();
 }
 
 void InstructionDecoder::PLP(tones::MicroProcessor &cpu)
 {
-
+    cpu.pop();
+    cpu._reg_P.value = cpu._reg_DBB;
 }
 
 void InstructionDecoder::PHA(tones::MicroProcessor &cpu)
 {
-
+    cpu._reg_DBB = cpu._reg_A;
+    cpu.push();
 }
 
 void InstructionDecoder::PLA(tones::MicroProcessor &cpu)
 {
-
+    cpu.pop();
+    cpu._reg_A = cpu._reg_DBB;
 }
 
 /* Status Instructions */
@@ -185,29 +221,38 @@ void InstructionDecoder::SED(tones::MicroProcessor &cpu)
 
 void InstructionDecoder::DEY(tones::MicroProcessor &cpu)
 {
-
+    cpu._reg_A = cpu._reg_Y;
+    cpu._alu.DEC();
+    cpu._reg_Y = cpu._reg_A;
 }
 
 void InstructionDecoder::INY(tones::MicroProcessor &cpu)
 {
-
+    cpu._reg_A = cpu._reg_Y;
+    cpu._alu.INC();
+    cpu._reg_Y = cpu._reg_A;
 }
 
 void InstructionDecoder::INX(tones::MicroProcessor &cpu)
 {
-
+    cpu._reg_A = cpu._reg_X;
+    cpu._alu.INC();
+    cpu._reg_X = cpu._reg_A;
 }
 
 void InstructionDecoder::DEX(tones::MicroProcessor &cpu)
 {
-
+    cpu._reg_A = cpu._reg_X;
+    cpu._alu.DEC();
+    cpu._reg_X = cpu._reg_A;
 }
 
 /* Transfer Instructions */
 
 void InstructionDecoder::TYA(tones::MicroProcessor &cpu)
 {
-    cpu._alu.load(cpu._reg_Y);
+    cpu._reg_DBB = cpu._reg_Y;
+    cpu._alu.LDA();
 }
 
 void InstructionDecoder::TAY(tones::MicroProcessor &cpu)
@@ -217,7 +262,8 @@ void InstructionDecoder::TAY(tones::MicroProcessor &cpu)
 
 void InstructionDecoder::TXA(tones::MicroProcessor &cpu)
 {
-    cpu._alu.load(cpu._reg_X);
+    cpu._reg_DBB = cpu._reg_X;
+    cpu._alu.LDA();
 }
 
 void InstructionDecoder::TXS(tones::MicroProcessor &cpu)
@@ -246,76 +292,71 @@ void InstructionDecoder::NOP(tones::MicroProcessor &cpu)
 
 void InstructionDecoder::BIT(tones::MicroProcessor &cpu)
 {
-
+    // TODO: ???
+    cpu._alu.LDA();
 }
 
 void InstructionDecoder::STY(tones::MicroProcessor &cpu)
 {
-
+    cpu._reg_DBB = cpu._reg_Y;
 }
 
 void InstructionDecoder::LDY(tones::MicroProcessor &cpu)
 {
-
+    cpu._reg_Y = cpu._reg_DBB;
 }
 
 void InstructionDecoder::CPY(tones::MicroProcessor &cpu)
 {
-
+    cpu._reg_A = cpu._reg_X;
+    cpu._alu.CMP();
 }
 
 void InstructionDecoder::CPX(tones::MicroProcessor &cpu)
 {
-
+    cpu._reg_A = cpu._reg_X;
+    cpu._alu.CMP();
 }
 
 /* Instruction Group 1 */
 
 void InstructionDecoder::ORA(tones::MicroProcessor &cpu)
 {
-    cpu.read();
     cpu._alu.ORA();
 }
 
 void InstructionDecoder::AND(tones::MicroProcessor &cpu)
 {
-    cpu.read();
     cpu._alu.AND();
 }
 
 void InstructionDecoder::EOR(tones::MicroProcessor &cpu)
 {
-    cpu.read();
     cpu._alu.EOR();
 }
 
 void InstructionDecoder::ADC(tones::MicroProcessor &cpu)
 {
-    cpu.read();
     cpu._alu.ADC();
 }
 
 void InstructionDecoder::STA(tones::MicroProcessor &cpu)
 {
     cpu._reg_DBB = cpu._reg_A;
-    cpu.write();
 }
 
 void InstructionDecoder::LDA(tones::MicroProcessor &cpu)
 {
-    cpu.read();
     cpu._reg_A = cpu._reg_DBB;
 }
 
 void InstructionDecoder::CMP(tones::MicroProcessor &cpu)
 {
-    cpu.read();
     cpu._alu.CMP();
 }
 
 void InstructionDecoder::SBC(tones::MicroProcessor &cpu)
 {
-    cpu.read();
     cpu._alu.SBC();
 }
 
@@ -323,42 +364,64 @@ void InstructionDecoder::SBC(tones::MicroProcessor &cpu)
 
 void InstructionDecoder::ASL(tones::MicroProcessor &cpu)
 {
-
+    cpu._alu.ASL();
 }
 
 void InstructionDecoder::ROL(tones::MicroProcessor &cpu)
 {
-
+    cpu._alu.ROL();
 }
 
 void InstructionDecoder::LSR(tones::MicroProcessor &cpu)
 {
-
+    cpu._alu.LSR();
 }
 
 void InstructionDecoder::ROR(tones::MicroProcessor &cpu)
 {
-
+    cpu._alu.ROR();
 }
 
 void InstructionDecoder::STX(tones::MicroProcessor &cpu)
 {
-
+    cpu._reg_DBB = cpu._reg_X;
 }
 
 void InstructionDecoder::LDX(tones::MicroProcessor &cpu)
 {
-
+    cpu._alu.LDA();
+    cpu._reg_X = cpu._reg_A;
 }
 
 void InstructionDecoder::DEC(tones::MicroProcessor &cpu)
 {
-
+    cpu._reg_A = cpu._reg_DBB;
+    cpu._alu.DEC();
+    cpu._reg_DBB = cpu._reg_A;
 }
 
 void InstructionDecoder::INC(tones::MicroProcessor &cpu)
 {
+    cpu._reg_A = cpu._reg_DBB;
+    cpu._alu.INC();
+    cpu._reg_DBB = cpu._reg_A;
+}
 
+/* Helper Functions */
+
+inline bool InstructionDecoder::hasOperands(const code::Instruction_t *instruction)
+{
+    return instruction->mode & 0xfe; // mode > Accum
+}
+
+inline bool InstructionDecoder::needsToLoad(const code::Instruction_t *instruction)
+{
+    return code::ReadWriteModeSet[instruction->name] & InstructionReadMask;
+}
+
+inline bool InstructionDecoder::needsToSave(const code::Instruction_t *instruction)
+{
+    return code::ReadWriteModeSet[instruction->name] & InstructionWriteMask;
 }
 
 } // namespace cpu

@@ -23,9 +23,17 @@ public:
     InstructionDecoder(tones::MicroProcessor &cpu);
     ~InstructionDecoder();
 
+    //! Parse the operation code
     code::AddressingMode_t decode();
 
+    //! Run the operation
     void execute();
+
+    //! Load the content of memory
+    void load();
+
+    //! Store to memory
+    void save();
 
 protected:
 
@@ -161,11 +169,19 @@ protected:
 
     static void INC(tones::MicroProcessor &cpu);
 
+    /* Helper Functions */
+
+    static inline bool hasOperands(const code::Instruction_t *instruction);
+
+    static inline bool needsToLoad(const code::Instruction_t *instruction);
+
+    static inline bool needsToSave(const code::Instruction_t *instruction);
+
 private:
 
     tones::MicroProcessor &_cpu;
 
-    code::AddressingMode_t _mode;
+    const code::Instruction_t *_instruction;
 
     std::function<void(tones::MicroProcessor&)> _operation;
 

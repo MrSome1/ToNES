@@ -5,6 +5,8 @@ namespace tones {
 namespace cpu {
 namespace code {
 
+const Instruction_t *Null = &UnknownInstruction;
+
 /* Routine Instructions
  *
  *   Total: 6
@@ -77,8 +79,6 @@ const Instruction_t PHA_Implied = {PHA, Implied, 3};
 
 // PLA - 0110 1000
 const Instruction_t PLA_Implied = {PLA, Implied, 4};
-
-/* 
 
 /* Status Instructions
  *
@@ -156,8 +156,6 @@ const Instruction_t TSX_Implied = {TSX, Implied, 2};
 
 // NOP - 1110 1010
 const Instruction_t NOP_Implied = {NOP, Implied, 2};
-
-const Instruction_t *Null = &UnknownInstruction;
 
 /* Instruction Group 0
  *
@@ -382,6 +380,78 @@ const std::array<const Instruction_t*, InstructionSetSize> InstructionSet = {
 /* D */ &BNE_Relative, &CMP_IND_Y, Null,     Null, Null,      &CMP_ZP_X, &DEC_ZP_X, Null, &CLD_Implied, &CMP_ABS_Y, Null,         &DEC_ABS_X,    Null, &CMP_ABS_X, &DEC_ABS_X, Null,
 /* E */ &CPX_IMM,      &SBC_IND_X, Null,     Null, &CPX_ZP,   &SBC_ZP  , &INC_ZP  , Null, &INX_Implied, &SBC_IMM  , &NOP_Implied, &INC_ABS,      Null, &SBC_ABS  , &INC_ABS,   Null,
 /* F */ &BEQ_Relative, &SBC_IND_Y, Null,     Null, Null,      &SBC_ZP_X, &INC_ZP_X, Null, &SED_Implied, &SBC_ABS_Y, Null,         &INC_ABS_X,    Null, &SBC_ABS_X, &INC_ABS_X, Null,
+};
+
+const std::array<ReadWriteMode_t, Unknown> ReadWriteModeSet = {
+    R,  // ADC
+    R,  // AND
+    RW, // ASL
+
+    R,  // BCC
+    R,  // BCS
+    R,  // BEQ
+    R,  // BIT
+    R,  // BMI
+    R,  // BNE
+    R,  // BPL
+    NO, // BRK
+    R,  // BVC
+    R,  // BVS
+
+    NO, // CLC
+    NO, // CLD
+    NO, // CLI
+    NO, // CLV
+    R,  // CMP
+    R,  // CPX
+    R,  // CPY
+
+    RW, // DEC
+    NO, // DEX
+    NO, // DEY
+
+    R,  // EOR
+
+    RW, // INC
+    NO, // INX
+    NO, // INY
+
+    R,  // JMP
+    R,  // JSRAddress
+
+    R,  // LDA
+    R,  // LDX
+    R,  // LDY
+    RW, // LSR
+
+    NO, // NOP
+
+    R,  // ORA
+
+    NO, // PHA
+    NO, // PHP
+    NO, // PLA
+    NO, // PLP
+
+    RW, // ROL
+    RW, // ROR
+    NO, // RTI
+    NO, // RTS
+
+    R,  // SBC
+    NO, // SEC
+    NO, // SED
+    NO, // SEI
+    W,  // STA
+    W,  // STX
+    W,  // STY
+
+    NO, // TAX
+    NO, // TAY
+    NO, // TSX
+    NO, // TXA
+    NO, // TXS
+    NO, // TYA
 };
 
 } // namespace code
