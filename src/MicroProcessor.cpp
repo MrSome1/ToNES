@@ -47,16 +47,16 @@ ArithmeticAndLogicUnit::~ArithmeticAndLogicUnit()
 
 }
 
-/* Two operands operations */
+/* One operand operations */
 
 void ArithmeticAndLogicUnit::INC()
 {
-
+    ++_reg_A;
 }
 
 void ArithmeticAndLogicUnit::DEC()
 {
-
+    --_reg_A;
 }
 
 void ArithmeticAndLogicUnit::ASL()
