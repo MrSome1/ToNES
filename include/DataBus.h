@@ -40,20 +40,24 @@ class Device
 
 public:
 
+    Device(uint16_t base, uint16_t size);
+
     virtual void attach(DataBus &bus);
 
-    virtual void read(uint8_t &buffer);
+    virtual void read(uint8_t &buffer) const;
 
     virtual void write(uint8_t data);
 
-    virtual bool contains(uint16_t addr) = 0;
+    virtual bool contains(uint16_t addr) const;
 
-    virtual void read(uint16_t address, uint8_t &buffer) = 0;
+    virtual void read(uint16_t address, uint8_t &buffer) const = 0;
 
     virtual void write(uint16_t address, uint8_t data) = 0;
 
 protected:
 
+    uint16_t _base;
+    uint16_t _size;
     DataBus *_bus;
 };
 

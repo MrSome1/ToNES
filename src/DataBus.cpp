@@ -5,12 +5,20 @@ namespace tones {
 
 /* Device */
 
+Device::Device(uint16_t base, uint16_t size)
+    : _base(base)
+    , _size(size)
+    , _bus(nullptr)
+{
+
+}
+
 void Device::attach(DataBus &bus)
 {
     _bus = &bus;
 }
 
-void Device::read(uint8_t &buffer)
+void Device::read(uint8_t &buffer) const
 {
     if (contains(_bus->address()))
         read(_bus->address(), buffer);
@@ -20,6 +28,11 @@ void Device::write(uint8_t data)
 {
     if (contains(_bus->address()))
         write(_bus->address(), data);
+}
+
+bool Device::contains(uint16_t addr) const
+{
+    return (addr >= _base) && (addr < _base + _size);
 }
 
 /* DataBus */
