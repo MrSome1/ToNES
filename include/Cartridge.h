@@ -7,25 +7,35 @@
 #include <string>
 #include <memory>
 
+#include "Device.h"
+
 namespace tones {
 namespace rom {
 
 const int PrgRomBanckSize = 0x4000; // 16kB
 const int ChrRomBanckSize = 0x2000; // 8kB
 
+/* Cartridge File Format */
+extern const char *iNES;
+/* TODO: Other formats */
+
 /* Abstraction of game cartridges */
-class Cartridge
+class CartridgeReader
 {
 public:
 
+    virtual ~CartridgeReader();
+
     //! Load from a file
-    virtual bool loadFile(const std::string &path) = 0;
+    virtual bool load(const std::string &path) = 0;
+
+    virtual int mapper() const = 0;
 
     //! Get the content of PRG-ROM
-    virtual const std::vector<uint8_t> &getPrgRom() const;
+    virtual const std::vector<uint8_t> &prgRom() const;
 
     //! Get the content of CHR-ROM
-    virtual const std::vector<uint8_t> &getChrRom() const;
+    virtual const std::vector<uint8_t> &chrRom() const;
 
 protected:
 
@@ -34,7 +44,7 @@ protected:
     std::vector<uint8_t> _chr_rom; // content of CHR-ROM
 };
 
-class iNESCartridge: public Cartridge
+class iNESReader: public CartridgeReader
 {
     static const uint32_t MagicNumber = 0x1a53454e;  // "NES^Z" 
 
@@ -47,7 +57,7 @@ class iNESCartridge: public Cartridge
                              // bit 1: 1 for SRAM at $6000-$7FFF
                              // bit 2: 1 for a 512-byte trainer at $7000-$71FF
                              // bit 3: 1 for a four-screen VRAM layout
-                             // bit 4-7: four higher bits of ROM Mapper Type
+                             // bit 4-7: four lower bits of ROM Mapper Type
         uint8_t ctrl2;       // bit 0: 1 for VS-System cartridges
                              // bit 1-3: reserved, must be zeroes
                              // bit 4-7: four higher bits of ROM Mapper Type
@@ -59,26 +69,65 @@ class iNESCartridge: public Cartridge
 
 public:
 
-    iNESCartridge();
+    iNESReader();
 
-    bool loadFile(const std::string &path);
+    bool load(const std::string &path) override;
+
+    int mapper() const override;
 
 protected:
 
     bool validate(const Header &header);
+
+private:
+
+    Header_t _header;
 };
 
 } // namespace rom
 
+class CartridgeFactory;
+
 /**
  * @brief Loader of Cartridges
  */
-class CartridgeReader
+class Cartridge
 {
+public:
+
+    void attach(Bus &bus);
+
+protected:
+
+    Cartridge();
 
 private:
 
-    std::shared_ptr<rom::Cartridge> _card;
+    friend class CartridgeFactory;
+
+    std::unique_ptr<ReadOnlyMemory> _rom;
+
+    std::unique_ptr<rom::CartridgeReader> _reader;
+
+    std::unique_ptr<MemoryManagementController> _mapper;
+};
+
+typedef std::shared_ptr<Cartridge> CartridgePtr;
+
+class CartridgeFactory
+{
+
+public:
+
+    static CartridgePtr createCartridge(const std::string &path);
+
+protected:
+
+    static rom::CartridgeReader *getReader(const std::string &format);
+
+    static MemoryManagementController *getMapper(int mapper);
+
+    static const std::string getFileExtension(const std::string &path);
 };
 
 } // namespace tones

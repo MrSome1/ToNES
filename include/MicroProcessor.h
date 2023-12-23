@@ -7,7 +7,7 @@
 
 #include "Instruction.h"
 #include "InstructionDecoder.h"
-#include "DataBus.h"
+#include "Device.h"
 
 namespace tones {
 namespace cpu {
@@ -139,7 +139,7 @@ class MicroProcessor
 
 public:
 
-    MicroProcessor(DataBus &bus);
+    MicroProcessor(Bus &bus);
     ~MicroProcessor();
 
     void step();
@@ -251,7 +251,7 @@ private:
     cpu::InstructionDecoder _decoder;
     cpu::ArithmeticAndLogicUnit _alu;
 
-    DataBus &_bus;
+    Bus &_bus;
 
     static std::array<std::function<void(MicroProcessor&)>, cpu::AddressingModeCount> _fetchers;
 };

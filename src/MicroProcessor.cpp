@@ -185,7 +185,7 @@ MicroProcessor::_fetchers = {
     fetchAbsoluteIndirect,
 };
 
-MicroProcessor::MicroProcessor(DataBus &bus)
+MicroProcessor::MicroProcessor(Bus &bus)
     : _decoder(*this)
     , _alu(*this)
     , _bus(bus)
