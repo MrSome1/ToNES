@@ -50,12 +50,6 @@ public:
     Bus();
     ~Bus();
 
-    //! Mount a device
-    void attach(Device &device);
-
-    //! Unmount a device
-    void detach(Device &device);
-
     //! Abstraction of the Address Bus
     uint16_t address() const;
 
@@ -64,6 +58,16 @@ public:
 
     //! Abstraction of the Data Bus, with Control Bus of write mode
     void write(uint16_t address, uint8_t data);
+
+protected:
+
+    friend class Device;
+
+    //! Mount a device
+    void attach(Device *device);
+
+    //! Unmount a device
+    void detach(Device *device);
 
 private:
 
@@ -79,9 +83,7 @@ public:
 
     virtual void attach(Bus &bus);
 
-    virtual void read(uint8_t &buffer) const;
-
-    virtual void write(uint8_t data);
+    virtual void detach();
 
     virtual bool contains(uint16_t addr) const = 0;
 
@@ -90,6 +92,12 @@ public:
     virtual void write(uint16_t address, uint8_t data) = 0;
 
 protected:
+
+    friend class Bus;
+
+    virtual void read(uint8_t &buffer) const;
+
+    virtual void write(uint8_t data);
 
     Bus *_bus;
 };

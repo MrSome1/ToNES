@@ -97,6 +97,8 @@ public:
 
     void attach(Bus &bus);
 
+    void detach();
+
 protected:
 
     Cartridge();

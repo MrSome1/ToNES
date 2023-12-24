@@ -12,6 +12,10 @@
 namespace tones {
 namespace cpu {
 
+// TODO: Where is this mentioned
+const uint16_t ResetVector = 0xfffc;
+const uint8_t DefaultStatus = 0x24; // 0010 0100
+
 enum class StatusBit {
     Carry,    // C
     Zero,     // Z
@@ -139,10 +143,24 @@ class MicroProcessor
 
 public:
 
+    /* Accessible registers of CPU */
+    typedef struct Registers {
+        uint8_t A;   // accumulator
+        uint8_t X;   // index register X
+        uint8_t Y;   // index register Y
+        uint8_t S;   // program counter
+        uint8_t P;   // status register
+        uint16_t PC; // stack pointer
+    } Registers_t;
+
     MicroProcessor(Bus &bus);
     ~MicroProcessor();
 
+    void reset();
+
     void step();
+
+    void dump(Registers_t &registers) const;
 
 protected:
 
@@ -201,8 +219,8 @@ protected:
 
     /* Helper Functions */
 
-    //! Setup the register AB with two seperate bytes
-    inline void setAB(uint8_t abh, uint8_t abl);
+    //! Setup a address register(AB or PC) with two seperate bytes
+    static inline void setAddress(uint16_t &reg, uint8_t msb, uint8_t lsb);
 
     //! Pop from stack twice, continuously
     inline void popTwo() { pop(); _reg_DL = _reg_DBB; pop(); };
@@ -235,7 +253,7 @@ private:
 
     /* Programmable Registers */
     uint8_t _reg_A;   // accumulator
-    uint8_t _reg_X;   // index register Y
+    uint8_t _reg_X;   // index register X
     uint8_t _reg_Y;   // index register Y
     uint8_t _reg_S;   // program counter
     uint16_t _reg_PC; // stack pointer

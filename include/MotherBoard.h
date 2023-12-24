@@ -35,10 +35,28 @@ public:
 
     MotherBoard();
 
+    void reset();
+
+    void start();
+
+    void pause();
+
+    void mount(CartridgePtr &card);
+
+    void unmount();
+
+    /* Debug APIs */
+
+    void dumpCPU();
+
 private:
+
     Bus _bus;
+
     MicroProcessor _cpu;
+
     RandomAccessMemory _ram;
+
     CartridgePtr _card;
 };
 

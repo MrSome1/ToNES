@@ -3,6 +3,7 @@
 #include <fstream>
 
 #include "Cartridge.h"
+#include "Log.h"
 
 namespace tones {
 namespace rom {
@@ -34,12 +35,12 @@ bool iNESReader::load(const std::string &path)
     std::ifstream file(path, std::ios_base::binary | std::ios_base::in);
 
     if (!file) {
-        std::cerr << "Could not open ROM file from path: " << path << std::endl;
+        LOG_ERROR() << "Failed to open ROM file " << path;
         return false;
     }
 
     if (!file.read(reinterpret_cast<char *>(&_header), 16)) {
-        std::cerr << "Reading iNES header failed." << std::endl;
+        LOG_ERROR() << "Failed to read header from " << path;
         return false;
     }
 
@@ -50,7 +51,7 @@ bool iNESReader::load(const std::string &path)
     // Load PRG-ROM
     _prg_rom.resize(_header.prg * PrgRomBanckSize);
     if (!file.read((char*)_prg_rom.data(), _prg_rom.size())) {
-        std::cerr << "Reading PRG-ROM failed." << std::endl;
+        LOG_ERROR() << "Failed to load PRG-ROM from " << path;
         return false;
     }
 
@@ -58,7 +59,7 @@ bool iNESReader::load(const std::string &path)
     if (_header.chr) {
         _chr_rom.resize(_header.chr * ChrRomBanckSize);
         if (!file.read((char*)_chr_rom.data(), _chr_rom.size())) {
-            std::cerr << "Reading CHR-ROM failed." << std::endl;
+            LOG_ERROR() << "Failed to load CHR-ROM from " << path;
             return false;
         }
     }
@@ -75,19 +76,19 @@ int iNESReader::mapper() const
 bool iNESReader::validate(const Header &header)
 {
     if (header.magic != MagicNumber) {
-        std::cerr << "Not a valid iNES image" << std::endl;
+        LOG_ERROR() << "Invalid iNES image";
         return false;
     }
 
     if (!header.prg) {
-        std::cerr << "ROM has no PRG-ROM banks. Loading ROM failed." << std::endl;
+        LOG_ERROR() << "No PRG-ROM banks found";
         return false;
     }
 
     // TODO: Trainer
 
     if (header.ctrl1 & 0x4) {
-        std::cerr << "Trainer is not supported." << std::endl;
+        LOG_ERROR() << "Trainer is not supported yet";
         return false;
     }
 
@@ -105,6 +106,11 @@ Cartridge::Cartridge() {}
 void Cartridge::attach(Bus &bus)
 {
     _rom->attach(bus);
+}
+
+void Cartridge::detach()
+{
+    _rom->detach();
 }
 
 /* CartridgeFactory */

@@ -9,21 +9,6 @@ Bus::Bus() {}
 
 Bus::~Bus() {}
 
-void Bus::attach(Device &device)
-{
-    _devices.push_back(&device);
-}
-
-void Bus::detach(Device &device)
-{
-    for (auto it = _devices.begin(); it != _devices.end(); ++it) {
-        if (&device == *it) {
-            _devices.erase(it);
-            break;
-        }
-    }
-}
-
 uint16_t Bus::address() const
 {
     return _address;
@@ -43,11 +28,33 @@ void Bus::write(uint16_t address, uint8_t data)
         (*it)->write(data);
 }
 
+void Bus::attach(Device *device)
+{
+    _devices.push_back(device);
+}
+
+void Bus::detach(Device *device)
+{
+    for (auto it = _devices.begin(); it != _devices.end(); ++it) {
+        if (*it == device) {
+            _devices.erase(it);
+            break;
+        }
+    }
+}
+
 /* Device */
 
 void Device::attach(Bus &bus)
 {
     _bus = &bus;
+    _bus->attach(this);
+}
+
+void Device::detach()
+{
+    _bus->detach(this);
+    _bus = nullptr;
 }
 
 void Device::read(uint8_t &buffer) const
