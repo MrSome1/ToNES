@@ -19,11 +19,7 @@ void StatusRegister::reset()
 void StatusRegister::set(StatusBit bit, bool val)
 {
     uint8_t mask = 0x01 << static_cast<int>(bit);    
-    if (val) {
-        value |= mask;
-    } else {
-        value &= ~mask;
-    }
+    val ? value |= mask : value &= ~mask;
 }
 
 bool StatusRegister::get(StatusBit bit)

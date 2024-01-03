@@ -102,7 +102,7 @@ bool ReadOnlyMemory::contains(uint16_t addr) const
 
 void ReadOnlyMemory::read(uint16_t address, uint8_t &buffer) const
 {
-    buffer = _memory[_base + address];
+    buffer = _memory[address - RomLowerBankBase + _base];
 }
 
 void ReadOnlyMemory::write(uint16_t address, uint8_t data)

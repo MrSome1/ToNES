@@ -10,9 +10,11 @@ int main(int argc, char* argv[]) {
     auto card = tones::CartridgeFactory::createCartridge(filename);
 
     tones::MotherBoard board;
-    board.reset();
 
     board.mount(card);
+
+    board.reset();
+
     board.start();
 
     return 0;

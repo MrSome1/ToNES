@@ -54,6 +54,7 @@ bool iNESReader::load(const std::string &path)
         LOG_ERROR() << "Failed to load PRG-ROM from " << path;
         return false;
     }
+    LOG_DEBUG() << "16KB PRG-ROM Banks: " << (int)_header.prg;
 
     // Load CHR-ROM
     if (_header.chr) {
@@ -63,6 +64,7 @@ bool iNESReader::load(const std::string &path)
             return false;
         }
     }
+    LOG_DEBUG() << "8KB CHR-ROM Banks: " << (int)_header.chr;
 
     return true;
 }
