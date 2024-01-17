@@ -18,8 +18,9 @@
 #ifndef _TONES_MOTHERBOARD_H_
 #define _TONES_MOTHERBOARD_H_
 
-#include "MicroProcessor.h"
 #include "Device.h"
+#include "MicroProcessor.h"
+#include "PictureProcessingUnit.h"
 #include "Cartridge.h"
 
 namespace tones {
@@ -51,9 +52,13 @@ public:
 
 private:
 
-    Bus _bus;
+    Bus _bus; // Bus of CPU
+
+    Bus _vbus; // Bus of PPU
 
     MicroProcessor _cpu;
+
+    PictureProcessingUnit _ppu;
 
     RandomAccessMemory _ram;
 

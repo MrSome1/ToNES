@@ -158,7 +158,7 @@ public:
 
     void reset();
 
-    void step();
+    void tick();
 
     void dump(Registers_t &registers) const;
 
@@ -220,7 +220,7 @@ protected:
     /* Helper Functions */
 
     //! Setup a address register(AB or PC) with two seperate bytes
-    static inline void setAddress(uint16_t &reg, uint8_t msb, uint8_t lsb);
+    // static inline void setAddress(uint16_t &reg, uint8_t msb, uint8_t lsb);
 
     //! Pop from stack twice, continuously
     inline void popTwo() { pop(); _reg_DL = _reg_DBB; pop(); };

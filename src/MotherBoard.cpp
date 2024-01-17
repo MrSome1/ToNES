@@ -10,8 +10,10 @@ namespace tones {
 
 MotherBoard::MotherBoard() 
     : _cpu(_bus)
+    , _ppu(_vbus)
 {
     _ram.attach(_bus);
+    _ppu.attach(_bus);
 }
 
 void MotherBoard::reset()
@@ -25,7 +27,7 @@ void MotherBoard::start()
     std::cout << "First Run" << std::endl;
 
     for (int i = 0; i < 4; ++i) {
-        _cpu.step();
+        _cpu.tick();
         dumpCPU();
     }
 }
