@@ -4,6 +4,7 @@
 #include <cinttypes>
 
 namespace tones {
+namespace reg {
 
 inline void setBit(uint8_t &byte, int bit, bool val) {
     uint8_t mask = 0x01 << bit;    
@@ -12,6 +13,16 @@ inline void setBit(uint8_t &byte, int bit, bool val) {
 
 inline bool getBit(uint8_t byte, int bit) {
     return byte & (0x01 << bit);
+}
+
+inline void setMSB(uint8_t &value, uint8_t msb)
+{
+
+}
+
+inline void setLSB(uint8_t &value, uint8_t lsb)
+{
+
 }
 
 inline void mergeTwoBytes(uint16_t &value, uint8_t msb, uint8_t lsb)
@@ -25,6 +36,7 @@ inline void splitTwoBytes(uint16_t value, uint8_t &msb, uint8_t &lsb)
     msb = value & 0xff00 >> 8;
 }
 
+} // namespace reg
 } // namespace tones
 
 #endif // _TONES_UTILS_H_

@@ -165,19 +165,19 @@ public:
 protected:
 
     //! Read one byte from memory
-    inline void read() { _bus.read(_reg_AB, _reg_DBB); };
+    inline void read() { _bus.read(_reg_AB, _reg_DBB); }
 
     //! Write one byte to memory
-    inline void write() { _bus.write(_reg_AB, _reg_DBB); };
+    inline void write() { _bus.write(_reg_AB, _reg_DBB); }
 
     //! Push into stack
-    inline void push() { _reg_AB = _reg_S--; write(); };
+    inline void push() { _reg_AB = _reg_S--; write(); }
 
     //! Pop from stack
-    inline void pop() { _reg_AB = ++_reg_S; read(); };
+    inline void pop() { _reg_AB = ++_reg_S; read(); }
 
     //! Take the execution branch
-    inline void branch() { read(); _reg_PC += _reg_DBB; };
+    inline void branch() { read(); _reg_PC += _reg_DBB; }
 
     /* Functions for addressing modes */
     

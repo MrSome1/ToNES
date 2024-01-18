@@ -1,6 +1,6 @@
 
 #include "MicroProcessor.h"
-#include "utils.h"
+#include "Register.h"
 
 namespace tones {
 namespace cpu {
@@ -19,12 +19,12 @@ void StatusRegister::reset()
 
 void StatusRegister::set(StatusBit bit, bool val)
 {
-    setBit(value, static_cast<int>(bit), val);
+    reg::setBit(value, static_cast<int>(bit), val);
 }
 
 bool StatusRegister::get(StatusBit bit)
 {
-    return getBit(value, static_cast<int>(bit));
+    return reg::getBit(value, static_cast<int>(bit));
 }
 
 /* ArithmeticAndLogicUnit */
@@ -198,7 +198,7 @@ void MicroProcessor::reset()
     // Load PC from reset vector
     _reg_PC = cpu::ResetVector;
     fetchTwo(*this);
-    mergeTwoBytes(_reg_PC, _reg_DBB, _reg_DL);
+    reg::mergeTwoBytes(_reg_PC, _reg_DBB, _reg_DL);
 }
 
 void MicroProcessor::tick()
@@ -240,7 +240,7 @@ void MicroProcessor::fetchImmediate(MicroProcessor &cpu)
 void MicroProcessor::fetchAbsolute(MicroProcessor &cpu)
 {
     fetchTwo(cpu);
-    mergeTwoBytes(cpu._reg_AB, cpu._reg_DBB, cpu._reg_DL);
+    reg::mergeTwoBytes(cpu._reg_AB, cpu._reg_DBB, cpu._reg_DL);
 }
 
 void MicroProcessor::fetchZeroPage(MicroProcessor &cpu)
@@ -288,7 +288,7 @@ void MicroProcessor::fetchIndexedIndirect(MicroProcessor &cpu)
     ++cpu._reg_AB;
     cpu.read();
 
-    mergeTwoBytes(cpu._reg_AB, cpu._reg_DBB, cpu._reg_DL);
+    reg::mergeTwoBytes(cpu._reg_AB, cpu._reg_DBB, cpu._reg_DL);
 }
 
 void MicroProcessor::fetchIndirectIndexed(MicroProcessor &cpu)
@@ -305,7 +305,7 @@ void MicroProcessor::fetchIndirectIndexed(MicroProcessor &cpu)
     ++cpu._reg_AB;
     cpu.read();
 
-    mergeTwoBytes(cpu._reg_AB, cpu._reg_DBB, cpu._reg_DL);
+    reg::mergeTwoBytes(cpu._reg_AB, cpu._reg_DBB, cpu._reg_DL);
     cpu._reg_AB += cpu._reg_Y;
 }
 
@@ -314,7 +314,7 @@ void MicroProcessor::fetchAbsoluteIndirect(MicroProcessor &cpu)
     fetchTwo(cpu);
 
     // Fetch ABL
-    mergeTwoBytes(cpu._reg_AB, cpu._reg_DBB, cpu._reg_DL);
+    reg::mergeTwoBytes(cpu._reg_AB, cpu._reg_DBB, cpu._reg_DL);
     cpu.read();
 
     cpu._reg_DL = cpu._reg_DBB;
@@ -323,7 +323,7 @@ void MicroProcessor::fetchAbsoluteIndirect(MicroProcessor &cpu)
     ++cpu._reg_AB;
     cpu.read();
 
-    mergeTwoBytes(cpu._reg_AB, cpu._reg_DBB, cpu._reg_DL);
+    reg::mergeTwoBytes(cpu._reg_AB, cpu._reg_DBB, cpu._reg_DL);
 }
 
 inline void MicroProcessor::fetchOne(MicroProcessor &cpu)
@@ -352,7 +352,7 @@ inline void MicroProcessor::fetchIndexedZeroPage(MicroProcessor &cpu, uint8_t in
 inline void MicroProcessor::fetchIndexedAbsolute(MicroProcessor &cpu, uint8_t index)
 {
     fetchTwo(cpu);
-    mergeTwoBytes(cpu._reg_AB, cpu._reg_DBB, cpu._reg_DL);
+    reg::mergeTwoBytes(cpu._reg_AB, cpu._reg_DBB, cpu._reg_DL);
     cpu._reg_AB += index;
 }
 
