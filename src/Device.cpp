@@ -89,6 +89,28 @@ void RandomAccessMemory::write(uint16_t address, uint8_t data)
     _memory[address & RamMask] = data;
 }
 
+/* VideoRandomAccessMemory */
+
+VideoRandomAccessMemory::VideoRandomAccessMemory()
+{
+
+}
+
+bool VideoRandomAccessMemory::contains(uint16_t addr) const
+{
+    return false; // TODO
+}
+
+void VideoRandomAccessMemory::read(uint16_t address, uint8_t &buffer) const
+{
+    /* TODO */
+}
+
+void VideoRandomAccessMemory::write(uint16_t address, uint8_t data)
+{
+    /* TODO */
+}
+
 /* ReadOnlyMemory */
 
 ReadOnlyMemory::ReadOnlyMemory(const std::vector<uint8_t> &memory)
@@ -108,6 +130,26 @@ void ReadOnlyMemory::read(uint16_t address, uint8_t &buffer) const
 void ReadOnlyMemory::write(uint16_t address, uint8_t data)
 {
     /* Just do nothing at all*/
+}
+
+/* PatternTalbe */
+
+PatternTables::PatternTables(const std::vector<uint8_t> &memory)
+    : _memory(memory) {}
+
+bool PatternTables::contains(uint16_t addr) const
+{
+    return addr < TotalSize;
+}
+
+void PatternTables::read(uint16_t address, uint8_t &buffer) const
+{
+    buffer = _memory[address + _base];
+}
+
+void PatternTables::write(uint16_t address, uint8_t data)
+{
+    /* TODO */
 }
 
 } // namespace tones

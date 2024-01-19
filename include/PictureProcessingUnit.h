@@ -6,8 +6,9 @@
 namespace tones {
 namespace ppu {
 
-const uint16_t RegisterAddressMask = 0x07; // 0000 0111
-const uint16_t VramAddressMask = 0x3fff;   // 0011 1111 1111 1111
+const int SpriteMemorySize = 0x100;         // 256
+const uint16_t RegisterAddressMask = 0x07;  // 0000 0111
+const uint16_t VramAddressMask = 0x3fff;    // 0011 1111 1111 1111
 
 /* MMIO Register */
 typedef enum Register {
@@ -104,6 +105,12 @@ protected:
     //! Write one byte to VRAM
     inline void write() { _vbus.write(_reg_V, _reg_DL); }
 
+    /* OAM Accessing */
+
+    inline void readOAM() { _reg_DL = _OAM[_reg_OAMADDR++]; }
+
+    inline void writeOAM() { _OAM[_reg_OAMADDR] = _reg_DL; }
+
     /* Register Accessing */
 
     void readPPUSTATUS();
@@ -135,7 +142,8 @@ private:
     /* MMIO Registers */
     ppu::Controller_t _reg_CTRL;
     ppu::Mask_t _reg_MASK;
-    ppu::Status_t reg_STATUS;
+    ppu::Status_t _reg_STATUS;
+    uint8_t _reg_OAMADDR;
     Registers _registers;
 
     /* Internal Registers */
@@ -144,6 +152,9 @@ private:
     uint8_t _reg_X;  // fine-x position
     uint8_t _reg_W;  // write toggle
     uint8_t _reg_DL; // data latch
+
+    /* Object Attribute Memory */
+    uint8_t _OAM[ppu::SpriteMemorySize];
 };
 
 } // namespace tones

@@ -1,29 +1,39 @@
-/* CPU Memory Map
+/**
+ *  CPU Memory Map                                     PPU Memory Map
  *
- * ------------------------------------- $10000
- *    Cartridge   | PRG-ROM Upper Bank
- *                +--------------------- $C000
- *     PRG-ROM    | PRG-ROM Lower Bank
- * ---------------+--------------------- $8000
- *      SRAM      | Cartridge Save RAM
- * ---------------+--------------------- $6000
- *  Expansion ROM |
- * ---------------+--------------------- $4020
- *                | I/O Registers
- *                +--------------------- $4000
- *  I/O Registers | Mirrors $2000-$2007
- *                +--------------------- $2008
- *                | I/O Registers
- * ---------------+--------------------- $2000
- *                | Mirrors $0000-$07FF
- *                +--------------------- $0800
- *                | RAM
- *       RAM      +--------------------- $0200
- *                | Stack
- *                +--------------------- $0100
- *                | Zero Page
- * ------------------------------------- $0000
+ * ------------------------------------- $10000        ------------------------------------- $10000
+ *    Cartridge   | PRG-ROM Upper Bank                     Mirrors    | Mirrors $0000-$3FFF
+ *                +--------------------- $C000         ---------------+--------------------- $4000
+ *     PRG-ROM    | PRG-ROM Lower Bank                                | Mirrors $2000-$2007
+ * ---------------+--------------------- $8000                        +--------------------- $3F20
+ *      SRAM      | Cartridge Save RAM                     Palettes   | I/O Registers
+ * ---------------+--------------------- $6000                        +--------------------- $3F10
+ *  Expansion ROM |                                                   | I/O Registers
+ * ---------------+--------------------- $4020         ---------------+--------------------- $3F00
+ *                | I/O Registers                                     | Mirrors $2000-$2EFF
+ *                +--------------------- $4000                        +--------------------- $3000
+ *  I/O Registers | Mirrors $2000-$2007                               | Attribute Table 3
+ *                +--------------------- $2008                        +--------------------- $2FC0
+ *                | I/O Registers                                     | Name Table 3
+ * ---------------+--------------------- $2000                        +--------------------- $2C00
+ *                | Mirrors $0000-$07FF                               | Attribute Table 2
+ *                +--------------------- $0800                        +--------------------- $2BC0
+ *                | RAM                                               | Name Table 2
+ *       RAM      +--------------------- $0200           Name Tables  +--------------------- $2800
+ *                | Stack                                             | Attribute Table 1
+ *                +--------------------- $0100                        +--------------------- $27C0
+ *                | Zero Page                                         | Name Table 1
+ * ------------------------------------- $0000                        +--------------------- $2400
+ *                                                                    | Attribute Table 0
+ *                                                                    +--------------------- $23C0
+ *                                                                    | Name Table 0
+ *                                                     ------------------------------------- $2000
+ *                                                         Pattern    | Pattern Table 1
+ *                                                                    +--------------------- $1000
+ *                                                          Tables    | Pattern Table 0
+ *                                                     ------------------------------------- $0000
  */
+
 
 #ifndef _TONES_DATABUS_H_
 #define _TONES_DATABUS_H_
@@ -104,6 +114,8 @@ protected:
 
 /**
  * @brief RAM
+ * 
+ * Main memory of CPU
  */
 class RandomAccessMemory: public Device
 {
@@ -126,7 +138,32 @@ private:
 };
 
 /**
+ * @brief VRAM
+ * 
+ * Memory of PPU
+ */
+class VideoRandomAccessMemory: public Device
+{
+
+public:
+
+    VideoRandomAccessMemory();
+
+    bool contains(uint16_t addr) const override;
+
+    void read(uint16_t address, uint8_t &buffer) const override;
+
+    void write(uint16_t address, uint8_t data) override;
+
+private:
+
+    std::vector<uint8_t> _memory;
+};
+
+/**
  * @brief ROM
+ * 
+ * PRG-ROM of CPU
  */
 class ReadOnlyMemory: public Device
 {
@@ -136,6 +173,34 @@ class ReadOnlyMemory: public Device
 public:
 
     ReadOnlyMemory(const std::vector<uint8_t> &memory);
+
+    bool contains(uint16_t addr) const override;
+
+    void read(uint16_t address, uint8_t &buffer) const override;
+
+    void write(uint16_t address, uint8_t data) override;
+
+private:
+
+    uint16_t _base;
+
+    const std::vector<uint8_t> &_memory;
+};
+
+/**
+ * @brief PPU Pattern Tables
+ * 
+ * Mapped by a CHR-ROM or CHR-RAM of a cartridge
+ */
+class PatternTables: public Device
+{
+    static const uint16_t TableSize = 0x1000;
+    static const uint16_t TotalSize = 0x2000;
+    static const int TableCount = 2;
+
+public:
+
+    PatternTables(const std::vector<uint8_t> &memory);
 
     bool contains(uint16_t addr) const override;
 
