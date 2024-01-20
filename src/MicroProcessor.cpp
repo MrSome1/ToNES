@@ -5,28 +5,6 @@
 namespace tones {
 namespace cpu {
 
-/* StatusRegister */
-
-StatusRegister::StatusRegister()
-{
-    reset();
-}
-
-void StatusRegister::reset()
-{
-    value = DefaultStatus;
-}
-
-void StatusRegister::set(StatusBit bit, bool val)
-{
-    reg::setBit(value, static_cast<int>(bit), val);
-}
-
-bool StatusRegister::get(StatusBit bit)
-{
-    return reg::getBit(value, static_cast<int>(bit));
-}
-
 /* ArithmeticAndLogicUnit */
 
 ArithmeticAndLogicUnit::ArithmeticAndLogicUnit(tones::MicroProcessor &cpu)
@@ -141,22 +119,22 @@ void ArithmeticAndLogicUnit::CMP()
 
 inline void ArithmeticAndLogicUnit::checkCarry()
 {
-    _reg_P.set(StatusBit::Zero, _reg & 0x0100); // ???
+    SET_BIT(_reg_P, StatusBit::Z, _reg & 0x0100); // TODO
 }
 
 inline void ArithmeticAndLogicUnit::checkZero()
 {
-    _reg_P.set(StatusBit::Zero, !_reg);
+    SET_BIT(_reg_P, StatusBit::Z, !_reg);
 }
 
 inline void ArithmeticAndLogicUnit::checkOverflow()
 {
-    _reg_P.set(StatusBit::Overflow, _reg & 0x0100); // ???
+    SET_BIT(_reg_P, StatusBit::O, _reg & 0x0100); // TODO
 }
 
 inline void ArithmeticAndLogicUnit::checkNegative()
 {
-    _reg_P.set(StatusBit::Negative, _reg & 0x8000);
+    SET_BIT(_reg_P, StatusBit::N, _reg & 0x8000);
 }
 
 } // namespace cpu
@@ -193,7 +171,7 @@ void MicroProcessor::reset()
     _reg_X = 0;
     _reg_Y = 0;
     _reg_S = 0xfd; // TODO: Where is this mentioned
-    _reg_P.reset();
+    _reg_P = cpu::DefaultStatus;
 
     // Load PC from reset vector
     _reg_PC = cpu::ResetVector;
@@ -224,8 +202,8 @@ void MicroProcessor::dump(Registers_t &registers) const
     registers.X = _reg_X;
     registers.Y = _reg_Y;
     registers.S = _reg_S;
-    registers.P = _reg_P.value;
     registers.PC = _reg_PC;
+    registers.P = _reg_P.value;
 }
 
 void MicroProcessor::fetchNull(MicroProcessor &cpu) {

@@ -8,6 +8,7 @@
 #include "Instruction.h"
 #include "InstructionDecoder.h"
 #include "Device.h"
+#include "Register.h"
 
 namespace tones {
 namespace cpu {
@@ -16,36 +17,23 @@ namespace cpu {
 const uint16_t ResetVector = 0xfffc;
 const uint8_t DefaultStatus = 0x24; // 0010 0100
 
-enum class StatusBit {
-    Carry,    // C
-    Zero,     // Z
-    Interupt, // I
-    Decimal,  // D
-    Break,    // B
-    Null,
-    Overflow, // V
-    Negative  // N
-};
-
 /**
  * @brief Processor Status Register
  * 
  * Bit Map:
  *   7  6  5  4  3  2  1  0
- *   N  V     B  D  I  Z  C
+ *   N  V  .  B  D  I  Z  C
  */
-typedef struct StatusRegister {
-    uint8_t value;
-
-    StatusRegister();
-
-    void reset();
-
-    void set(StatusBit bit, bool val);
-
-    bool get(StatusBit bit);
-
-} StatusRegister_t;
+enum class StatusBit {
+    C, // Carry
+    Z, // Zero
+    I, // Interupt
+    D, // Decimal
+    B, // Break
+    n, // Null
+    O, // Overflow
+    N, // Negative
+};
 
 class MicroProcessor;
 
@@ -124,7 +112,8 @@ private:
     /* Registers refered to the cpu */
     uint8_t &_reg_A;
     uint8_t &_reg_DBB;
-    StatusRegister_t &_reg_P;
+    // StatusRegister_t &_reg_P;
+    reg::Bitwise_t &_reg_P;
 
     /* Not sure if there is a real register in ALU, just
      * for convtnience to check overflow and carry here
@@ -219,9 +208,6 @@ protected:
 
     /* Helper Functions */
 
-    //! Setup a address register(AB or PC) with two seperate bytes
-    // static inline void setAddress(uint16_t &reg, uint8_t msb, uint8_t lsb);
-
     //! Pop from stack twice, continuously
     inline void popTwo() { pop(); _reg_DL = _reg_DBB; pop(); };
 
@@ -264,7 +250,7 @@ private:
     uint8_t _reg_DBB; // data bus buffer
     uint16_t _reg_AB; // adress buffer
 
-    cpu::StatusRegister_t _reg_P; // processor status register
+    reg::Bitwise_t _reg_P; // processor status register
 
     cpu::InstructionDecoder _decoder;
     cpu::ArithmeticAndLogicUnit _alu;

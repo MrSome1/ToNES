@@ -85,7 +85,7 @@ void InstructionDecoder::JSR(tones::MicroProcessor &cpu)
 void InstructionDecoder::RTI(tones::MicroProcessor &cpu)
 {
     cpu.pop();
-    cpu._reg_P.value = cpu._reg_DBB;
+    cpu._reg_P = cpu._reg_DBB;
     cpu.popTwo();
     JMP(cpu);
 }
@@ -108,49 +108,49 @@ void InstructionDecoder::JMP(tones::MicroProcessor &cpu)
 
 void InstructionDecoder::BPL(tones::MicroProcessor &cpu)
 {
-    if (!cpu._reg_P.get(StatusBit::Negative))
+    if (!GET_BIT(cpu._reg_P, StatusBit::N))
         cpu.branch();
 }
 
 void InstructionDecoder::BMI(tones::MicroProcessor &cpu)
 {
-    if (cpu._reg_P.get(StatusBit::Negative))
+    if (GET_BIT(cpu._reg_P, StatusBit::N))
         cpu.branch();
 }
 
 void InstructionDecoder::BVC(tones::MicroProcessor &cpu)
 {
-    if (!cpu._reg_P.get(StatusBit::Overflow))
+    if (!GET_BIT(cpu._reg_P, StatusBit::O))
         cpu.branch();
 }
 
 void InstructionDecoder::BVS(tones::MicroProcessor &cpu)
 {
-    if (cpu._reg_P.get(StatusBit::Overflow))
+    if (GET_BIT(cpu._reg_P, StatusBit::O))
         cpu.branch();
 }
 
 void InstructionDecoder::BCC(tones::MicroProcessor &cpu)
 {
-    if (!cpu._reg_P.get(StatusBit::Carry))
+    if (!GET_BIT(cpu._reg_P, StatusBit::C))
         cpu.branch();
 }
 
 void InstructionDecoder::BCS(tones::MicroProcessor &cpu)
 {
-    if (cpu._reg_P.get(StatusBit::Carry))
+    if (GET_BIT(cpu._reg_P, StatusBit::C))
         cpu.branch();
 }
 
 void InstructionDecoder::BNE(tones::MicroProcessor &cpu)
 {
-    if (!cpu._reg_P.get(StatusBit::Zero))
+    if (!GET_BIT(cpu._reg_P, StatusBit::Z))
         cpu.branch();
 }
 
 void InstructionDecoder::BEQ(tones::MicroProcessor &cpu)
 {
-    if (cpu._reg_P.get(StatusBit::Zero))
+    if (GET_BIT(cpu._reg_P, StatusBit::Z))
         cpu.branch();
 }
 
@@ -165,7 +165,7 @@ void InstructionDecoder::PHP(tones::MicroProcessor &cpu)
 void InstructionDecoder::PLP(tones::MicroProcessor &cpu)
 {
     cpu.pop();
-    cpu._reg_P.value = cpu._reg_DBB;
+    cpu._reg_P = cpu._reg_DBB;
 }
 
 void InstructionDecoder::PHA(tones::MicroProcessor &cpu)
@@ -184,37 +184,37 @@ void InstructionDecoder::PLA(tones::MicroProcessor &cpu)
 
 void InstructionDecoder::CLC(tones::MicroProcessor &cpu)
 {
-    cpu._reg_P.set(StatusBit::Carry, false);
+    SET_BIT(cpu._reg_P, StatusBit::C, false);
 }
 
 void InstructionDecoder::SEC(tones::MicroProcessor &cpu)
 {
-    cpu._reg_P.set(StatusBit::Carry, true);
+    SET_BIT(cpu._reg_P, StatusBit::C, true);
 }
 
 void InstructionDecoder::CLI(tones::MicroProcessor &cpu)
 {
-    cpu._reg_P.set(StatusBit::Interupt, false);
+    SET_BIT(cpu._reg_P, StatusBit::I, false);
 }
 
 void InstructionDecoder::SEI(tones::MicroProcessor &cpu)
 {
-    cpu._reg_P.set(StatusBit::Interupt, true);
+    SET_BIT(cpu._reg_P, StatusBit::I, true);
 }
 
 void InstructionDecoder::CLV(tones::MicroProcessor &cpu)
 {
-    cpu._reg_P.set(StatusBit::Overflow, false);
+    SET_BIT(cpu._reg_P, StatusBit::O, false);
 }
 
 void InstructionDecoder::CLD(tones::MicroProcessor &cpu)
 {
-    cpu._reg_P.set(StatusBit::Decimal, false);
+    SET_BIT(cpu._reg_P, StatusBit::D, false);
 }
 
 void InstructionDecoder::SED(tones::MicroProcessor &cpu)
 {
-    cpu._reg_P.set(StatusBit::Decimal, true);
+    SET_BIT(cpu._reg_P, StatusBit::D, true);
 }
 
 /* Index Instructions */
