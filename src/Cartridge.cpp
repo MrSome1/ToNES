@@ -105,9 +105,14 @@ bool iNESReader::validate(const Header &header)
 
 Cartridge::Cartridge() {}
 
-void Cartridge::attach(Bus &bus)
+void Cartridge::attachMainBus(Bus &bus)
 {
     _rom->attach(bus);
+}
+
+void Cartridge::attachVideoBus(Bus &vbus)
+{
+    _vrom->attach(vbus);
 }
 
 void Cartridge::detach()
@@ -127,9 +132,11 @@ CartridgePtr CartridgeFactory::createCartridge(const std::string &path)
     auto mapper = getMapper(reader->mapper());
 
     auto rom = new ReadOnlyMemory(reader->prgRom());
+    auto vrom = new PatternTables(reader->chrRom());
 
     auto card = CartridgePtr(new Cartridge);
     card->_rom = std::unique_ptr<ReadOnlyMemory>(rom);
+    card->_vrom = std::unique_ptr<PatternTables>(vrom);
     card->_reader = std::unique_ptr<rom::CartridgeReader>(reader);
     card->_mapper = std::unique_ptr<MemoryManagementController>(mapper);
 

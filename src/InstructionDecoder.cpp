@@ -158,7 +158,7 @@ void InstructionDecoder::BEQ(tones::MicroProcessor &cpu)
 
 void InstructionDecoder::PHP(tones::MicroProcessor &cpu)
 {
-    cpu._reg_DBB = cpu._reg_P.value;
+    cpu._reg_DBB = cpu._reg_P;
     cpu.push();
 }
 

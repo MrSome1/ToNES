@@ -14,6 +14,7 @@ MotherBoard::MotherBoard()
 {
     _ram.attach(_bus);
     _ppu.attach(_bus);
+    _vram.attach(_vbus);
 }
 
 void MotherBoard::reset()
@@ -37,13 +38,14 @@ void MotherBoard::pause()
     /* TODO */
 }
 
-void MotherBoard::mount(CartridgePtr &card)
+void MotherBoard::insert(CartridgePtr &card)
 {
     _card = card;
-    _card->attach(_bus);
+    _card->attachMainBus(_bus);
+    _card->attachVideoBus(_vbus);
 }
 
-void MotherBoard::unmount()
+void MotherBoard::eject()
 {
     _card->detach();
     _card.reset();

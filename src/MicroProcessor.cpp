@@ -202,8 +202,8 @@ void MicroProcessor::dump(Registers_t &registers) const
     registers.X = _reg_X;
     registers.Y = _reg_Y;
     registers.S = _reg_S;
+    registers.P = _reg_P;
     registers.PC = _reg_PC;
-    registers.P = _reg_P.value;
 }
 
 void MicroProcessor::fetchNull(MicroProcessor &cpu) {

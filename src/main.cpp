@@ -11,7 +11,7 @@ int main(int argc, char* argv[]) {
 
     tones::MotherBoard board;
 
-    board.mount(card);
+    board.insert(card);
 
     board.reset();
 

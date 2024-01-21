@@ -7,13 +7,12 @@
 namespace tones {
 namespace ppu {
 
-const int SpriteMemorySize = 0x100;         // 256
-const uint16_t RegisterAddressMask = 0x07;  // 0000 0111
-const uint16_t VramAddressMask = 0x3fff;    // 0011 1111 1111 1111
+const int VramAddressMask  = 0x3fff; // 0011 1111 1111 1111
+const int SpriteMemorySize = 0x100;  // 256
 
 /* MMIO Register */
 typedef enum Register {
-    PPUCTRL     = 0x2000,
+    PPUCTRL,   // 0x2000
     PPUMASK,   // 0x2001
     PPUSTATUS, // 0x2002
     OAMADDR,   // 0x2003
@@ -113,19 +112,26 @@ public:
 
     void attach(Bus &bus);
 
+    void reset();
+
     void tick();
 
 protected:
 
+    //! Next address of VRAM
+    inline void next() {
+        _reg_V += GET_BIT(_reg_CTRL, ppu::ControllerBit::I) ? 0x20 : 0x01;
+    }
+
     //! Read one byte from VRAM
-    inline void read() { _vbus.read(_reg_V++, _reg_DBB); } // TODO: ++?
+    inline void read() { _vbus.read(_reg_V, _reg_DBB); }
 
     //! Write one byte to VRAM
-    inline void write() { _vbus.write(_reg_V, _reg_DBB); } // TODO: ++?
+    inline void write() { _vbus.write(_reg_V, _reg_DBB); } 
 
     /* OAM Accessing */
 
-    inline void readOAM() { _reg_DBB = _OAM[_reg_OAMADDR++]; }
+    inline void readOAM() { _reg_DBB = _OAM[_reg_OAMADDR]; }
 
     inline void writeOAM() { _OAM[_reg_OAMADDR] = _reg_DBB; }
 
@@ -133,9 +139,9 @@ protected:
 
     void readPPUSTATUS();
 
-    // void readOAMDATA();
+    void readOAMDATA();
 
-    // void readPPUDATA();
+    void readPPUDATA();
 
     void writePPUCTRL();
 
@@ -143,13 +149,13 @@ protected:
 
     void writeOAMADDR();
 
-    // void writeOAMDATA();
+    void writeOAMDATA();
 
     void writePPUSCROLL();
 
     void writePPUADDR();
 
-    // void writePPUDATA();
+    void writePPUDATA();
 
 private:
 
@@ -158,10 +164,10 @@ private:
     Bus &_vbus;
 
     /* MMIO Registers */
-    reg::Bitwise_t _reg_CTRL;
-    reg::Bitwise_t _reg_MASK;
-    reg::Bitwise_t _reg_STATUS;
-    uint8_t _reg_OAMADDR;
+    Bitwise_t _reg_CTRL;
+    Bitwise_t _reg_MASK;
+    Bitwise_t _reg_STATUS;
+    uint8_t   _reg_OAMADDR;
     Registers _registers;
 
     /* Internal Registers */

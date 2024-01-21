@@ -113,7 +113,7 @@ private:
     uint8_t &_reg_A;
     uint8_t &_reg_DBB;
     // StatusRegister_t &_reg_P;
-    reg::Bitwise_t &_reg_P;
+    Bitwise_t &_reg_P;
 
     /* Not sure if there is a real register in ALU, just
      * for convtnience to check overflow and carry here
@@ -250,7 +250,7 @@ private:
     uint8_t _reg_DBB; // data bus buffer
     uint16_t _reg_AB; // adress buffer
 
-    reg::Bitwise_t _reg_P; // processor status register
+    Bitwise_t _reg_P; // processor status register
 
     cpu::InstructionDecoder _decoder;
     cpu::ArithmeticAndLogicUnit _alu;

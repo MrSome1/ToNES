@@ -112,6 +112,8 @@ protected:
     Bus *_bus;
 };
 
+/* Devices of CPU */
+
 /**
  * @brief RAM
  * 
@@ -119,35 +121,13 @@ protected:
  */
 class RandomAccessMemory: public Device
 {
-    static const uint16_t RamSize = 0x2000;
-    static const uint16_t RamMask = 0x07ff; // for mirroring 4 times
+    static const int RamSize = 0x0800; // 2KB
+    static const int RamMask = 0x07ff;
+    static const int RamUpperBound = 0x2000;
 
 public:
 
     RandomAccessMemory();
-
-    bool contains(uint16_t addr) const override;
-
-    void read(uint16_t address, uint8_t &buffer) const override;
-
-    void write(uint16_t address, uint8_t data) override;
-
-private:
-
-    std::vector<uint8_t> _memory;
-};
-
-/**
- * @brief VRAM
- * 
- * Memory of PPU
- */
-class VideoRandomAccessMemory: public Device
-{
-
-public:
-
-    VideoRandomAccessMemory();
 
     bool contains(uint16_t addr) const override;
 
@@ -167,8 +147,9 @@ private:
  */
 class ReadOnlyMemory: public Device
 {
-    static const uint16_t RomLowerBankBase = 0x8000;
-    static const uint16_t RomUpperBankBase = 0xC000;
+    static const int RomLowerBankBase = 0x8000;
+    static const int RomUpperBankBase = 0xC000;
+    static const int RomBankCount = 2; // 4KB * 2
 
 public:
 
@@ -187,6 +168,41 @@ private:
     const std::vector<uint8_t> &_memory;
 };
 
+/* For PPU MMIO Registers */
+const int PpuMmioLowerBound  = 0x2000;
+const int PpuMmioUpperBound  = 0x4000;
+const int PpuMmioAddressMask = 0x07;   // 0000 0111
+
+/* Devices of PPU */
+
+/**
+ * @brief VRAM
+ * 
+ * Memory of PPU
+ */
+class VideoRandomAccessMemory: public Device
+{
+
+    static const int VramSize = 0x0800; // 2KB
+    static const int VramMask = 0x07ff;
+    static const int VramLowerBound = 0x2000;
+    static const int VramUpperBound = 0x3F00;
+
+public:
+
+    VideoRandomAccessMemory();
+
+    bool contains(uint16_t addr) const override;
+
+    void read(uint16_t address, uint8_t &buffer) const override;
+
+    void write(uint16_t address, uint8_t data) override;
+
+private:
+
+    std::vector<uint8_t> _memory;
+};
+
 /**
  * @brief PPU Pattern Tables
  * 
@@ -194,9 +210,9 @@ private:
  */
 class PatternTables: public Device
 {
-    static const uint16_t TableSize = 0x1000;
-    static const uint16_t TotalSize = 0x2000;
-    static const int TableCount = 2;
+    static const int TableSize = 0x1000;
+    static const int TotalSize = 0x2000;
+    static const int TableCount = 2; // 4KB * 2
 
 public:
 
@@ -214,6 +230,8 @@ private:
 
     const std::vector<uint8_t> &_memory;
 };
+
+/* Memory Mapper */
 
 /**
  * @brief MMC

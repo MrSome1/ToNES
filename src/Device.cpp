@@ -72,11 +72,11 @@ void Device::write(uint8_t data)
 /* RandomAccessMemory */
 
 RandomAccessMemory::RandomAccessMemory()
-    : _memory(RamMask + 1, 0) {}
+    : _memory(RamSize, 0) {}
 
 bool RandomAccessMemory::contains(uint16_t addr) const
 {
-    return addr < RamSize;
+    return addr < RamUpperBound;
 }
 
 void RandomAccessMemory::read(uint16_t address, uint8_t &buffer) const
@@ -87,28 +87,6 @@ void RandomAccessMemory::read(uint16_t address, uint8_t &buffer) const
 void RandomAccessMemory::write(uint16_t address, uint8_t data)
 {
     _memory[address & RamMask] = data;
-}
-
-/* VideoRandomAccessMemory */
-
-VideoRandomAccessMemory::VideoRandomAccessMemory()
-{
-
-}
-
-bool VideoRandomAccessMemory::contains(uint16_t addr) const
-{
-    return false; // TODO
-}
-
-void VideoRandomAccessMemory::read(uint16_t address, uint8_t &buffer) const
-{
-    /* TODO */
-}
-
-void VideoRandomAccessMemory::write(uint16_t address, uint8_t data)
-{
-    /* TODO */
 }
 
 /* ReadOnlyMemory */
@@ -130,6 +108,26 @@ void ReadOnlyMemory::read(uint16_t address, uint8_t &buffer) const
 void ReadOnlyMemory::write(uint16_t address, uint8_t data)
 {
     /* Just do nothing at all*/
+}
+
+/* VideoRandomAccessMemory */
+
+VideoRandomAccessMemory::VideoRandomAccessMemory()
+    : _memory(VramSize, 0) {}
+
+bool VideoRandomAccessMemory::contains(uint16_t addr) const
+{
+    return addr >= VramLowerBound && addr < VramUpperBound;
+}
+
+void VideoRandomAccessMemory::read(uint16_t address, uint8_t &buffer) const
+{
+    buffer = _memory[address & VramMask];
+}
+
+void VideoRandomAccessMemory::write(uint16_t address, uint8_t data)
+{
+    _memory[address & VramMask] = data;
 }
 
 /* PatternTalbe */

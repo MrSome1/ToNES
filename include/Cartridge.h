@@ -95,8 +95,13 @@ class Cartridge
 {
 public:
 
-    void attach(Bus &bus);
+    //! Attach to CPU Bus
+    void attachMainBus(Bus &bus);
 
+    //! Attach to PPU Bus
+    void attachVideoBus(Bus &vbus);
+
+    //! Detach from all
     void detach();
 
 protected:
@@ -108,6 +113,8 @@ private:
     friend class CartridgeFactory;
 
     std::unique_ptr<ReadOnlyMemory> _rom;
+
+    std::unique_ptr<PatternTables> _vrom;
 
     std::unique_ptr<rom::CartridgeReader> _reader;
 

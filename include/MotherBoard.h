@@ -42,9 +42,9 @@ public:
 
     void pause();
 
-    void mount(CartridgePtr &card);
+    void insert(CartridgePtr &card);
 
-    void unmount();
+    void eject();
 
     /* Debug APIs */
 
@@ -61,6 +61,8 @@ private:
     PictureProcessingUnit _ppu;
 
     RandomAccessMemory _ram;
+
+    VideoRandomAccessMemory _vram;
 
     CartridgePtr _card;
 };

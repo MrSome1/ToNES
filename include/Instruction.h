@@ -32,20 +32,20 @@ namespace cpu {
  * some extention operations
  */
 
-const uint8_t InstructionGroupMask = 0x3;   // 0000 0011
-const uint8_t InstructionGroupCount = 4;
+const int InstructionGroupMask  = 0x3;   // 0000 0011
+const int InstructionGroupCount = 4;
 
-const uint8_t AddressingModeMask = 0x1c;    // 0001 1100
+const int AddressingModeMask  = 0x1c;    // 0001 1100
 const int AddressingModeShift = 2;
 
-const uint8_t InstructionNumberMask = 0xe0; // 1110 0000
+const int InstructionNumberMask  = 0xe0; // 1110 0000
 const int InstructionNumberShift = 5;
 
 const int AddressingModeCount = 13;
-const int InstructionSetSize = 256;
+const int InstructionSetSize  = 256;
 
-const int InstructionReadMask = 0x01;       // 0000 0001
-const int InstructionWriteMask = 0x02;      // 0000 0010
+const int InstructionReadMask  = 0x01;   // 0000 0001
+const int InstructionWriteMask = 0x02;   // 0000 0010
 
 namespace code {
 

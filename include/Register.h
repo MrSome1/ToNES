@@ -5,46 +5,19 @@
 #include <cinttypes>
 
 #define GET_BIT(bitwise, bit) \
-    (std::get<static_cast<int>(bit)>(bitwise.bits))
+    tones::reg::getBit(bitwise, static_cast<int>(bit))
 
 #define SET_BIT(bitwise, bit, val) \
-    (std::get<static_cast<int>(bit)>(bitwise.bits) = val)
+    tones::reg::setBit(bitwise, static_cast<int>(bit), val)
+
+/* Bit Addressing Register */
+typedef uint8_t Bitwise_t;
 
 namespace tones {
 namespace reg {
 
 const int RegisterBitCount = 8U;
 const int AddressBitCount = 16U;
-
-inline bool getBit(uint8_t byte, int bit);
-inline void setBit(uint8_t &byte, int bit, bool val);
-
-/* Bit Addressing Register */
-typedef struct Bitwize {
-
-    uint8_t value;
-    std::array<bool, RegisterBitCount> bits;
-
-    void setBit(int bit, bool val)
-    {
-        tones::reg::setBit(value, bit, val);
-        bits.at(bit) = val;
-    }
-
-    void operator=(uint8_t val)
-    {
-        value = val;
-        for (int i = 0; i < RegisterBitCount; ++i)
-            bits[i] = tones::reg::getBit(val, i);
-    }
-
-    void operator=(const Bitwize &other)
-    {
-        value = other.value;
-        bits = other.bits;
-    }
-
-} Bitwise_t;
 
 inline void setBit(uint8_t &byte, int bit, bool val)
 {
