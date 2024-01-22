@@ -72,7 +72,7 @@ void PictureProcessingUnit::tick()
 void PictureProcessingUnit::readPPUSTATUS()
 {
     _reg_DBB = _reg_STATUS;
-    SET_BIT(_reg_STATUS, StatusBit::V, 0);
+    CLR_BIT(_reg_STATUS, StatusBit::V);
     _reg_W = 0;
 }
 

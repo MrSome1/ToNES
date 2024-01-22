@@ -7,6 +7,12 @@
 #define GET_BIT(bitwise, bit) \
     tones::reg::getBit(bitwise, static_cast<int>(bit))
 
+#define SEL_BIT(bitwise, bit) \
+    tones::reg::setBit(bitwise, static_cast<int>(bit), true)
+
+#define CLR_BIT(bitwise, bit) \
+    tones::reg::setBit(bitwise, static_cast<int>(bit), false)
+
 #define SET_BIT(bitwise, bit, val) \
     tones::reg::setBit(bitwise, static_cast<int>(bit), val)
 

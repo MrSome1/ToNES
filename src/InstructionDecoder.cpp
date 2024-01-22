@@ -184,37 +184,37 @@ void InstructionDecoder::PLA(tones::MicroProcessor &cpu)
 
 void InstructionDecoder::CLC(tones::MicroProcessor &cpu)
 {
-    SET_BIT(cpu._reg_P, StatusBit::C, false);
+    CLR_BIT(cpu._reg_P, StatusBit::C);
 }
 
 void InstructionDecoder::SEC(tones::MicroProcessor &cpu)
 {
-    SET_BIT(cpu._reg_P, StatusBit::C, true);
+    SEL_BIT(cpu._reg_P, StatusBit::C);
 }
 
 void InstructionDecoder::CLI(tones::MicroProcessor &cpu)
 {
-    SET_BIT(cpu._reg_P, StatusBit::I, false);
+    CLR_BIT(cpu._reg_P, StatusBit::I);
 }
 
 void InstructionDecoder::SEI(tones::MicroProcessor &cpu)
 {
-    SET_BIT(cpu._reg_P, StatusBit::I, true);
+    SEL_BIT(cpu._reg_P, StatusBit::I);
 }
 
 void InstructionDecoder::CLV(tones::MicroProcessor &cpu)
 {
-    SET_BIT(cpu._reg_P, StatusBit::O, false);
+    CLR_BIT(cpu._reg_P, StatusBit::O);
 }
 
 void InstructionDecoder::CLD(tones::MicroProcessor &cpu)
 {
-    SET_BIT(cpu._reg_P, StatusBit::D, false);
+    CLR_BIT(cpu._reg_P, StatusBit::D);
 }
 
 void InstructionDecoder::SED(tones::MicroProcessor &cpu)
 {
-    SET_BIT(cpu._reg_P, StatusBit::D, true);
+    SEL_BIT(cpu._reg_P, StatusBit::D);
 }
 
 /* Index Instructions */
