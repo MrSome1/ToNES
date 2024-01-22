@@ -164,17 +164,14 @@ typedef struct Instruction {
     int cycles;
 } Instruction_t;
 
-const Instruction_t UnknownInstruction = {
-    Unknown,
-    Invalid,
-    0
-};
+//! The Unknown Instruction
+extern const Instruction_t UnknownInstruction;
 
 //! Instruction Set Op Code Matrix
 extern const std::array<const Instruction_t*, InstructionSetSize> InstructionSet;
 
 //! Read Write Mode for Each Instruction
-extern const std::array<ReadWriteMode_t, Unknown> ReadWriteModeSet;
+extern const std::array<ReadWriteMode_t, Unknown + 1> ReadWriteModeSet;
 
 } // namespace code
 } // namespace cpu

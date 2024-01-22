@@ -5,6 +5,12 @@ namespace tones {
 namespace cpu {
 namespace code {
 
+const Instruction_t UnknownInstruction = {
+    Unknown,
+    Invalid,
+    0
+};
+
 const Instruction_t *Null = &UnknownInstruction;
 
 /* Routine Instructions
@@ -382,7 +388,7 @@ const std::array<const Instruction_t*, InstructionSetSize> InstructionSet = {
 /* F */ &BEQ_Relative, &SBC_IND_Y, Null,     Null, Null,      &SBC_ZP_X, &INC_ZP_X, Null, &SED_Implied, &SBC_ABS_Y, Null,         &INC_ABS_X,    Null, &SBC_ABS_X, &INC_ABS_X, Null,
 };
 
-const std::array<ReadWriteMode_t, Unknown> ReadWriteModeSet = {
+const std::array<ReadWriteMode_t, Unknown + 1> ReadWriteModeSet = {
     R,  // ADC
     R,  // AND
     RW, // ASL
@@ -452,6 +458,8 @@ const std::array<ReadWriteMode_t, Unknown> ReadWriteModeSet = {
     NO, // TXA
     NO, // TXS
     NO, // TYA
+
+    NO, // Unknown
 };
 
 } // namespace code

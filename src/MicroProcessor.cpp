@@ -141,7 +141,7 @@ inline void ArithmeticAndLogicUnit::checkNegative()
 
 /* MicroProcessor */
 
-std::array<std::function<void(MicroProcessor&)>, cpu::AddressingModeCount>
+const std::array<MicroProcessor::Fetcher, cpu::code::Invalid + 1>
 MicroProcessor::_fetchers = {
     fetchNull, 
     fetchNull,
@@ -156,6 +156,7 @@ MicroProcessor::_fetchers = {
     fetchIndexedIndirect,
     fetchIndirectIndexed,
     fetchAbsoluteIndirect,
+    fetchNull, // for adrressing mode Invalid
 };
 
 MicroProcessor::MicroProcessor(Bus &bus)
@@ -186,9 +187,10 @@ void MicroProcessor::tick()
     read();
     _reg_IR = _reg_DBB;
 
+    _decoder.decode();
+
     // Fetch oprands
-    int mode = _decoder.decode();
-    _fetchers[mode](*this);
+    _fetchers[_decoder.mode()](*this);
 
     // Execute
     _decoder.load();

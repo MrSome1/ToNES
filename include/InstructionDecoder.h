@@ -2,7 +2,6 @@
 #define _TONES_INSTRUCTIONDECODER_H_
 
 #include <array>
-#include <functional>
 
 #include "Instruction.h"
 
@@ -11,6 +10,8 @@ namespace tones {
 class MicroProcessor;
 
 namespace cpu {
+
+typedef void (*Operation_t)(tones::MicroProcessor&);
 
 /**
  * @brief Instruction Decoder
@@ -23,8 +24,11 @@ public:
     InstructionDecoder(tones::MicroProcessor &cpu);
     ~InstructionDecoder();
 
+    //! Current adrressing mode
+    code::AddressingMode_t mode() const;
+
     //! Parse the operation code
-    code::AddressingMode_t decode();
+    void decode();
 
     //! Run the operation
     void execute();
@@ -171,11 +175,11 @@ protected:
 
     /* Helper Functions */
 
-    static inline bool hasOperands(const code::Instruction_t *instruction);
+    static bool hasOperands(const code::Instruction_t *instruction);
 
-    static inline bool needsToLoad(const code::Instruction_t *instruction);
+    static bool needsToLoad(const code::Instruction_t *instruction);
 
-    static inline bool needsToSave(const code::Instruction_t *instruction);
+    static bool needsToSave(const code::Instruction_t *instruction);
 
 private:
 
@@ -183,11 +187,23 @@ private:
 
     const code::Instruction_t *_instruction;
 
-    std::function<void(tones::MicroProcessor&)> _operation;
-
-    static const std::array<std::function<void(tones::MicroProcessor&)>,
-                            code::Unknown> _operations;
+    static const std::array<Operation_t, code::Unknown + 1> _operations;
 };
+
+inline bool InstructionDecoder::hasOperands(const code::Instruction_t *instruction)
+{
+    return instruction->mode & 0xfe; // mode > Accum
+}
+
+inline bool InstructionDecoder::needsToLoad(const code::Instruction_t *instruction)
+{
+    return code::ReadWriteModeSet[instruction->name] & InstructionReadMask;
+}
+
+inline bool InstructionDecoder::needsToSave(const code::Instruction_t *instruction)
+{
+    return code::ReadWriteModeSet[instruction->name] & InstructionWriteMask;
+}
 
 } // namespace cpu
 } // namespace tones

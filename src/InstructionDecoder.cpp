@@ -8,8 +8,7 @@
 namespace tones {
 namespace cpu {
 
-const std::array<std::function<void(tones::MicroProcessor&)>, code::Unknown>
-InstructionDecoder::_operations = {
+const std::array<Operation_t, code::Unknown + 1> InstructionDecoder::_operations = {
     ADC, AND, ASL,
     BCC, BCS, BEQ, BIT, BMI, BNE, BPL, BRK, BVC, BVS,
     CLC, CLD, CLI, CLV, CMP, CPX, CPY,
@@ -24,10 +23,13 @@ InstructionDecoder::_operations = {
     ROL, ROR, RTI, RTS,
     SBC, SEC, SED, SEI, STA, STX, STY,
     TAX, TAY, TSX, TXA, TXS, TYA,
+
+    NOP // for instruction Unknown
 };
 
 InstructionDecoder::InstructionDecoder(tones::MicroProcessor &cpu)
     : _cpu(cpu)
+    , _instruction(&cpu::code::UnknownInstruction)
 {
 
 }
@@ -37,20 +39,19 @@ InstructionDecoder::~InstructionDecoder()
 
 }
 
-code::AddressingMode_t InstructionDecoder::decode()
+code::AddressingMode_t InstructionDecoder::mode() const
+{
+    return _instruction->mode;
+}
+
+void InstructionDecoder::decode()
 {
     _instruction = code::InstructionSet[_cpu._reg_IR];
-    if (code::Unknown == _instruction->name) {
-        _operation = nullptr; // TODO: safe ?
-    } else {
-        _operation = _operations[_instruction->name];
-    }
-    return _instruction->mode;
 }
 
 void InstructionDecoder::execute()
 {
-    _operation(_cpu);
+    _operations[_instruction->name](_cpu);
 }
 
 void InstructionDecoder::load()
@@ -405,23 +406,6 @@ void InstructionDecoder::INC(tones::MicroProcessor &cpu)
     cpu._reg_A = cpu._reg_DBB;
     cpu._alu.INC();
     cpu._reg_DBB = cpu._reg_A;
-}
-
-/* Helper Functions */
-
-inline bool InstructionDecoder::hasOperands(const code::Instruction_t *instruction)
-{
-    return instruction->mode & 0xfe; // mode > Accum
-}
-
-inline bool InstructionDecoder::needsToLoad(const code::Instruction_t *instruction)
-{
-    return code::ReadWriteModeSet[instruction->name] & InstructionReadMask;
-}
-
-inline bool InstructionDecoder::needsToSave(const code::Instruction_t *instruction)
-{
-    return code::ReadWriteModeSet[instruction->name] & InstructionWriteMask;
 }
 
 } // namespace cpu

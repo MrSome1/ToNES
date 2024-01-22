@@ -132,6 +132,8 @@ class MicroProcessor
 
 public:
 
+    typedef void (*Fetcher)(MicroProcessor&);
+
     /* Accessible registers of CPU */
     typedef struct Registers {
         uint8_t A;   // accumulator
@@ -257,7 +259,7 @@ private:
 
     Bus &_bus;
 
-    static std::array<std::function<void(MicroProcessor&)>, cpu::AddressingModeCount> _fetchers;
+    static const std::array<Fetcher, cpu::code::Invalid + 1> _fetchers;
 };
 
 inline void MicroProcessor::read()
