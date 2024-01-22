@@ -154,19 +154,19 @@ public:
 protected:
 
     //! Read one byte from memory
-    inline void read() { _bus.read(_reg_AB, _reg_DBB); }
+    void read();
 
     //! Write one byte to memory
-    inline void write() { _bus.write(_reg_AB, _reg_DBB); }
+    void write();
 
     //! Push into stack
-    inline void push() { _reg_AB = _reg_S--; write(); }
+    void push();
 
     //! Pop from stack
-    inline void pop() { _reg_AB = ++_reg_S; read(); }
+    void pop();
 
     //! Take the execution branch
-    inline void branch() { read(); _reg_PC += _reg_DBB; }
+    void branch();
 
     /* Functions for addressing modes */
     
@@ -209,14 +209,14 @@ protected:
     /* Helper Functions */
 
     //! Pop from stack twice, continuously
-    inline void popTwo() { pop(); _reg_DL = _reg_DBB; pop(); };
+    void popTwo();
 
     /* Fetch one operand from memory
      * 
      * Fetch the operand of a two bytes instruction, and
      * store the operand in register DBB
      */
-    static inline void fetchOne(MicroProcessor &cpu);
+    static void fetchOne(MicroProcessor &cpu);
 
     /* Fetch two operands from memory
      *
@@ -224,13 +224,13 @@ protected:
      * and store the first operand in register DL, the
      * second one in register DBB
      */ 
-    static inline void fetchTwo(MicroProcessor &cpu);
+    static void fetchTwo(MicroProcessor &cpu);
 
     //! Fetch operands for addressing mode ZP, X or Y
-    static inline void fetchIndexedZeroPage(MicroProcessor &cpu, uint8_t index);
+    static void fetchIndexedZeroPage(MicroProcessor &cpu, uint8_t index);
 
     //! Fetch operands for addressing mode ABS, X or Y
-    static inline void fetchIndexedAbsolute(MicroProcessor &cpu, uint8_t index);
+    static void fetchIndexedAbsolute(MicroProcessor &cpu, uint8_t index);
 
 private:
 
@@ -259,6 +259,71 @@ private:
 
     static std::array<std::function<void(MicroProcessor&)>, cpu::AddressingModeCount> _fetchers;
 };
+
+inline void MicroProcessor::read()
+{
+    _bus.read(_reg_AB, _reg_DBB);
+}
+
+inline void MicroProcessor::write()
+{
+    _bus.write(_reg_AB, _reg_DBB);
+}
+
+inline void MicroProcessor::push()
+{
+    _reg_AB = _reg_S--;
+    write();
+}
+
+inline void MicroProcessor::pop()
+{
+    _reg_AB = ++_reg_S;
+    read();
+}
+
+inline void MicroProcessor::popTwo()
+{
+    pop();
+    _reg_DL = _reg_DBB;
+    pop();
+};
+
+inline void MicroProcessor::branch()
+{
+    read();
+    _reg_PC += _reg_DBB;
+}
+
+inline void MicroProcessor::fetchOne(MicroProcessor &cpu)
+{
+    cpu._reg_AB = cpu._reg_PC++;
+    cpu.read();
+}
+
+inline void MicroProcessor::fetchTwo(MicroProcessor &cpu)
+{
+    cpu._reg_AB = cpu._reg_PC++;
+    cpu.read();
+
+    cpu._reg_DL = cpu._reg_DBB;
+
+    cpu._reg_AB = cpu._reg_PC++;
+    cpu.read();
+}
+
+inline void MicroProcessor::fetchIndexedZeroPage(MicroProcessor &cpu, uint8_t index)
+{
+    fetchOne(cpu);
+    cpu._reg_AB = (uint8_t)(cpu._reg_DBB + index);
+}
+
+inline void MicroProcessor::fetchIndexedAbsolute(MicroProcessor &cpu, uint8_t index)
+{
+    fetchTwo(cpu);
+    reg::mergeTwoBytes(cpu._reg_AB, cpu._reg_DBB, cpu._reg_DL);
+    cpu._reg_AB += index;
+}
 
 } // namespace tones
 

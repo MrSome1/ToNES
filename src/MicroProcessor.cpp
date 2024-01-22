@@ -304,34 +304,4 @@ void MicroProcessor::fetchAbsoluteIndirect(MicroProcessor &cpu)
     reg::mergeTwoBytes(cpu._reg_AB, cpu._reg_DBB, cpu._reg_DL);
 }
 
-inline void MicroProcessor::fetchOne(MicroProcessor &cpu)
-{
-    cpu._reg_AB = cpu._reg_PC++;
-    cpu.read();
-}
-
-inline void MicroProcessor::fetchTwo(MicroProcessor &cpu)
-{
-    cpu._reg_AB = cpu._reg_PC++;
-    cpu.read();
-
-    cpu._reg_DL = cpu._reg_DBB;
-
-    cpu._reg_AB = cpu._reg_PC++;
-    cpu.read();
-}
-
-inline void MicroProcessor::fetchIndexedZeroPage(MicroProcessor &cpu, uint8_t index)
-{
-    fetchOne(cpu);
-    cpu._reg_AB = (uint8_t)(cpu._reg_DBB + index);
-}
-
-inline void MicroProcessor::fetchIndexedAbsolute(MicroProcessor &cpu, uint8_t index)
-{
-    fetchTwo(cpu);
-    reg::mergeTwoBytes(cpu._reg_AB, cpu._reg_DBB, cpu._reg_DL);
-    cpu._reg_AB += index;
-}
-
 } // namespace tones

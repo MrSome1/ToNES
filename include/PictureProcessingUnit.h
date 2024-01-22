@@ -119,21 +119,19 @@ public:
 protected:
 
     //! Next address of VRAM
-    inline void next() {
-        _reg_V += GET_BIT(_reg_CTRL, ppu::ControllerBit::I) ? 0x20 : 0x01;
-    }
+    void next();
 
     //! Read one byte from VRAM
-    inline void read() { _vbus.read(_reg_V, _reg_DBB); }
+    void read();
 
     //! Write one byte to VRAM
-    inline void write() { _vbus.write(_reg_V, _reg_DBB); } 
+    void write();
 
-    /* OAM Accessing */
+    //! Read one byte from OAM
+    void readOAM();
 
-    inline void readOAM() { _reg_DBB = _OAM[_reg_OAMADDR]; }
-
-    inline void writeOAM() { _OAM[_reg_OAMADDR] = _reg_DBB; }
+    //! Write one byte to OAM
+    void writeOAM();
 
     /* Register Accessing */
 
@@ -180,6 +178,31 @@ private:
     /* Object Attribute Memory */
     uint8_t _OAM[ppu::SpriteMemorySize];
 };
+
+inline void PictureProcessingUnit::read()
+{
+    _vbus.read(_reg_V, _reg_DBB);
+}
+
+inline void PictureProcessingUnit::write()
+{
+    _vbus.write(_reg_V, _reg_DBB);
+} 
+
+inline void PictureProcessingUnit::next()
+{
+    _reg_V += GET_BIT(_reg_CTRL, ppu::ControllerBit::I) ? 0x20 : 0x01;
+}
+
+inline void PictureProcessingUnit::readOAM()
+{
+    _reg_DBB = _OAM[_reg_OAMADDR];
+}
+
+inline void PictureProcessingUnit::writeOAM()
+{
+    _OAM[_reg_OAMADDR] = _reg_DBB;
+}
 
 } // namespace tones
 
