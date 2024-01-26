@@ -5,10 +5,13 @@
 #include "Register.h"
 
 namespace tones {
+
+class PictureProcessingUnit;
+
 namespace ppu {
 
 const int VramAddressMask  = 0x3fff; // 0011 1111 1111 1111
-const int SpriteMemorySize = 0x100;  // 256
+const int SpriteMemorySize = 0x0100;  // 256
 
 /* MMIO Register */
 typedef enum Register {
@@ -77,6 +80,55 @@ enum class StatusBit {
     V,     // 0: not in vblank; 1: in vblank
 };
 
+/**
+ * @brief MMIO Registers
+ * 
+ *  PPU Registers mapped into CPU addressing space
+ */
+class Registers : public Device
+{
+
+public:
+
+    Registers(tones::PictureProcessingUnit &ppu);
+
+    bool contains(uint16_t addr) const override;
+
+    void read(uint16_t address, uint8_t &buffer) const override;
+
+    void write(uint16_t address, uint8_t data) override;
+
+private:
+
+    tones::PictureProcessingUnit &_ppu;
+};
+
+/**
+ * @brief Color Palettes
+ */
+class Palettes : public Device
+{
+
+    static const int PalettesSize = 0x0020; 
+    static const int PalettesMask = 0x001f;
+    static const int PalettesLowerBound = 0x3f00; 
+    static const int PalettesUpperBound = 0x4000; 
+
+public:
+
+    Palettes();
+
+    bool contains(uint16_t addr) const override;
+
+    void read(uint16_t address, uint8_t &buffer) const override;
+
+    void write(uint16_t address, uint8_t data) override;
+
+private:
+
+    std::array <uint8_t, PalettesSize> _memory;
+};
+
 } // namespace ppu
 
 /**
@@ -84,27 +136,6 @@ enum class StatusBit {
  */
 class PictureProcessingUnit
 {
-
-    /**
-     * @brief MMIO Register Accessor
-     */
-    class Registers : public Device
-    {
-
-    public:
-
-        Registers(PictureProcessingUnit &ppu);
-
-        bool contains(uint16_t addr) const override;
-
-        void read(uint16_t address, uint8_t &buffer) const override;
-
-        void write(uint16_t address, uint8_t data) override;
-
-    private:
-
-        PictureProcessingUnit &_ppu;
-    };
 
 public:
 
@@ -157,16 +188,18 @@ protected:
 
 private:
 
-    friend class Registers;
+    friend class ppu::Registers;
 
     Bus &_vbus;
+
+    ppu::Palettes _palettes;
 
     /* MMIO Registers */
     Bitwise_t _reg_CTRL;
     Bitwise_t _reg_MASK;
     Bitwise_t _reg_STATUS;
     uint8_t   _reg_OAMADDR;
-    Registers _registers;
+    ppu::Registers _registers;
 
     /* Internal Registers */
     uint16_t _reg_V;   // VRAM address / scroll position

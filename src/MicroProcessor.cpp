@@ -156,7 +156,7 @@ MicroProcessor::_fetchers = {
     fetchIndexedIndirect,
     fetchIndirectIndexed,
     fetchAbsoluteIndirect,
-    fetchNull, // for adrressing mode Invalid
+    fetchNull, // for addressing mode Invalid
 };
 
 MicroProcessor::MicroProcessor(Bus &bus)

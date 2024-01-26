@@ -11,6 +11,9 @@
 #include "Register.h"
 
 namespace tones {
+
+class MicroProcessor;
+
 namespace cpu {
 
 // TODO: Where is this mentioned
@@ -34,8 +37,6 @@ enum class StatusBit {
     O, // Overflow
     N, // Negative
 };
-
-class MicroProcessor;
 
 /**
  * @brief ALU

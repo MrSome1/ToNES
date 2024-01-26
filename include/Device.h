@@ -39,6 +39,7 @@
 #define _TONES_DATABUS_H_
 
 #include <cinttypes>
+#include <array>
 #include <vector>
 
 namespace tones {
@@ -137,7 +138,7 @@ public:
 
 private:
 
-    std::vector<uint8_t> _memory;
+    std::array<uint8_t, RamSize> _memory;
 };
 
 /**
@@ -147,9 +148,10 @@ private:
  */
 class ReadOnlyMemory: public Device
 {
+    static const int RomMask = 0x7fff;
+    static const int RomBankCount = 2; // 4KB * 2
     static const int RomLowerBankBase = 0x8000;
     static const int RomUpperBankBase = 0xC000;
-    static const int RomBankCount = 2; // 4KB * 2
 
 public:
 
@@ -178,7 +180,7 @@ const int PpuMmioAddressMask = 0x07;   // 0000 0111
 /**
  * @brief VRAM
  * 
- * Memory of PPU
+ * Memory of PPU, or so called Name Tables
  */
 class VideoRandomAccessMemory: public Device
 {
@@ -200,7 +202,7 @@ public:
 
 private:
 
-    std::vector<uint8_t> _memory;
+    std::array<uint8_t, VramSize> _memory;
 };
 
 /**

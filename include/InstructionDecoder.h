@@ -24,7 +24,7 @@ public:
     InstructionDecoder(tones::MicroProcessor &cpu);
     ~InstructionDecoder();
 
-    //! Current adrressing mode
+    //! Current addressing mode
     code::AddressingMode_t mode() const;
 
     //! Parse the operation code

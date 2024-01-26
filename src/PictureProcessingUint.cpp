@@ -4,22 +4,18 @@
 
 namespace tones {
 
-using namespace ppu;
-
 namespace ppu {
-
-} // namespace ppu
 
 /* Registers */
 
-PictureProcessingUnit::Registers::Registers(PictureProcessingUnit &ppu) : _ppu(ppu) {}
+Registers::Registers(PictureProcessingUnit &ppu) : _ppu(ppu) {}
 
-bool PictureProcessingUnit::Registers::contains(uint16_t addr) const
+bool Registers::contains(uint16_t addr) const
 {
     return addr >= PpuMmioLowerBound && addr < PpuMmioUpperBound;
 }
 
-void PictureProcessingUnit::Registers::read(uint16_t address, uint8_t &buffer) const
+void Registers::read(uint16_t address, uint8_t &buffer) const
 {
     switch (address & PpuMmioAddressMask) {
         case ppu::PPUSTATUS: _ppu.readPPUSTATUS(); break;
@@ -30,7 +26,7 @@ void PictureProcessingUnit::Registers::read(uint16_t address, uint8_t &buffer) c
     buffer = _ppu._reg_DBB;
 }
 
-void PictureProcessingUnit::Registers::write(uint16_t address, uint8_t data)
+void Registers::write(uint16_t address, uint8_t data)
 {
     _ppu._reg_DBB = data;
 
@@ -45,13 +41,34 @@ void PictureProcessingUnit::Registers::write(uint16_t address, uint8_t data)
     }
 }
 
+/* Palettes */
+
+Palettes::Palettes() {}
+
+bool Palettes::contains(uint16_t addr) const
+{
+    return addr > PalettesLowerBound && addr < PalettesUpperBound;
+}
+
+void Palettes::read(uint16_t address, uint8_t &buffer) const
+{
+    buffer = _memory[address & PalettesMask];
+}
+
+void Palettes::write(uint16_t address, uint8_t data)
+{
+    _memory[address & PalettesMask] = data;
+}
+
+} // namespace ppu
+
 /* PictureProcessingUnit */
 
 PictureProcessingUnit::PictureProcessingUnit(Bus &vbus)
     : _vbus(vbus)
     , _registers(*this)
 {
-
+    _palettes.attach(_vbus);
 }
 
 void PictureProcessingUnit::attach(Bus &bus)
@@ -72,7 +89,7 @@ void PictureProcessingUnit::tick()
 void PictureProcessingUnit::readPPUSTATUS()
 {
     _reg_DBB = _reg_STATUS;
-    CLR_BIT(_reg_STATUS, StatusBit::V);
+    CLR_BIT(_reg_STATUS, ppu::StatusBit::V);
     _reg_W = 0;
 }
 

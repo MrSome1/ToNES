@@ -25,6 +25,81 @@ namespace reg {
 const int RegisterBitCount = 8U;
 const int AddressBitCount = 16U;
 
+/**
+ * @brief Shift Register
+ * 
+ * Shift one bit one time
+ */
+typedef struct Shift {
+
+    uint8_t value;
+
+    //! Parallel-to-Serial left shift
+    bool leftShift()
+    {
+        bool val = value & 0x80;
+        value << 1;
+        return val;
+    }
+
+    // Serial-to-Parallel left shift
+    uint8_t leftShift(bool val)
+    {
+        value << 1;
+        value |= val ? 0x01 : 0x00;
+        return value;
+    }
+
+    //! Parallel-to-Serial right shift
+    bool rightShift()
+    {
+        bool val = value & 0x01;
+        value >> 1;
+        return val;
+    }
+
+    // Serial-to-Parallel right shift
+    uint8_t rightShift(bool val)
+    {
+        value >> 1;
+        value |= val ? 0x80 : 0x00;
+        return value;
+    }
+
+} Shift_t;
+
+/**
+ * @brief Cycle Register
+ * 
+ * Used to store a count
+ */
+typedef struct Cycle {
+
+    uint16_t value;
+    uint16_t limit;
+
+    uint16_t operator++()
+    {
+        return full() ? value = 0 : ++value;
+    }
+
+    uint16_t operator--()
+    {
+        return empty() ? value = limit : --value;
+    }
+
+    bool empty()
+    {
+        return !value;
+    }
+
+    bool full()
+    {
+        return value == limit;
+    }
+
+} Cycle_t;
+
 inline void setBit(uint8_t &byte, int bit, bool val)
 {
     uint8_t mask = 0x01 << bit;    

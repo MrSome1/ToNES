@@ -71,8 +71,7 @@ void Device::write(uint8_t data)
 
 /* RandomAccessMemory */
 
-RandomAccessMemory::RandomAccessMemory()
-    : _memory(RamSize, 0) {}
+RandomAccessMemory::RandomAccessMemory() {}
 
 bool RandomAccessMemory::contains(uint16_t addr) const
 {
@@ -102,7 +101,8 @@ bool ReadOnlyMemory::contains(uint16_t addr) const
 
 void ReadOnlyMemory::read(uint16_t address, uint8_t &buffer) const
 {
-    buffer = _memory[address - RomLowerBankBase + _base];
+    // buffer = _memory[address - RomLowerBankBase + _base];
+    buffer = _memory[address & RomMask + _base];
 }
 
 void ReadOnlyMemory::write(uint16_t address, uint8_t data)
@@ -112,8 +112,7 @@ void ReadOnlyMemory::write(uint16_t address, uint8_t data)
 
 /* VideoRandomAccessMemory */
 
-VideoRandomAccessMemory::VideoRandomAccessMemory()
-    : _memory(VramSize, 0) {}
+VideoRandomAccessMemory::VideoRandomAccessMemory() {}
 
 bool VideoRandomAccessMemory::contains(uint16_t addr) const
 {
