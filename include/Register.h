@@ -38,14 +38,14 @@ typedef struct Shift {
     bool leftShift()
     {
         bool val = value & 0x80;
-        value << 1;
+        value <<= 1;
         return val;
     }
 
     // Serial-to-Parallel left shift
     uint8_t leftShift(bool val)
     {
-        value << 1;
+        value <<= 1;
         value |= val ? 0x01 : 0x00;
         return value;
     }
@@ -54,14 +54,14 @@ typedef struct Shift {
     bool rightShift()
     {
         bool val = value & 0x01;
-        value >> 1;
+        value >>= 1;
         return val;
     }
 
     // Serial-to-Parallel right shift
     uint8_t rightShift(bool val)
     {
-        value >> 1;
+        value >>= 1;
         value |= val ? 0x80 : 0x00;
         return value;
     }
@@ -78,14 +78,15 @@ typedef struct Cycle {
     uint16_t value;
     uint16_t limit;
 
-    uint16_t operator++()
+    void reset()
     {
-        return full() ? value = 0 : ++value;
+        value = 0;
     }
 
-    uint16_t operator--()
+    void reset(uint16_t bound)
     {
-        return empty() ? value = limit : --value;
+        value = 0;
+        limit = bound;
     }
 
     bool empty()
@@ -97,6 +98,23 @@ typedef struct Cycle {
     {
         return value == limit;
     }
+
+    uint16_t operator++()
+    {
+        return full() ? value = 0 : ++value;
+    }
+
+    uint16_t operator--()
+    {
+        return empty() ? value = limit : --value;
+    }
+
+    bool operator==(uint16_t other) { return value == other; }
+    bool operator!=(uint16_t other) { return value != other; }
+    bool operator>=(uint16_t other) { return value >= other; }
+    bool operator> (uint16_t other) { return value >  other; }
+    bool operator<=(uint16_t other) { return value <= other; }
+    bool operator< (uint16_t other) { return value <  other; }
 
 } Cycle_t;
 
@@ -130,6 +148,16 @@ inline void splitTwoBytes(uint16_t value, uint8_t &msb, uint8_t &lsb)
 {
     lsb = value & 0x00ff;
     msb = value & 0xff00 >> 8;
+}
+
+inline bool isOdd(uint16_t value)
+{
+    return value & 0x01;
+}
+
+inline bool isEven(uint16_t value)
+{
+    return !isOdd(value);
 }
 
 } // namespace reg

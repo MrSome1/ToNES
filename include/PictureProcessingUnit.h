@@ -129,6 +129,35 @@ private:
     std::array <uint8_t, PalettesSize> _memory;
 };
 
+/* TODO */
+typedef enum class VideoMode {
+    NTSC,
+    PAL,
+    Dendy,
+} VideoMode_t;
+
+/* TODO */
+typedef struct FrameFormat {
+    uint16_t frameCount;
+
+    uint16_t linePre;    // pre-render scanline
+    uint16_t lineRender; // start of visible scanlines
+    uint16_t linePost;   // post-render scanline
+    uint16_t lineVBlank; // start of vertical blanking scanlines
+    uint16_t lineEnd;
+
+    uint16_t dotIdle;   // an idle cycle
+    uint16_t dotRender; // fetches each tile for the current scanline
+    uint16_t dotSprite; // fetches tile data for the srites on next scanline
+    uint16_t dotTile;   // fetches the first two tiles for the next scanline
+    uint16_t dotFetch;  // fetches two bytes for unknown purpose
+    uint16_t dotEnd;
+} FrameFormat_t;
+
+extern const FrameFormat_t NTSC;
+extern const FrameFormat_t PAL;
+extern const FrameFormat_t Dendy;
+
 } // namespace ppu
 
 /**
@@ -186,6 +215,54 @@ protected:
 
     void writePPUDATA();
 
+    /* Rendering */
+
+    //! Increase the indexes
+    void forward();
+
+    //! For pre-render scanline
+    void linePre();
+
+    //! For visible scanlines
+    void lineRender();
+
+    //! For vertical blanking lines
+    void lineVBlank();
+
+    void dotRender();
+
+    void dotSprite();
+
+    void dotTile();
+
+    void dotFetch();
+
+    void clearStatus();
+
+    void skipIdleDot();
+
+    void syncHorizontal();
+
+    void syncVertical();
+
+    void updateHorizontal();
+
+    void updateVertical();
+
+    /* Helper Functions */
+
+    bool showBackground();
+
+    bool showSprites();
+
+    void copyHorizontal();
+
+    void copyVertical();
+
+    void increaseHorizontal();
+
+    void increaseVertical();
+
 private:
 
     friend class ppu::Registers;
@@ -193,6 +270,9 @@ private:
     Bus &_vbus;
 
     ppu::Palettes _palettes;
+
+    ppu::VideoMode_t _mode;
+    ppu::FrameFormat_t _format;
 
     /* MMIO Registers */
     Bitwise_t _reg_CTRL;
@@ -207,6 +287,15 @@ private:
     uint8_t  _reg_X;   // fine-x position
     uint8_t  _reg_W;   // write toggle
     uint8_t  _reg_DBB; // data bus buffer
+
+    /* Unknown Registers */
+
+    /* Counters */
+    reg::Cycle _reg_frame; // index of current frame
+    reg::Cycle _reg_line;  // index of current scanline
+    reg::Cycle _reg_dot;   // index of current pixel
+    reg::Cycle _reg_hori;  // horizontal counter
+    reg::Cycle _reg_vert;  // vertical counter
 
     /* Object Attribute Memory */
     uint8_t _OAM[ppu::SpriteMemorySize];
@@ -235,6 +324,40 @@ inline void PictureProcessingUnit::readOAM()
 inline void PictureProcessingUnit::writeOAM()
 {
     _OAM[_reg_OAMADDR] = _reg_DBB;
+}
+
+inline bool PictureProcessingUnit::showBackground()
+{
+    return GET_BIT(_reg_MASK, ppu::MaskBit::b);
+}
+
+inline bool PictureProcessingUnit::showSprites()
+{
+    return GET_BIT(_reg_MASK, ppu::MaskBit::s);
+}
+
+inline void PictureProcessingUnit::copyHorizontal()
+{
+    // v: ....A.. ...BCDEF <- t: ....A.. ...BCDEF 
+    _reg_V &= 0xfbe0;
+    _reg_V |= _reg_T & 0x041f;
+}
+
+inline void PictureProcessingUnit::copyVertical()
+{
+    // v: GHIA.BC DEF..... <- t: GHIA.BC DEF.....
+    _reg_V &= 0x041f;
+    _reg_V |= _reg_T & 0xfbe0;
+}
+
+inline void PictureProcessingUnit::increaseHorizontal()
+{
+    // TODO: increase horizontal V
+}
+
+inline void PictureProcessingUnit::increaseVertical()
+{
+    // TODO: increase vertical V
 }
 
 } // namespace tones
