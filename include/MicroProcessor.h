@@ -241,17 +241,17 @@ private:
     friend class cpu::ArithmeticAndLogicUnit;
 
     /* Programmable Registers */
-    uint8_t _reg_A;   // accumulator
-    uint8_t _reg_X;   // index register X
-    uint8_t _reg_Y;   // index register Y
-    uint8_t _reg_S;   // program counter
+    uint8_t  _reg_A;  // accumulator
+    uint8_t  _reg_X;  // index register X
+    uint8_t  _reg_Y;  // index register Y
+    uint8_t  _reg_S;  // program counter
     uint16_t _reg_PC; // stack pointer
 
     /* Internal Registers */
-    uint8_t _reg_IR;  // instruction register
-    uint8_t _reg_DL;  // data latch
-    uint8_t _reg_DBB; // data bus buffer
-    uint16_t _reg_AB; // adress buffer
+    uint8_t  _reg_IR;  // instruction register
+    uint8_t  _reg_DL;  // data latch
+    uint8_t  _reg_DBB; // data bus buffer
+    uint16_t _reg_AB;  // adress buffer
 
     Bitwise_t _reg_P; // processor status register
 

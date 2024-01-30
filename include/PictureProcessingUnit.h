@@ -162,6 +162,9 @@ extern const FrameFormat_t Dendy;
 
 /**
  * @brief PPU
+ * 
+ * Only cares about the picture region, without
+ * the borders
  */
 class PictureProcessingUnit
 {
@@ -245,9 +248,13 @@ protected:
 
     void syncVertical();
 
-    void updateHorizontal();
+    void scrollHorizontal();
 
-    void updateVertical();
+    void scrollVertical();
+
+    void fetchBackground();
+
+    void fetchSprite();
 
     /* Helper Functions */
 
@@ -259,9 +266,9 @@ protected:
 
     void copyVertical();
 
-    void increaseHorizontal();
+    // void increaseHorizontal();
 
-    void increaseVertical();
+    // void increaseVertical();
 
 private:
 
@@ -286,9 +293,16 @@ private:
     uint16_t _reg_T;   // buffer of register V
     uint8_t  _reg_X;   // fine-x position
     uint8_t  _reg_W;   // write toggle
-    uint8_t  _reg_DBB; // data bus buffer
 
     /* Unknown Registers */
+
+    /* Buffers */
+    uint8_t   _reg_DBB;  // data bus buffer
+    uint16_t  _reg_ABB;  // address bus buffer
+    reg::Shift _reg_NT;  // name table buffer
+    reg::Shift _reg_AT;  // attribute table buffer
+    reg::Shift _reg_BGL; // background tile LSB buffer
+    reg::Shift _reg_BGH; // background tile MSB byte buffer
 
     /* Counters */
     reg::Cycle _reg_frame; // index of current frame
@@ -303,12 +317,12 @@ private:
 
 inline void PictureProcessingUnit::read()
 {
-    _vbus.read(_reg_V, _reg_DBB);
+    _vbus.read(_reg_ABB, _reg_DBB);
 }
 
 inline void PictureProcessingUnit::write()
 {
-    _vbus.write(_reg_V, _reg_DBB);
+    _vbus.write(_reg_ABB, _reg_DBB);
 } 
 
 inline void PictureProcessingUnit::next()
@@ -348,16 +362,6 @@ inline void PictureProcessingUnit::copyVertical()
     // v: GHIA.BC DEF..... <- t: GHIA.BC DEF.....
     _reg_V &= 0x041f;
     _reg_V |= _reg_T & 0xfbe0;
-}
-
-inline void PictureProcessingUnit::increaseHorizontal()
-{
-    // TODO: increase horizontal V
-}
-
-inline void PictureProcessingUnit::increaseVertical()
-{
-    // TODO: increase vertical V
 }
 
 } // namespace tones

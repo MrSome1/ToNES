@@ -88,7 +88,7 @@ PictureProcessingUnit::PictureProcessingUnit(Bus &vbus)
     _reg_frame.reset(_format.frameCount - 1);
     _reg_line.reset(_format.lineEnd);
     _reg_dot.reset(_format.dotEnd);
-    _reg_hori.reset(8);
+    _reg_hori.reset(7); // TODO: for count 8
     _reg_vert.reset(_format.dotSprite - 1);
 
     _palettes.attach(_vbus);
@@ -131,6 +131,7 @@ void PictureProcessingUnit::readOAMDATA()
 
 void PictureProcessingUnit::readPPUDATA()
 {
+    _reg_ABB = _reg_V;
     read();
     next();
     // TODO: internal read buffer
@@ -189,6 +190,7 @@ void PictureProcessingUnit::writePPUADDR()
 
 void PictureProcessingUnit::writePPUDATA()
 {
+    _reg_ABB = _reg_V;
     write();
     next();
 }
@@ -249,24 +251,33 @@ void PictureProcessingUnit::dotRender()
     if (_reg_dot == _format.dotIdle)
         return;
 
-    updateHorizontal();
-    updateVertical();
-
+    fetchBackground();
     // TODO
+
+    scrollHorizontal();
+    scrollVertical();
+
+    ++_reg_hori;
+    ++_reg_vert;
 }
 
 void PictureProcessingUnit::dotSprite()
 {
     syncHorizontal();
 
+    fetchSprite();
     // TODO
+
+    ++_reg_hori;
 }
 
 void PictureProcessingUnit::dotTile()
 {
-    updateHorizontal();
+    scrollHorizontal();
 
     // TODO
+
+    ++_reg_hori;
 }
 
 void PictureProcessingUnit::dotFetch()
@@ -301,18 +312,62 @@ void PictureProcessingUnit::syncVertical()
         copyVertical();
 }
 
-void PictureProcessingUnit::updateHorizontal()
+void PictureProcessingUnit::scrollHorizontal()
 {
-    if (_reg_hori.full())
-        increaseHorizontal();
-    ++_reg_hori;
+    if (!_reg_hori.full())
+        return;
+
+    // TODO
 }
 
-void PictureProcessingUnit::updateVertical()
+void PictureProcessingUnit::scrollVertical()
 {
-    if (_reg_vert.full())
-        increaseVertical();
-    ++_reg_vert;
+    if (!_reg_vert.full())
+        return;
+
+    // TODO
+}
+
+void PictureProcessingUnit::fetchBackground()
+{
+    switch (_reg_hori.value) {
+        // Name table byte
+        case 0: _reg_ABB = _reg_V; break; // TODO: addr
+        case 1: read(); _reg_NT = _reg_DBB; break;
+
+        // Attribute table byte
+        case 2: _reg_ABB = _reg_V; break; // TODO: addr
+        case 3: read(); _reg_AT = _reg_DBB; break;
+
+        // Pattern table tile low
+        case 4: _reg_ABB = _reg_V; break; // TODO: addr
+        case 5: read(); _reg_BGL = _reg_DBB; break;
+
+        // Pattern table tile hight
+        case 6: _reg_ABB = _reg_V; break; // TODO: addr
+        case 7: read(); _reg_BGH = _reg_DBB; break;
+    }
+}
+
+void PictureProcessingUnit::fetchSprite()
+{
+    switch (_reg_hori.value) {
+        // Garbage name table byte
+        case 0: _reg_ABB = _reg_V; break; // TODO: addr
+        case 1: read(); /* TODO */ break;
+
+        // Garbage name table byte
+        case 2: _reg_ABB = _reg_V; break; // TODO: addr
+        case 3: read(); /* TODO */ break;
+
+        // Pattern table tile low
+        case 4: _reg_ABB = _reg_V; break; // TODO: addr
+        case 5: read(); /* TODO */ break;
+
+        // Pattern table tile hight
+        case 6: _reg_ABB = _reg_V; break; // TODO: addr
+        case 7: read(); /* TODO */ break;
+    }
 }
 
 } // namespace tones

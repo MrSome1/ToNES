@@ -66,6 +66,8 @@ typedef struct Shift {
         return value;
     }
 
+    uint8_t operator =(uint8_t other) { return value = other; }
+
 } Shift_t;
 
 /**
@@ -109,12 +111,12 @@ typedef struct Cycle {
         return empty() ? value = limit : --value;
     }
 
-    bool operator==(uint16_t other) { return value == other; }
-    bool operator!=(uint16_t other) { return value != other; }
-    bool operator>=(uint16_t other) { return value >= other; }
-    bool operator> (uint16_t other) { return value >  other; }
-    bool operator<=(uint16_t other) { return value <= other; }
-    bool operator< (uint16_t other) { return value <  other; }
+    bool operator ==(uint16_t other) { return value == other; }
+    bool operator !=(uint16_t other) { return value != other; }
+    bool operator >=(uint16_t other) { return value >= other; }
+    bool operator > (uint16_t other) { return value >  other; }
+    bool operator <=(uint16_t other) { return value <= other; }
+    bool operator < (uint16_t other) { return value <  other; }
 
 } Cycle_t;
 
