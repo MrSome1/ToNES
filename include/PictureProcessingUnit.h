@@ -256,6 +256,8 @@ protected:
 
     void fetchSprite();
 
+    void renderPixel();
+
     /* Helper Functions */
 
     bool showBackground();
@@ -282,10 +284,10 @@ private:
     ppu::FrameFormat_t _format;
 
     /* MMIO Registers */
-    Bitwise_t _reg_CTRL;
-    Bitwise_t _reg_MASK;
-    Bitwise_t _reg_STATUS;
-    uint8_t   _reg_OAMADDR;
+    reg::Bitwise_t _reg_CTRL;
+    reg::Bitwise_t _reg_MASK;
+    reg::Bitwise_t _reg_STATUS;
+    uint8_t _reg_OAMADDR;
     ppu::Registers _registers;
 
     /* Internal Registers */
@@ -294,22 +296,27 @@ private:
     uint8_t  _reg_X;   // fine-x position
     uint8_t  _reg_W;   // write toggle
 
-    /* Unknown Registers */
-
     /* Buffers */
-    uint8_t   _reg_DBB;  // data bus buffer
-    uint16_t  _reg_ABB;  // address bus buffer
-    reg::Shift _reg_NT;  // name table buffer
-    reg::Shift _reg_AT;  // attribute table buffer
-    reg::Shift _reg_BGL; // background tile LSB buffer
-    reg::Shift _reg_BGH; // background tile MSB byte buffer
+    uint8_t   _reg_DBB; // data bus buffer
+    uint16_t  _reg_ABB; // address bus buffer
+    uint8_t   _reg_NT;  // for name table
+    uint8_t   _reg_AT;  // for attribute table
+    uint8_t   _reg_BGL; // for background tile LSB
+    uint8_t   _reg_BGH; // for background tile MSB byte
+
+    /* Rendering Regisgers */
+    reg::Shift_t _reg_PIX;  // shift for the pixel
+    reg::Shift_t _reg_BGLS; // shift for background tile LSB 
+    reg::Shift_t _reg_BGHS; // shift for background tile MSB byte 
+    reg::Shift_t _reg_BGLP; // pixel for background tile LSB 
+    reg::Shift_t _reg_BGHP; // pixel for background tile MSB byte 
 
     /* Counters */
-    reg::Cycle _reg_frame; // index of current frame
-    reg::Cycle _reg_line;  // index of current scanline
-    reg::Cycle _reg_dot;   // index of current pixel
-    reg::Cycle _reg_hori;  // horizontal counter
-    reg::Cycle _reg_vert;  // vertical counter
+    reg::Cycle_t _reg_frame; // index of current frame
+    reg::Cycle_t _reg_line;  // index of current scanline
+    reg::Cycle_t _reg_dot;   // index of current pixel
+    reg::Cycle_t _reg_hori;  // horizontal counter
+    reg::Cycle_t _reg_vert;  // vertical counter
 
     /* Object Attribute Memory */
     uint8_t _OAM[ppu::SpriteMemorySize];

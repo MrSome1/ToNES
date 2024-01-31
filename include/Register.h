@@ -16,23 +16,37 @@
 #define SET_BIT(bitwise, bit, val) \
     tones::reg::setBit(bitwise, static_cast<int>(bit), val)
 
-/* Bit Addressing Register */
-typedef uint8_t Bitwise_t;
-
 namespace tones {
 namespace reg {
 
 const int RegisterBitCount = 8U;
 const int AddressBitCount = 16U;
 
+/* Bit Addressing Register */
+typedef uint8_t Bitwise_t;
+
+template <typename T>
+struct Base {
+
+    T value;
+
+    // TODO: Why this can not be inherited
+    T operator =(T &other) { return value = other; }
+
+    bool operator ==(T other) { return value == other; }
+    bool operator !=(T other) { return value != other; }
+    bool operator >=(T other) { return value >= other; }
+    bool operator > (T other) { return value >  other; }
+    bool operator <=(T other) { return value <= other; }
+    bool operator < (T other) { return value <  other; }
+};
+
 /**
  * @brief Shift Register
  * 
  * Shift one bit one time
  */
-typedef struct Shift {
-
-    uint8_t value;
+typedef struct Shift: public Base<uint8_t> {
 
     //! Parallel-to-Serial left shift
     bool leftShift()
@@ -66,6 +80,16 @@ typedef struct Shift {
         return value;
     }
 
+    uint8_t operator <<(Shift &other)
+    {
+        return leftShift(other.leftShift());
+    }
+
+    uint8_t operator >>(Shift &other)
+    {
+        return other.rightShift(rightShift());
+    }
+
     uint8_t operator =(uint8_t other) { return value = other; }
 
 } Shift_t;
@@ -75,9 +99,8 @@ typedef struct Shift {
  * 
  * Used to store a count
  */
-typedef struct Cycle {
+typedef struct Cycle: public Base<uint16_t> {
 
-    uint16_t value;
     uint16_t limit;
 
     void reset()
@@ -111,12 +134,7 @@ typedef struct Cycle {
         return empty() ? value = limit : --value;
     }
 
-    bool operator ==(uint16_t other) { return value == other; }
-    bool operator !=(uint16_t other) { return value != other; }
-    bool operator >=(uint16_t other) { return value >= other; }
-    bool operator > (uint16_t other) { return value >  other; }
-    bool operator <=(uint16_t other) { return value <= other; }
-    bool operator < (uint16_t other) { return value <  other; }
+    uint16_t operator =(uint16_t other) { return value = other; }
 
 } Cycle_t;
 

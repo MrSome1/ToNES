@@ -6,9 +6,9 @@
  *                +--------------------- $C000         ---------------+--------------------- $4000
  *     PRG-ROM    | PRG-ROM Lower Bank                                | Mirrors $2000-$2007
  * ---------------+--------------------- $8000                        +--------------------- $3F20
- *      SRAM      | Cartridge Save RAM                     Palettes   | I/O Registers
+ *      SRAM      | Cartridge Save RAM                     Palettes   | Sprite Palette
  * ---------------+--------------------- $6000                        +--------------------- $3F10
- *  Expansion ROM |                                                   | I/O Registers
+ *  Expansion ROM |                                                   | Image Palette
  * ---------------+--------------------- $4020         ---------------+--------------------- $3F00
  *                | I/O Registers                                     | Mirrors $2000-$2EFF
  *                +--------------------- $4000                        +--------------------- $3000

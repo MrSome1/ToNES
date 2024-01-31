@@ -252,7 +252,7 @@ void PictureProcessingUnit::dotRender()
         return;
 
     fetchBackground();
-    // TODO
+    renderPixel();
 
     scrollHorizontal();
     scrollVertical();
@@ -318,6 +318,9 @@ void PictureProcessingUnit::scrollHorizontal()
         return;
 
     // TODO
+
+    _reg_BGLS = _reg_BGL;
+    _reg_BGHS = _reg_BGH;
 }
 
 void PictureProcessingUnit::scrollVertical()
@@ -367,6 +370,39 @@ void PictureProcessingUnit::fetchSprite()
         // Pattern table tile hight
         case 6: _reg_ABB = _reg_V; break; // TODO: addr
         case 7: read(); /* TODO */ break;
+    }
+}
+
+void PictureProcessingUnit::renderPixel()
+{
+    _reg_PIX = 0;
+
+    // TODO: Priority
+
+    // TODO: Background byte
+    _reg_BGHP << _reg_BGHS;
+    _reg_BGLP << _reg_BGLS;
+    _reg_PIX.leftShift(reg::getBit(_reg_BGHP.value, _reg_X));
+    _reg_PIX.leftShift(reg::getBit(_reg_BGLP.value, _reg_X));
+
+    // Attribute byte: coarse_x bit 1 and coarse_y bit 1 select 2 bits
+    switch ((_reg_V & 0x02) | (_reg_V &0x20)) {
+        case 0x00:
+            _reg_PIX.leftShift(reg::getBit(_reg_AT, 1));
+            _reg_PIX.leftShift(reg::getBit(_reg_AT, 0));
+            break;
+        case 0x02:
+            _reg_PIX.leftShift(reg::getBit(_reg_AT, 3));
+            _reg_PIX.leftShift(reg::getBit(_reg_AT, 2));
+            break;
+        case 0x20:
+            _reg_PIX.leftShift(reg::getBit(_reg_AT, 5));
+            _reg_PIX.leftShift(reg::getBit(_reg_AT, 4));
+            break;
+        case 0x22:
+            _reg_PIX.leftShift(reg::getBit(_reg_AT, 7));
+            _reg_PIX.leftShift(reg::getBit(_reg_AT, 6));
+            break;
     }
 }
 
