@@ -296,27 +296,24 @@ private:
     uint8_t  _reg_X;   // fine-x position
     uint8_t  _reg_W;   // write toggle
 
+    /* Scroll Registers */
+    uint8_t _reg_YX;      // namge table
+    reg::Cycle_t _reg_CX; // coarse x
+    reg::Cycle_t _reg_CY; // coarse y
+    reg::Cycle_t _reg_FX; // fine x
+    reg::Cycle_t _reg_FY; // fine y
+
     /* Buffers */
     uint8_t   _reg_DBB; // data bus buffer
-    uint16_t  _reg_ABB; // address bus buffer
     uint8_t   _reg_NT;  // for name table
     uint8_t   _reg_AT;  // for attribute table
     uint8_t   _reg_BGL; // for background tile LSB
     uint8_t   _reg_BGH; // for background tile MSB byte
 
-    /* Rendering Regisgers */
-    reg::Shift_t _reg_PIX;  // shift for the pixel
-    reg::Shift_t _reg_BGLS; // shift for background tile LSB 
-    reg::Shift_t _reg_BGHS; // shift for background tile MSB byte 
-    reg::Shift_t _reg_BGLP; // pixel for background tile LSB 
-    reg::Shift_t _reg_BGHP; // pixel for background tile MSB byte 
-
     /* Counters */
     reg::Cycle_t _reg_frame; // index of current frame
     reg::Cycle_t _reg_line;  // index of current scanline
     reg::Cycle_t _reg_dot;   // index of current pixel
-    reg::Cycle_t _reg_hori;  // horizontal counter
-    reg::Cycle_t _reg_vert;  // vertical counter
 
     /* Object Attribute Memory */
     uint8_t _OAM[ppu::SpriteMemorySize];
@@ -324,12 +321,12 @@ private:
 
 inline void PictureProcessingUnit::read()
 {
-    _vbus.read(_reg_ABB, _reg_DBB);
+    _vbus.read(_reg_V & ppu::VramAddressMask, _reg_DBB);
 }
 
 inline void PictureProcessingUnit::write()
 {
-    _vbus.write(_reg_ABB, _reg_DBB);
+    _vbus.write(_reg_V & ppu::VramAddressMask, _reg_DBB);
 } 
 
 inline void PictureProcessingUnit::next()
@@ -360,15 +357,21 @@ inline bool PictureProcessingUnit::showSprites()
 inline void PictureProcessingUnit::copyHorizontal()
 {
     // v: ....A.. ...BCDEF <- t: ....A.. ...BCDEF 
-    _reg_V &= 0xfbe0;
-    _reg_V |= _reg_T & 0x041f;
+    // _reg_V &= 0xfbe0;
+    // _reg_V |= _reg_T & 0x041f;
+    SET_BIT(_reg_YX, 0, _reg_T & 0x0400);
+    _reg_CX = _reg_T & 0x001f;
+    _reg_FX = _reg_X;
 }
 
 inline void PictureProcessingUnit::copyVertical()
 {
     // v: GHIA.BC DEF..... <- t: GHIA.BC DEF.....
-    _reg_V &= 0x041f;
-    _reg_V |= _reg_T & 0xfbe0;
+    // _reg_V &= 0x041f;
+    // _reg_V |= _reg_T & 0xfbe0;
+    SET_BIT(_reg_YX, 1, _reg_T & 0x0800);
+    _reg_CY = _reg_T & 0x03e0;
+    _reg_FY = _reg_T & 0x7000;
 }
 
 } // namespace tones

@@ -88,8 +88,11 @@ PictureProcessingUnit::PictureProcessingUnit(Bus &vbus)
     _reg_frame.reset(_format.frameCount - 1);
     _reg_line.reset(_format.lineEnd);
     _reg_dot.reset(_format.dotEnd);
-    _reg_hori.reset(7); // TODO: for count 8
-    _reg_vert.reset(_format.dotSprite - 1);
+
+    _reg_CX.reset(31);
+    _reg_CY.reset(29);
+    _reg_FX.reset(7);
+    _reg_FY.reset(7);
 
     _palettes.attach(_vbus);
 }
@@ -131,7 +134,6 @@ void PictureProcessingUnit::readOAMDATA()
 
 void PictureProcessingUnit::readPPUDATA()
 {
-    _reg_ABB = _reg_V;
     read();
     next();
     // TODO: internal read buffer
@@ -182,7 +184,7 @@ void PictureProcessingUnit::writePPUADDR()
         _reg_V = _reg_T;
     } else { // first write
         reg::setMSB(_reg_T, _reg_DBB);  // T: .CDEFGH ........ <- DBB: ..CDEFGH
-        _reg_V &= ppu::VramAddressMask; // T: Z...... ........ <- 0
+        // _reg_V &= ppu::VramAddressMask; // T: Z...... ........ <- 0
     }
 
     _reg_W = !_reg_W;
@@ -190,7 +192,6 @@ void PictureProcessingUnit::writePPUADDR()
 
 void PictureProcessingUnit::writePPUDATA()
 {
-    _reg_ABB = _reg_V;
     write();
     next();
 }
@@ -256,9 +257,6 @@ void PictureProcessingUnit::dotRender()
 
     scrollHorizontal();
     scrollVertical();
-
-    ++_reg_hori;
-    ++_reg_vert;
 }
 
 void PictureProcessingUnit::dotSprite()
@@ -267,8 +265,6 @@ void PictureProcessingUnit::dotSprite()
 
     fetchSprite();
     // TODO
-
-    ++_reg_hori;
 }
 
 void PictureProcessingUnit::dotTile()
@@ -276,8 +272,6 @@ void PictureProcessingUnit::dotTile()
     scrollHorizontal();
 
     // TODO
-
-    ++_reg_hori;
 }
 
 void PictureProcessingUnit::dotFetch()
@@ -314,96 +308,66 @@ void PictureProcessingUnit::syncVertical()
 
 void PictureProcessingUnit::scrollHorizontal()
 {
-    if (!_reg_hori.full())
-        return;
+    // if (!_reg_hori.full())
+    //     return;
 
     // TODO
-
-    _reg_BGLS = _reg_BGL;
-    _reg_BGHS = _reg_BGH;
 }
 
 void PictureProcessingUnit::scrollVertical()
 {
-    if (!_reg_vert.full())
-        return;
+    // if (!_reg_vert.full())
+    //     return;
 
     // TODO
 }
 
 void PictureProcessingUnit::fetchBackground()
 {
-    switch (_reg_hori.value) {
+    // switch (_reg_hori.value) {
+    switch (_reg_dot.value & 0x07) {
         // Name table byte
-        case 0: _reg_ABB = _reg_V; break; // TODO: addr
+        case 0: _reg_V = _reg_YX << 10 | _reg_CY << 5 | _reg_CX; break;
         case 1: read(); _reg_NT = _reg_DBB; break;
 
         // Attribute table byte
-        case 2: _reg_ABB = _reg_V; break; // TODO: addr
+        case 2: /* TODO: Addr */ break;
         case 3: read(); _reg_AT = _reg_DBB; break;
 
         // Pattern table tile low
-        case 4: _reg_ABB = _reg_V; break; // TODO: addr
+        case 4: /* TODO: Addr */ break;
         case 5: read(); _reg_BGL = _reg_DBB; break;
 
         // Pattern table tile hight
-        case 6: _reg_ABB = _reg_V; break; // TODO: addr
+        case 6: /* TODO: Addr */ break;
         case 7: read(); _reg_BGH = _reg_DBB; break;
     }
 }
 
 void PictureProcessingUnit::fetchSprite()
 {
-    switch (_reg_hori.value) {
+    // switch (_reg_hori.value) {
+    switch (_reg_dot.value & 0x07) {
         // Garbage name table byte
-        case 0: _reg_ABB = _reg_V; break; // TODO: addr
+        case 0: /* TODO: Addr */ break;
         case 1: read(); /* TODO */ break;
 
         // Garbage name table byte
-        case 2: _reg_ABB = _reg_V; break; // TODO: addr
+        case 2: /* TODO: Addr */ break;
         case 3: read(); /* TODO */ break;
 
         // Pattern table tile low
-        case 4: _reg_ABB = _reg_V; break; // TODO: addr
+        case 4: /* TODO: Addr */ break;
         case 5: read(); /* TODO */ break;
 
         // Pattern table tile hight
-        case 6: _reg_ABB = _reg_V; break; // TODO: addr
+        case 6: /* TODO: Addr */ break;
         case 7: read(); /* TODO */ break;
     }
 }
 
 void PictureProcessingUnit::renderPixel()
 {
-    _reg_PIX = 0;
-
-    // TODO: Priority
-
-    // TODO: Background byte
-    _reg_BGHP << _reg_BGHS;
-    _reg_BGLP << _reg_BGLS;
-    _reg_PIX.leftShift(reg::getBit(_reg_BGHP.value, _reg_X));
-    _reg_PIX.leftShift(reg::getBit(_reg_BGLP.value, _reg_X));
-
-    // Attribute byte: coarse_x bit 1 and coarse_y bit 1 select 2 bits
-    switch ((_reg_V & 0x02) | (_reg_V &0x20)) {
-        case 0x00:
-            _reg_PIX.leftShift(reg::getBit(_reg_AT, 1));
-            _reg_PIX.leftShift(reg::getBit(_reg_AT, 0));
-            break;
-        case 0x02:
-            _reg_PIX.leftShift(reg::getBit(_reg_AT, 3));
-            _reg_PIX.leftShift(reg::getBit(_reg_AT, 2));
-            break;
-        case 0x20:
-            _reg_PIX.leftShift(reg::getBit(_reg_AT, 5));
-            _reg_PIX.leftShift(reg::getBit(_reg_AT, 4));
-            break;
-        case 0x22:
-            _reg_PIX.leftShift(reg::getBit(_reg_AT, 7));
-            _reg_PIX.leftShift(reg::getBit(_reg_AT, 6));
-            break;
-    }
 }
 
 } // namespace tones

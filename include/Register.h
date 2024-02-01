@@ -30,8 +30,15 @@ struct Base {
 
     T value;
 
-    // TODO: Why this can not be inherited
-    T operator =(T &other) { return value = other; }
+    operator T() { return value; }
+
+    T operator >>(int count) { return value >> count; }
+    T operator <<(int count) { return value << count; }
+
+    T operator & (T other) { return value  & other; }
+    T operator &=(T other) { return value &= other; }
+    T operator | (T other) { return value  | other; }
+    T operator |=(T other) { return value |= other; }
 
     bool operator ==(T other) { return value == other; }
     bool operator !=(T other) { return value != other; }
