@@ -1,5 +1,5 @@
-#ifndef _TONES_UTILS_H_
-#define _TONES_UTILS_H_
+#ifndef _TONES_REGISTER_H_
+#define _TONES_REGISTER_H_
 
 #include <array>
 #include <cinttypes>
@@ -32,20 +32,11 @@ struct Base {
 
     operator T() { return value; }
 
+    // TODO: Why this can not be inherited?
+    T operator =(T other) { return value = other; }
+
     T operator >>(int count) { return value >> count; }
     T operator <<(int count) { return value << count; }
-
-    T operator & (T other) { return value  & other; }
-    T operator &=(T other) { return value &= other; }
-    T operator | (T other) { return value  | other; }
-    T operator |=(T other) { return value |= other; }
-
-    bool operator ==(T other) { return value == other; }
-    bool operator !=(T other) { return value != other; }
-    bool operator >=(T other) { return value >= other; }
-    bool operator > (T other) { return value >  other; }
-    bool operator <=(T other) { return value <= other; }
-    bool operator < (T other) { return value <  other; }
 };
 
 /**
@@ -190,4 +181,4 @@ inline bool isEven(uint16_t value)
 } // namespace reg
 } // namespace tones
 
-#endif // _TONES_UTILS_H_
+#endif // _TONES_REGISTER_H_

@@ -35,8 +35,8 @@
  */
 
 
-#ifndef _TONES_DATABUS_H_
-#define _TONES_DATABUS_H_
+#ifndef _TONES_DEVICE_H_
+#define _TONES_DEVICE_H_
 
 #include <cinttypes>
 #include <array>
@@ -122,11 +122,13 @@ protected:
  */
 class RandomAccessMemory: public Device
 {
-    static const int RamSize = 0x0800; // 2KB
-    static const int RamMask = 0x07ff;
-    static const int RamUpperBound = 0x2000;
 
 public:
+
+    static const int RamSize = 0x0800; // 2KB
+    static const int RamMask = 0x07ff;
+    static const int RamLowerBound = 0x0000;
+    static const int RamUpperBound = 0x2000;
 
     RandomAccessMemory();
 
@@ -148,12 +150,13 @@ private:
  */
 class ReadOnlyMemory: public Device
 {
+
+public:
+
     static const int RomMask = 0x7fff;
     static const int RomBankCount = 2; // 4KB * 2
     static const int RomLowerBankBase = 0x8000;
     static const int RomUpperBankBase = 0xC000;
-
-public:
 
     ReadOnlyMemory(const std::vector<uint8_t> &memory);
 
@@ -185,12 +188,12 @@ const int PpuMmioAddressMask = 0x07;   // 0000 0111
 class VideoRandomAccessMemory: public Device
 {
 
+public:
+
     static const int VramSize = 0x0800; // 2KB
     static const int VramMask = 0x07ff;
     static const int VramLowerBound = 0x2000;
     static const int VramUpperBound = 0x3F00;
-
-public:
 
     VideoRandomAccessMemory();
 
@@ -212,11 +215,14 @@ private:
  */
 class PatternTables: public Device
 {
-    static const int TableSize = 0x1000;
-    static const int TotalSize = 0x2000;
-    static const int TableCount = 2; // 4KB * 2
 
 public:
+
+    static const int TableSize  = 0x1000;
+    static const int TotalSize  = 0x2000;
+    static const int TableCount = 2; // 4KB * 2
+    static const int TableLowerBankBase = 0x0000;
+    static const int TableUpperBankBase = 0x1000;
 
     PatternTables(const std::vector<uint8_t> &memory);
 
@@ -245,4 +251,4 @@ class MemoryManagementController
 
 } // namespace tones
 
-#endif // _TONES_DATABUS_H_ 
+#endif // _TONES_DEVICE_H_

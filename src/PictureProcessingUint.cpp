@@ -89,10 +89,10 @@ PictureProcessingUnit::PictureProcessingUnit(Bus &vbus)
     _reg_line.reset(_format.lineEnd);
     _reg_dot.reset(_format.dotEnd);
 
-    _reg_CX.reset(31);
-    _reg_CY.reset(29);
-    _reg_FX.reset(7);
-    _reg_FY.reset(7);
+    _reg_CX.reset(ppu::TilesOnWidth - 1);
+    _reg_CY.reset(ppu::TilesOnHeight - 1);
+    _reg_FX.reset(ppu::TileSize - 1);
+    _reg_FY.reset(ppu::TileSize - 1);
 
     _palettes.attach(_vbus);
 }
@@ -162,6 +162,15 @@ void PictureProcessingUnit::writeOAMDATA()
     ++_reg_OAMADDR;
 }
 
+/**
+ * Registers T and V are composed this way during rendering
+ * 
+ *   yyy NN YYYYY XXXXX
+ *   ||| || ||||| +++++-- coarse X scroll
+ *   ||| || +++++-------- coarse Y scroll
+ *   ||| ++-------------- nametable select
+ *   +++----------------- fine Y scroll
+ */
 void PictureProcessingUnit::writePPUSCROLL()
 {
     if (_reg_W) { // second write
@@ -262,16 +271,13 @@ void PictureProcessingUnit::dotRender()
 void PictureProcessingUnit::dotSprite()
 {
     syncHorizontal();
-
     fetchSprite();
-    // TODO
 }
 
 void PictureProcessingUnit::dotTile()
 {
     scrollHorizontal();
-
-    // TODO
+    fetchBackground();
 }
 
 void PictureProcessingUnit::dotFetch()
@@ -308,46 +314,71 @@ void PictureProcessingUnit::syncVertical()
 
 void PictureProcessingUnit::scrollHorizontal()
 {
-    // if (!_reg_hori.full())
-    //     return;
+    if (_reg_dot & ppu::TileMask)
+        return;
 
-    // TODO
+    if (_reg_FX.full()) {
+        if (_reg_CX.full())
+            _reg_YX ^= 0b01;
+        ++_reg_CX;
+    }
+    ++_reg_FX;
+
+    copyRender(); // TODO
 }
 
 void PictureProcessingUnit::scrollVertical()
 {
-    // if (!_reg_vert.full())
-    //     return;
+    if (_reg_dot != ppu::PictureWidth)
+        return;
 
-    // TODO
+    if (_reg_FY.full()) {
+        if (_reg_CY.full())
+            _reg_YX ^= 0b10;
+        ++_reg_CY;
+    }
+    ++_reg_FY;
 }
 
 void PictureProcessingUnit::fetchBackground()
 {
-    // switch (_reg_hori.value) {
-    switch (_reg_dot.value & 0x07) {
-        // Name table byte
-        case 0: _reg_V = _reg_YX << 10 | _reg_CY << 5 | _reg_CX; break;
-        case 1: read(); _reg_NT = _reg_DBB; break;
-
-        // Attribute table byte
-        case 2: /* TODO: Addr */ break;
-        case 3: read(); _reg_AT = _reg_DBB; break;
-
-        // Pattern table tile low
-        case 4: /* TODO: Addr */ break;
-        case 5: read(); _reg_BGL = _reg_DBB; break;
-
-        // Pattern table tile hight
-        case 6: /* TODO: Addr */ break;
-        case 7: read(); _reg_BGH = _reg_DBB; break;
+    switch (_reg_dot & 0x07) {
+        case 0: // Name table byte
+            _reg_V  = _reg_YX << 10 | _reg_CY << 5 | _reg_CX;
+            _reg_V |= VideoRandomAccessMemory::VramLowerBound;
+            break;
+        case 1:
+            read();
+            _reg_NTB = _reg_DBB;
+            break;
+        case 2: // Attribute table byte
+            // TODO: Addr
+            break;
+        case 3:
+            read();
+            _reg_ATB = _reg_DBB;
+            break;
+        case 4: // Pattern table tile low
+            _reg_V  = _reg_NTB << 4 | _reg_FY;
+            _reg_V |= getPatternTable(ppu::ControllerBit::B);
+            break;
+        case 5:
+            read();
+            _reg_BGLB = _reg_DBB;
+            break;
+        case 6: // Pattern table tile hight
+            _reg_V += ppu::TileSize; // ???
+            break;
+        case 7:
+            read();
+            _reg_BGHB = _reg_DBB;
+            break;
     }
 }
 
 void PictureProcessingUnit::fetchSprite()
 {
-    // switch (_reg_hori.value) {
-    switch (_reg_dot.value & 0x07) {
+    switch (_reg_dot & 0x07) {
         // Garbage name table byte
         case 0: /* TODO: Addr */ break;
         case 1: read(); /* TODO */ break;
@@ -368,6 +399,7 @@ void PictureProcessingUnit::fetchSprite()
 
 void PictureProcessingUnit::renderPixel()
 {
+    /* TODO */
 }
 
 } // namespace tones

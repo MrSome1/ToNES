@@ -11,7 +11,14 @@ class PictureProcessingUnit;
 namespace ppu {
 
 const int VramAddressMask  = 0x3fff; // 0011 1111 1111 1111
-const int SpriteMemorySize = 0x0100;  // 256
+const int SpriteMemorySize = 0x0100; // 256
+
+const int TileSize = 0x08;
+const int TileMask = 0x07;
+const int TilesOnWidth  = 0x20;   // 32
+const int TilesOnHeight = 0x1e;   // 30
+const int PictureWidth  = 0x0100; // 256
+const int PictureHeight = 0x00f0; // 240
 
 /* MMIO Register */
 typedef enum Register {
@@ -264,6 +271,8 @@ protected:
 
     bool showSprites();
 
+    void copyRender();
+
     void copyHorizontal();
 
     void copyVertical();
@@ -271,6 +280,8 @@ protected:
     // void increaseHorizontal();
 
     // void increaseVertical();
+
+    uint16_t getPatternTable(ppu::ControllerBit bit);
 
 private:
 
@@ -287,7 +298,7 @@ private:
     reg::Bitwise_t _reg_CTRL;
     reg::Bitwise_t _reg_MASK;
     reg::Bitwise_t _reg_STATUS;
-    uint8_t _reg_OAMADDR;
+    uint8_t        _reg_OAMADDR;
     ppu::Registers _registers;
 
     /* Internal Registers */
@@ -297,18 +308,23 @@ private:
     uint8_t  _reg_W;   // write toggle
 
     /* Scroll Registers */
-    uint8_t _reg_YX;      // namge table
+    uint8_t      _reg_YX; // namge table
     reg::Cycle_t _reg_CX; // coarse x
     reg::Cycle_t _reg_CY; // coarse y
     reg::Cycle_t _reg_FX; // fine x
     reg::Cycle_t _reg_FY; // fine y
 
+    /* Render Registers */
+    uint8_t _reg_AT;  // for attribute table
+    uint8_t _reg_BGL; // for background tile LSB
+    uint8_t _reg_BGH; // for background tile MSB
+
     /* Buffers */
-    uint8_t   _reg_DBB; // data bus buffer
-    uint8_t   _reg_NT;  // for name table
-    uint8_t   _reg_AT;  // for attribute table
-    uint8_t   _reg_BGL; // for background tile LSB
-    uint8_t   _reg_BGH; // for background tile MSB byte
+    uint8_t _reg_DBB;  // data bus buffer
+    uint8_t _reg_NTB;  // for name table
+    uint8_t _reg_ATB;  // for attribute table
+    uint8_t _reg_BGLB; // for background tile LSB
+    uint8_t _reg_BGHB; // for background tile MSB
 
     /* Counters */
     reg::Cycle_t _reg_frame; // index of current frame
@@ -354,12 +370,19 @@ inline bool PictureProcessingUnit::showSprites()
     return GET_BIT(_reg_MASK, ppu::MaskBit::s);
 }
 
+inline void PictureProcessingUnit::copyRender()
+{
+    _reg_AT = _reg_ATB; 
+    _reg_BGL = _reg_BGLB;
+    _reg_BGH = _reg_BGHB;
+}
+
 inline void PictureProcessingUnit::copyHorizontal()
 {
     // v: ....A.. ...BCDEF <- t: ....A.. ...BCDEF 
     // _reg_V &= 0xfbe0;
     // _reg_V |= _reg_T & 0x041f;
-    SET_BIT(_reg_YX, 0, _reg_T & 0x0400);
+    SET_BIT(_reg_YX, ppu::ControllerBit::X, _reg_T & 0x0400);
     _reg_CX = _reg_T & 0x001f;
     _reg_FX = _reg_X;
 }
@@ -369,9 +392,15 @@ inline void PictureProcessingUnit::copyVertical()
     // v: GHIA.BC DEF..... <- t: GHIA.BC DEF.....
     // _reg_V &= 0x041f;
     // _reg_V |= _reg_T & 0xfbe0;
-    SET_BIT(_reg_YX, 1, _reg_T & 0x0800);
+    SET_BIT(_reg_YX, ppu::ControllerBit::Y, _reg_T & 0x0800);
     _reg_CY = _reg_T & 0x03e0;
     _reg_FY = _reg_T & 0x7000;
+}
+
+inline uint16_t PictureProcessingUnit::getPatternTable(ppu::ControllerBit bit)
+{
+    return GET_BIT(_reg_CTRL, bit) ? PatternTables::TableUpperBankBase:
+                                     PatternTables::TableLowerBankBase;
 }
 
 } // namespace tones
