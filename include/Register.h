@@ -101,11 +101,6 @@ typedef struct Cycle: public Base<uint16_t> {
 
     uint16_t limit;
 
-    void reset()
-    {
-        value = 0;
-    }
-
     void reset(uint16_t bound)
     {
         value = 0;
@@ -122,9 +117,14 @@ typedef struct Cycle: public Base<uint16_t> {
         return value == limit;
     }
 
+    bool overflow()
+    {
+        return value >= limit;
+    }
+
     uint16_t operator++()
     {
-        return full() ? value = 0 : ++value;
+        return overflow() ? value = 0 : ++value;
     }
 
     uint16_t operator--()

@@ -193,7 +193,7 @@ public:
     static const int VramSize = 0x0800; // 2KB
     static const int VramMask = 0x07ff;
     static const int VramLowerBound = 0x2000;
-    static const int VramUpperBound = 0x3F00;
+    static const int VramUpperBound = 0x3f00;
 
     VideoRandomAccessMemory();
 
@@ -218,9 +218,9 @@ class PatternTables: public Device
 
 public:
 
+    static const int TableCount = 2; // 4KB * 2
     static const int TableSize  = 0x1000;
     static const int TotalSize  = 0x2000;
-    static const int TableCount = 2; // 4KB * 2
     static const int TableLowerBankBase = 0x0000;
     static const int TableUpperBankBase = 0x1000;
 

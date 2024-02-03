@@ -20,6 +20,11 @@ const int TilesOnHeight = 0x1e;   // 30
 const int PictureWidth  = 0x0100; // 256
 const int PictureHeight = 0x00f0; // 240
 
+const int NameTableBase = 0x2000;
+const int NameTableSize = 0x03c0; // 960
+
+const int ColorIndexMask = 0x03;
+
 /* MMIO Register */
 typedef enum Register {
     PPUCTRL,   // 0x2000
@@ -116,12 +121,12 @@ private:
 class Palettes : public Device
 {
 
+public:
+
     static const int PalettesSize = 0x0020; 
     static const int PalettesMask = 0x001f;
     static const int PalettesLowerBound = 0x3f00; 
     static const int PalettesUpperBound = 0x4000; 
-
-public:
 
     Palettes();
 
@@ -319,6 +324,11 @@ private:
     uint8_t _reg_BGL; // for background tile LSB
     uint8_t _reg_BGH; // for background tile MSB
 
+    /* Color Registers */
+    uint8_t      _reg_PC; // for the pixel
+    reg::Shift_t _reg_BC; // for background
+    reg::Shift_t _reg_SC; // for sprite
+
     /* Buffers */
     uint8_t _reg_DBB;  // data bus buffer
     uint8_t _reg_NTB;  // for name table
@@ -379,9 +389,6 @@ inline void PictureProcessingUnit::copyRender()
 
 inline void PictureProcessingUnit::copyHorizontal()
 {
-    // v: ....A.. ...BCDEF <- t: ....A.. ...BCDEF 
-    // _reg_V &= 0xfbe0;
-    // _reg_V |= _reg_T & 0x041f;
     SET_BIT(_reg_YX, ppu::ControllerBit::X, _reg_T & 0x0400);
     _reg_CX = _reg_T & 0x001f;
     _reg_FX = _reg_X;
@@ -389,9 +396,6 @@ inline void PictureProcessingUnit::copyHorizontal()
 
 inline void PictureProcessingUnit::copyVertical()
 {
-    // v: GHIA.BC DEF..... <- t: GHIA.BC DEF.....
-    // _reg_V &= 0x041f;
-    // _reg_V |= _reg_T & 0xfbe0;
     SET_BIT(_reg_YX, ppu::ControllerBit::Y, _reg_T & 0x0800);
     _reg_CY = _reg_T & 0x03e0;
     _reg_FY = _reg_T & 0x7000;

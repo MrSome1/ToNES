@@ -261,9 +261,8 @@ void PictureProcessingUnit::dotRender()
     if (_reg_dot == _format.dotIdle)
         return;
 
-    fetchBackground();
     renderPixel();
-
+    fetchBackground();
     scrollHorizontal();
     scrollVertical();
 }
@@ -276,8 +275,8 @@ void PictureProcessingUnit::dotSprite()
 
 void PictureProcessingUnit::dotTile()
 {
-    scrollHorizontal();
     fetchBackground();
+    scrollHorizontal();
 }
 
 void PictureProcessingUnit::dotFetch()
@@ -342,34 +341,35 @@ void PictureProcessingUnit::scrollVertical()
 
 void PictureProcessingUnit::fetchBackground()
 {
-    switch (_reg_dot & 0x07) {
-        case 0: // Name table byte
-            _reg_V  = _reg_YX << 10 | _reg_CY << 5 | _reg_CX;
-            _reg_V |= VideoRandomAccessMemory::VramLowerBound;
+    switch (_reg_dot & ppu::TileMask) {
+        case 1: // Name table byte
+            _reg_V  = (_reg_YX << 10) | (_reg_CY << 5) | _reg_CX;
+            _reg_V |= ppu::NameTableBase;
             break;
-        case 1:
+        case 2:
             read();
             _reg_NTB = _reg_DBB;
             break;
-        case 2: // Attribute table byte
-            // TODO: Addr
+        case 3: // Attribute table byte
+            _reg_V  = (_reg_YX << 10) | ((_reg_CY >> 2) << 3) | (_reg_CX >> 2);
+            _reg_V |= ppu::NameTableBase | ppu::NameTableSize;
             break;
-        case 3:
+        case 4:
             read();
             _reg_ATB = _reg_DBB;
             break;
-        case 4: // Pattern table tile low
+        case 5: // Pattern table tile low
             _reg_V  = _reg_NTB << 4 | _reg_FY;
             _reg_V |= getPatternTable(ppu::ControllerBit::B);
             break;
-        case 5:
+        case 6:
             read();
             _reg_BGLB = _reg_DBB;
             break;
-        case 6: // Pattern table tile hight
-            _reg_V += ppu::TileSize; // ???
+        case 7: // Pattern table tile hight
+            _reg_V += ppu::TileSize; // TODO: Why not just +1
             break;
-        case 7:
+        case 0:
             read();
             _reg_BGHB = _reg_DBB;
             break;
@@ -378,28 +378,72 @@ void PictureProcessingUnit::fetchBackground()
 
 void PictureProcessingUnit::fetchSprite()
 {
-    switch (_reg_dot & 0x07) {
-        // Garbage name table byte
-        case 0: /* TODO: Addr */ break;
-        case 1: read(); /* TODO */ break;
-
-        // Garbage name table byte
-        case 2: /* TODO: Addr */ break;
-        case 3: read(); /* TODO */ break;
-
-        // Pattern table tile low
-        case 4: /* TODO: Addr */ break;
-        case 5: read(); /* TODO */ break;
-
-        // Pattern table tile hight
-        case 6: /* TODO: Addr */ break;
-        case 7: read(); /* TODO */ break;
+    switch (_reg_dot & ppu::TileMask) {
+        case 1: // Garbage name table byte
+            /* TODO: Addr */
+            break;
+        case 2:
+            read();
+            /* TODO */
+            break;
+        case 3: // Garbage name table byte
+            /* TODO: Addr */
+            break;
+        case 4:
+            read();
+            /* TODO */
+            break;
+        case 5: // Pattern table tile low
+            /* TODO: Addr */
+            break;
+        case 6:
+            read();
+            /* TODO */
+            break;
+        case 7: // Pattern table tile hight
+            /* TODO: Addr */
+            break;
+        case 0:
+            read();
+            /* TODO */
+            break;
     }
 }
 
 void PictureProcessingUnit::renderPixel()
 {
-    /* TODO */
+    // Background color index
+    _reg_BC.leftShift(GET_BIT(_reg_BGH, _reg_FX));
+    _reg_BC.leftShift(GET_BIT(_reg_BGL, _reg_FX));
+    _reg_BC.leftShift(GET_BIT(_reg_AT, 0)); // TODO: which two attribute bits
+    _reg_BC.leftShift(GET_BIT(_reg_AT, 0));
+
+    // TODO: Sprite color index
+    _reg_SC.leftShift();
+    _reg_SC.leftShift();
+    _reg_SC.leftShift();
+    _reg_SC.leftShift();
+
+    // Background or Sprite
+    if (_reg_BC & ppu::ColorIndexMask) {
+        if (_reg_SC & ppu::ColorIndexMask) {
+            if (1) // TODO: priority
+                _reg_PC = _reg_BC;
+            else
+                _reg_PC = 0x10 | _reg_SC;
+        } else {
+            _reg_PC = _reg_BC;
+        }
+    } else {
+        if (_reg_SC & ppu::ColorIndexMask)
+            _reg_PC = 0x10 | _reg_SC;
+        else
+            _reg_PC = 0x00;
+    }
+
+    // TODO: Output the color 
+    _reg_V = ppu::Palettes::PalettesUpperBound | _reg_PC;
+    read();
 }
 
 } // namespace tones
