@@ -325,9 +325,9 @@ private:
     uint8_t _reg_BGH; // for background tile MSB
 
     /* Color Registers */
-    uint8_t      _reg_PC; // for the pixel
-    reg::Shift_t _reg_BC; // for background
-    reg::Shift_t _reg_SC; // for sprite
+    // uint8_t      _reg_PC; // for the pixel
+    // reg::Shift_t _reg_BC; // for background
+    // reg::Shift_t _reg_SC; // for sprite
 
     /* Buffers */
     uint8_t _reg_DBB;  // data bus buffer

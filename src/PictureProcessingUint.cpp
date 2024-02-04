@@ -356,7 +356,7 @@ void PictureProcessingUnit::fetchBackground()
             break;
         case 4:
             read();
-            _reg_ATB = _reg_DBB;
+            _reg_ATB = _reg_DBB >> (((_reg_CY & 0x02) << 1 )| (_reg_CX & 0x02));
             break;
         case 5: // Pattern table tile low
             _reg_V  = _reg_NTB << 4 | _reg_FY;
@@ -412,38 +412,39 @@ void PictureProcessingUnit::fetchSprite()
 
 void PictureProcessingUnit::renderPixel()
 {
-    // Background color index
-    _reg_BC.leftShift(GET_BIT(_reg_BGH, _reg_FX));
-    _reg_BC.leftShift(GET_BIT(_reg_BGL, _reg_FX));
-    _reg_BC.leftShift(GET_BIT(_reg_AT, 0)); // TODO: which two attribute bits
-    _reg_BC.leftShift(GET_BIT(_reg_AT, 0));
+    // Outputs of multiplexers
+    uint8_t pixelColor;
+    uint8_t spriteColor;
+    uint8_t backgroundColor;
 
-    // TODO: Sprite color index
-    _reg_SC.leftShift();
-    _reg_SC.leftShift();
-    _reg_SC.leftShift();
-    _reg_SC.leftShift();
+    // Background color multiplexer
+    backgroundColor = (_reg_AT << 2) |
+                      GET_BIT(_reg_BGH, _reg_FX) << 1 |
+                      GET_BIT(_reg_BGL, _reg_FX);
 
-    // Background or Sprite
-    if (_reg_BC & ppu::ColorIndexMask) {
-        if (_reg_SC & ppu::ColorIndexMask) {
+    // TODO: Sprite color multiplexer
+    spriteColor;
+
+    // Prioriy multiplexer
+    if (backgroundColor & ppu::ColorIndexMask) {
+        if (spriteColor & ppu::ColorIndexMask) {
             if (1) // TODO: priority
-                _reg_PC = _reg_BC;
+                pixelColor = backgroundColor;
             else
-                _reg_PC = 0x10 | _reg_SC;
+                pixelColor = 0x10 | spriteColor;
         } else {
-            _reg_PC = _reg_BC;
+            pixelColor = backgroundColor;
         }
     } else {
-        if (_reg_SC & ppu::ColorIndexMask)
-            _reg_PC = 0x10 | _reg_SC;
+        if (spriteColor & ppu::ColorIndexMask)
+            pixelColor = 0x10 | spriteColor;
         else
-            _reg_PC = 0x00;
+            pixelColor = 0x00;
     }
 
-    // TODO: Output the color 
-    _reg_V = ppu::Palettes::PalettesUpperBound | _reg_PC;
+    _reg_V = ppu::Palettes::PalettesUpperBound | pixelColor;
     read();
+    // TODO: Output the color in _reg_DBB
 }
 
 } // namespace tones
