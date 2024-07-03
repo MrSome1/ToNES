@@ -78,8 +78,9 @@ void Palettes::write(uint16_t address, uint8_t data)
 
 /* PictureProcessingUnit */
 
-PictureProcessingUnit::PictureProcessingUnit(Bus &vbus)
-    : _vbus(vbus)
+PictureProcessingUnit::PictureProcessingUnit(Clock &clock, Bus &vbus)
+    : Tickable(3) // TODO: frequency depending on type
+    , _vbus(vbus)
     , _registers(*this)
     // TODO: Switch video mode
     , _mode(ppu::VideoMode::NTSC)
@@ -107,7 +108,7 @@ void PictureProcessingUnit::reset()
     /* TODO */
 }
 
-void PictureProcessingUnit::tick()
+void PictureProcessingUnit::_tick()
 {
     if (_reg_line < _format.linePost) {
         lineRender();
@@ -115,9 +116,20 @@ void PictureProcessingUnit::tick()
         linePre();
     } else if (_reg_line == _format.lineVBlank) {
         lineVBlank();
+        if (_flush) _flush();
     } // Just idles for other scanlines
 
     forward();
+}
+
+void PictureProcessingUnit::setVideoOut(VideoOut output)
+{
+    _output = output;
+}
+
+void PictureProcessingUnit::setFrameEnd(FrameEnd flush)
+{
+    _flush = flush;
 }
 
 void PictureProcessingUnit::readPPUSTATUS()
@@ -444,7 +456,12 @@ void PictureProcessingUnit::renderPixel()
 
     _reg_V = ppu::Palettes::PalettesUpperBound | pixelColor;
     read();
-    // TODO: Output the color in _reg_DBB
+
+    if (_output) {
+        // TODO: Output the color in _reg_DBB
+        _output(_reg_CX << 3 | _reg_FX, _reg_CY << 3 | _reg_CY,
+                std::make_tuple(_reg_DBB, _reg_DBB, _reg_DBB));
+    }
 }
 
 } // namespace tones

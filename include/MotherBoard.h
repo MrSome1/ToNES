@@ -18,12 +18,18 @@
 #ifndef _TONES_MOTHERBOARD_H_
 #define _TONES_MOTHERBOARD_H_
 
+#include <atomic>
+#include <functional>
+
+#include "Clock.h"
 #include "Device.h"
 #include "MicroProcessor.h"
 #include "PictureProcessingUnit.h"
 #include "Cartridge.h"
 
 namespace tones {
+
+typedef std::function<void(MicroProcessor::Registers_t&)> CpuViewer;
 
 /**
  * @brief MotherBoard of NES
@@ -40,21 +46,49 @@ public:
 
     void start();
 
+    void stop();
+
     void pause();
+
+    void resume();
 
     void insert(CartridgePtr &card);
 
     void eject();
 
+    /* Status */
+
+    bool isStarted() const;
+
+    bool isRunning() const;
+
+    /* Callbacks */
+
+    void setVideoOut(VideoOut output);
+
+    void setFrameEnd(FrameEnd flush);
+
     /* Debug APIs */
 
-    void dumpCPU();
+    void setCpuViewer(CpuViewer viewer);
+
+protected:
+
+    void run();
+
+    void debugCpu();
 
 private:
+
+    uint32_t _frequency;
+
+    /* Hardwares */
 
     Bus _bus; // Bus of CPU
 
     Bus _vbus; // Bus of PPU
+
+    Clock _clock;
 
     MicroProcessor _cpu;
 
@@ -65,6 +99,16 @@ private:
     VideoRandomAccessMemory _vram;
 
     CartridgePtr _card;
+
+    /* Flags */
+
+    std::atomic<bool> _started;
+
+    std::atomic<bool> _running;
+
+    /* Debuggers */
+
+    CpuViewer _cpuViewer;
 };
 
 } // namespace tones

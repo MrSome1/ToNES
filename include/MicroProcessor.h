@@ -7,6 +7,7 @@
 
 #include "Instruction.h"
 #include "InstructionDecoder.h"
+#include "Clock.h"
 #include "Device.h"
 #include "Register.h"
 
@@ -128,7 +129,7 @@ private:
  * @brief CPU
  * 
  */
-class MicroProcessor
+class MicroProcessor : public Tickable
 {
 
 public:
@@ -145,12 +146,12 @@ public:
         uint16_t PC; // stack pointer
     } Registers_t;
 
-    MicroProcessor(Bus &bus);
+    MicroProcessor(Clock &clock, Bus &bus);
     ~MicroProcessor();
 
-    void reset();
+    void _tick();
 
-    void tick();
+    void reset();
 
     void dump(Registers_t &registers) const;
 

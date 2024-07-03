@@ -9,6 +9,7 @@ Road to building an NES step by step
 Using the typical cmake routine
 
 ```shell
+export Qt5_DIR="~/Qt/5.15.2/gcc_64/lib/cmake/Qt5"
 cd ${path to FoolNES}
 mkdir build && cd build
 cmake .. && make

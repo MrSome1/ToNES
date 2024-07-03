@@ -159,10 +159,14 @@ MicroProcessor::_fetchers = {
     fetchNull, // for addressing mode Invalid
 };
 
-MicroProcessor::MicroProcessor(Bus &bus)
-    : _decoder(*this)
+MicroProcessor::MicroProcessor(Clock &clock, Bus &bus)
+    : Tickable(1)
+    , _decoder(*this)
     , _alu(*this)
-    , _bus(bus) {}
+    , _bus(bus)
+{
+    attach(clock);
+}
 
 MicroProcessor::~MicroProcessor() {}
 
@@ -180,7 +184,7 @@ void MicroProcessor::reset()
     reg::mergeTwoBytes(_reg_PC, _reg_DBB, _reg_DL);
 }
 
-void MicroProcessor::tick()
+void MicroProcessor::_tick()
 {
     // Fetch opration code
     _reg_AB = _reg_PC++;

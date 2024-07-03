@@ -1,10 +1,20 @@
 #ifndef _TONES_PICTUREPROCESSINGUNIT_H_
 #define _TONES_PICTUREPROCESSINGUNIT_H_
 
+#include <functional>
+#include <tuple>
+
+#include "Clock.h"
 #include "Device.h"
 #include "Register.h"
 
 namespace tones {
+
+typedef std::tuple<uint8_t, uint8_t, uint8_t> RGB;
+
+typedef std::function<void(void)> FrameEnd;
+
+typedef std::function<void(int x, int y, const RGB &color)> VideoOut;
 
 class PictureProcessingUnit;
 
@@ -178,18 +188,22 @@ extern const FrameFormat_t Dendy;
  * Only cares about the picture region, without
  * the borders
  */
-class PictureProcessingUnit
+class PictureProcessingUnit : public Tickable
 {
 
 public:
 
-    PictureProcessingUnit(Bus &vbus);
+    PictureProcessingUnit(Clock &clock, Bus &vbus);
 
     void attach(Bus &bus);
 
     void reset();
 
-    void tick();
+    void _tick();
+
+    void setVideoOut(VideoOut output);
+
+    void setFrameEnd(FrameEnd flush);
 
 protected:
 
@@ -343,6 +357,12 @@ private:
 
     /* Object Attribute Memory */
     uint8_t _OAM[ppu::SpriteMemorySize];
+
+    /* Callbacks */
+
+    VideoOut _output;
+
+    FrameEnd _flush;
 };
 
 inline void PictureProcessingUnit::read()

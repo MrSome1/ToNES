@@ -14,7 +14,9 @@ INCLUDE_DIRECTORIES(./include)
 file(GLOB HEADEDS include/*.h)
 file(GLOB SOURCES src/*.cpp)
 
-add_executable(${PROJECT_NAME} 
+add_library(tones SHARED
     ${HEADERS}
     ${SOURCES}
 )
+
+add_subdirectory(test/simulator)
