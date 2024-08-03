@@ -1,7 +1,7 @@
 
 cmake_minimum_required(VERSION 3.10)
 
-find_package(Qt5 5.15 COMPONENTS Core Widgets Gui REQUIRED)
+find_package(Qt5 COMPONENTS Core Widgets Gui REQUIRED)
 
 set(HEADERS
     Simulator.h
