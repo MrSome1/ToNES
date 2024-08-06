@@ -14,14 +14,16 @@ using namespace std::chrono;
 
 MotherBoard::MotherBoard() 
     : _frequency(29781) // TODO: frequency depending on video type
-    , _cpu(_clock, _bus)
-    , _ppu(_clock, _vbus)
+    , _cpu(_bus)
+    , _ppu(_vbus, _bus)
     , _started(false)
     , _running(false)
 {
     _ram.attach(_bus);
-    _ppu.attach(_bus);
     _vram.attach(_vbus);
+
+    _cpu.attach(_clock);
+    _ppu.attach(_clock); // TODO: crash here
 }
 
 void MotherBoard::reset()

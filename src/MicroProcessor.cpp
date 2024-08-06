@@ -159,13 +159,12 @@ MicroProcessor::_fetchers = {
     fetchNull, // for addressing mode Invalid
 };
 
-MicroProcessor::MicroProcessor(Clock &clock, Bus &bus)
+MicroProcessor::MicroProcessor(Bus &bus)
     : Tickable(1)
     , _decoder(*this)
     , _alu(*this)
     , _bus(bus)
 {
-    attach(clock);
 }
 
 MicroProcessor::~MicroProcessor() {}

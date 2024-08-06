@@ -78,7 +78,7 @@ void Palettes::write(uint16_t address, uint8_t data)
 
 /* PictureProcessingUnit */
 
-PictureProcessingUnit::PictureProcessingUnit(Clock &clock, Bus &vbus)
+PictureProcessingUnit::PictureProcessingUnit(Bus &vbus, Bus &cbus)
     : Tickable(3) // TODO: frequency depending on type
     , _vbus(vbus)
     , _registers(*this)
@@ -95,12 +95,8 @@ PictureProcessingUnit::PictureProcessingUnit(Clock &clock, Bus &vbus)
     _reg_FX.reset(ppu::TileSize - 1);
     _reg_FY.reset(ppu::TileSize - 1);
 
+    _registers.attach(cbus);
     _palettes.attach(_vbus);
-}
-
-void PictureProcessingUnit::attach(Bus &bus)
-{
-    _registers.attach(bus);
 }
 
 void PictureProcessingUnit::reset()

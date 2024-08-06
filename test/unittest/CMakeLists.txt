@@ -1,12 +1,14 @@
 
 macro (add_unittest NAME)
-    add_executable(${NAME} ${NAME}.cpp)
-    target_link_libraries(${NAME} PUBLIC
+    set(TEST_NAME ${NAME}_test)
+    add_executable(${TEST_NAME} ${TEST_NAME}.cpp)
+    target_link_libraries(${TEST_NAME} PUBLIC
         GTest::gtest_main
         tones
     )
-    add_test(${NAME} ./${NAME})
+    add_test(${TEST_NAME} ./${TEST_NAME})
 endmacro(add_unittest)
 
-add_unittest(TestClock)
-add_unittest(TestMemory)
+add_unittest(Clock)
+add_unittest(Device)
+add_unittest(MicroProcessor)

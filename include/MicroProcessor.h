@@ -146,7 +146,7 @@ public:
         uint16_t PC; // stack pointer
     } Registers_t;
 
-    MicroProcessor(Clock &clock, Bus &bus);
+    MicroProcessor(Bus &bus);
     ~MicroProcessor();
 
     void _tick();

@@ -19,7 +19,7 @@ public:
     int operator()() { return value; }
 };
 
-TEST(TestClock, TickTest)
+TEST(ClockTest, Tick)
 {
     const int num = 10;
     const int mul = 5;
@@ -37,7 +37,7 @@ TEST(TestClock, TickTest)
     }
 }
 
-TEST(TestClock, AttatchTest)
+TEST(ClockTest, Attatch)
 {
     const int num = 10;
 
@@ -57,7 +57,7 @@ TEST(TestClock, AttatchTest)
     EXPECT_EQ(counter_2(), num);
 }
 
-TEST(TestClock, DetatchTest)
+TEST(ClockTest, Detatch)
 {
     const int num = 10;
 

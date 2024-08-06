@@ -193,9 +193,11 @@ class PictureProcessingUnit : public Tickable
 
 public:
 
-    PictureProcessingUnit(Clock &clock, Bus &vbus);
-
-    void attach(Bus &bus);
+    /** Constructor
+     * @param vbus bus of the ppu
+     * @param cbus bus of the cpu
+     */
+    PictureProcessingUnit(Bus &vbus, Bus &cbus);
 
     void reset();
 

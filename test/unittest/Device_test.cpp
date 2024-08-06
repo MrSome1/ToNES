@@ -10,12 +10,12 @@ using namespace tones;
 
 const int RomSize = ReadOnlyMemory::RomUpperBankBase - ReadOnlyMemory::RomLowerBankBase;
 
-class TestMemory : public ::testing::Test
+class DeviceTest : public ::testing::Test
 {
 
 protected:
 
-    TestMemory() : _data(RomSize, 0), _rom(_data) {}
+    DeviceTest() : _data(RomSize, 0), _rom(_data) {}
 
     void SetUp() override
     {
@@ -35,7 +35,7 @@ protected:
     std::vector<uint8_t> _data;
 };
 
-TEST_F(TestMemory, RamReadWrite)
+TEST_F(DeviceTest, RamReadWrite)
 {
     uint16_t addr;
     uint8_t buffer, data;
@@ -58,7 +58,7 @@ TEST_F(TestMemory, RamReadWrite)
     }
 }
 
-TEST_F(TestMemory, RamMirror)
+TEST_F(DeviceTest, RamMirror)
 {
     uint16_t addr;
     uint8_t buffer, data;
@@ -109,7 +109,7 @@ TEST_F(TestMemory, RamMirror)
     }
 }
 
-TEST_F(TestMemory, RomReadWrite)
+TEST_F(DeviceTest, RomReadWrite)
 {
     uint16_t addr;
     uint8_t buffer, data;
