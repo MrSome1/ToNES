@@ -78,7 +78,7 @@ void Palettes::write(uint16_t address, uint8_t data)
 
 /* PictureProcessingUnit */
 
-PictureProcessingUnit::PictureProcessingUnit(Bus &vbus, Bus &cbus)
+PictureProcessingUnit::PictureProcessingUnit(Bus &vbus, Bus &mbus)
     : Tickable(3) // TODO: frequency depending on type
     , _vbus(vbus)
     , _registers(*this)
@@ -95,13 +95,23 @@ PictureProcessingUnit::PictureProcessingUnit(Bus &vbus, Bus &cbus)
     _reg_FX.reset(ppu::TileSize - 1);
     _reg_FY.reset(ppu::TileSize - 1);
 
-    _registers.attach(cbus);
+    _registers.attach(mbus);
     _palettes.attach(_vbus);
 }
 
 void PictureProcessingUnit::reset()
 {
     /* TODO */
+}
+
+void PictureProcessingUnit::setVideoOut(VideoOut output)
+{
+    _output = output;
+}
+
+void PictureProcessingUnit::setFrameEnd(FrameEnd flush)
+{
+    _flush = flush;
 }
 
 void PictureProcessingUnit::_tick()
@@ -116,16 +126,6 @@ void PictureProcessingUnit::_tick()
     } // Just idles for other scanlines
 
     forward();
-}
-
-void PictureProcessingUnit::setVideoOut(VideoOut output)
-{
-    _output = output;
-}
-
-void PictureProcessingUnit::setFrameEnd(FrameEnd flush)
-{
-    _flush = flush;
 }
 
 void PictureProcessingUnit::readPPUSTATUS()

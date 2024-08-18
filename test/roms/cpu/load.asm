@@ -4,9 +4,9 @@
 
 .segment "CODE"
 main:
-    LDA #$1
-    LDX #$1
-    LDY #$1
+    LDA #$1 ; @REG
+    LDX #$1 ; @REG
+    LDY #$1 ; @REG
 
 .segment "INTERRUPT_VECTOR"
     .word main, main, main

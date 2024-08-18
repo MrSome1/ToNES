@@ -174,13 +174,23 @@ void MicroProcessor::reset()
     _reg_A = 0;
     _reg_X = 0;
     _reg_Y = 0;
-    _reg_S = 0xfd; // TODO: Where is this mentioned
+    _reg_S = cpu::DefaultStack;
     _reg_P = cpu::DefaultStatus;
 
     // Load PC from reset vector
     _reg_PC = cpu::ResetVector;
     fetchTwo(*this);
     reg::mergeTwoBytes(_reg_PC, _reg_DBB, _reg_DL);
+}
+
+void MicroProcessor::dump(Registers_t &registers) const
+{
+    registers.A = _reg_A;
+    registers.X = _reg_X;
+    registers.Y = _reg_Y;
+    registers.S = _reg_S;
+    registers.P = _reg_P;
+    registers.PC = _reg_PC;
 }
 
 void MicroProcessor::_tick()
@@ -199,16 +209,6 @@ void MicroProcessor::_tick()
     _decoder.load();
     _decoder.execute();
     _decoder.save();
-}
-
-void MicroProcessor::dump(Registers_t &registers) const
-{
-    registers.A = _reg_A;
-    registers.X = _reg_X;
-    registers.Y = _reg_Y;
-    registers.S = _reg_S;
-    registers.P = _reg_P;
-    registers.PC = _reg_PC;
 }
 
 void MicroProcessor::fetchNull(MicroProcessor &cpu) {

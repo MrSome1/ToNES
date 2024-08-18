@@ -39,7 +39,7 @@ bool iNESReader::load(const std::string &path)
         return false;
     }
 
-    if (!file.read(reinterpret_cast<char *>(&_header), 16)) {
+    if (!file.read(reinterpret_cast<char *>(&_header), sizeof(_header))) {
         LOG_ERROR() << "Failed to read header from " << path;
         return false;
     }
@@ -105,19 +105,16 @@ bool iNESReader::validate(const Header &header)
 
 Cartridge::Cartridge() {}
 
-void Cartridge::attachMainBus(Bus &bus)
+void Cartridge::attach(Bus &mbus, Bus &vbus)
 {
-    _rom->attach(bus);
-}
-
-void Cartridge::attachVideoBus(Bus &vbus)
-{
+    _prom->attach(mbus);
     _vrom->attach(vbus);
 }
 
 void Cartridge::detach()
 {
-    _rom->detach();
+    _prom->detach();
+    _vrom->detach();
 }
 
 /* CartridgeFactory */
@@ -126,19 +123,14 @@ CartridgePtr CartridgeFactory::createCartridge(const std::string &path)
 {
     auto reader = getReader(getFileExtension(path));
 
-    if (!reader->load(path))
+    if (!reader || !reader->load(path))
         return nullptr;
 
-    auto mapper = getMapper(reader->mapper());
-
-    auto rom = new ReadOnlyMemory(reader->prgRom());
-    auto vrom = new PatternTables(reader->chrRom());
-
     auto card = CartridgePtr(new Cartridge);
-    card->_rom = std::unique_ptr<ReadOnlyMemory>(rom);
-    card->_vrom = std::unique_ptr<PatternTables>(vrom);
-    card->_reader = std::unique_ptr<rom::CartridgeReader>(reader);
-    card->_mapper = std::unique_ptr<MemoryManagementController>(mapper);
+    card->_reader.reset(reader);
+    card->_mapper.reset(getMapper(reader->mapper()));
+    card->_prom.reset(new ReadOnlyMemory(reader->prgRom()));
+    card->_vrom.reset(new PatternTables(reader->chrRom()));
 
     return card;
 }
@@ -161,8 +153,7 @@ MemoryManagementController *CartridgeFactory::getMapper(int mapper)
 const std::string CartridgeFactory::getFileExtension(const std::string &path)
 {
     auto it = path.rfind('.');
-    it = std::string::npos == it ? 0 : it;
-    return path.substr(it, path.size() - it);
+    return std::string::npos == it ? path : path.substr(it, path.size() - it);
 }
 
 } // namespace tones

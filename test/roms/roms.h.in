@@ -1,0 +1,20 @@
+
+#define ROM_ROOT_DIR "@ROM_ROOT_DIR@/"
+
+const char *ROM_SRC_EXT = ".asm";
+const char *ROM_BIN_EXT = ".nes";
+
+inline const std::string getRomSrc(const std::string &rom)
+{
+    return ROM_ROOT_DIR + rom + ROM_SRC_EXT;
+}
+
+inline const std::string getRomBin(const std::string &rom)
+{
+    return ROM_ROOT_DIR + rom + ROM_BIN_EXT;
+}
+
+/* CPU Test ROMs */
+
+const char *ROM_LOAD = "load";
+const char *ROM_TRANSFER = "transfer";

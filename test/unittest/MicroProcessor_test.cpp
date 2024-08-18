@@ -1,44 +1,103 @@
 
-#include <stdlib.h>
-#include <vector>
+#include <memory>
 
 #include <gtest/gtest.h>
 
 #include "Clock.h"
 #include "Device.h"
+#include "Cartridge.h"
 #include "MicroProcessor.h"
+
+#include "roms.h"
+#include "CpuRegParser.hpp"
 
 using namespace tones;
 
-class MicroProcessorTest : public ::testing::Test
+class DebuggingCPU : public MicroProcessor
+{
+public:
+
+    MicroProcessor::Registers_t regs;
+
+    DebuggingCPU(Bus &bus) : MicroProcessor(bus) {}
+
+    void step()
+    {
+        _tick();
+        dump(regs);
+    }
+};
+
+class MicroProcessorTest : public ::testing::TestWithParam<std::string>
 {
 
 protected:
 
-    MicroProcessorTest() : _cpu(_bus), _data(1024, 0), _rom(_data) {}
+    MicroProcessorTest() : _cpu(_mbus) {}
 
     void SetUp() override
     {
-        _ram.attach(_bus);
-        _rom.attach(_bus);
-
-        _cpu.attach(_clock);
+        _pram.attach(_mbus);
     }
 
-    void TearDown() override
-    {
-        _ram.detach();
-        _rom.detach();
-    }
+    Bus _mbus, _vbus;
+    RandomAccessMemory _pram;
+    DebuggingCPU _cpu;
 
-    Bus _bus;
-    Clock _clock;
-    RandomAccessMemory _ram;
-    MicroProcessor _cpu;
-
-    std::vector<uint8_t> _data;
-    ReadOnlyMemory _rom;
+    CpuRegParser _parser;
 };
+
+TEST_F(MicroProcessorTest, Reset)
+{
+    std::string filepath = getRomBin(ROM_LOAD);
+    auto card = CartridgeFactory::createCartridge(filepath);
+    ASSERT_NE(card, nullptr);
+
+    card->attach(_mbus, _vbus);
+    _cpu.reset();
+    _cpu.dump(_cpu.regs);
+
+    EXPECT_EQ(_cpu.regs.A, 0);
+    EXPECT_EQ(_cpu.regs.X, 0);
+    EXPECT_EQ(_cpu.regs.Y, 0);
+    EXPECT_EQ(_cpu.regs.S, ::cpu::DefaultStack);
+    EXPECT_EQ(_cpu.regs.P, ::cpu::DefaultStatus);
+
+    int pc = ReadOnlyMemory::RomLowerBankBase;
+    EXPECT_EQ(_cpu.regs.PC, pc);
+}
+
+TEST_P(MicroProcessorTest, Instructions)
+{
+    std::string rom = GetParam();
+
+    std::string romSrc = getRomSrc(rom);
+    _parser.load(romSrc);
+    ASSERT_NE(_parser.size(), 0);
+
+    std::string romBin = getRomBin(rom);
+    auto card = CartridgeFactory::createCartridge(romBin);
+    ASSERT_NE(card, nullptr);
+
+    card->attach(_mbus, _vbus);
+    _cpu.reset();
+
+    for (int i = 0; i < _parser.size(); ++i) {
+        _cpu.step();
+
+        auto *regs = _parser.next();
+        ASSERT_NE(regs, nullptr);
+
+        ASSERT_EQ(0, memcmp(&_cpu.regs, regs, sizeof(Registers_t)));
+    }
+}
+
+INSTANTIATE_TEST_SUITE_P(BasicTest,
+                         MicroProcessorTest,
+                         testing::Values(
+                            ROM_LOAD,
+                            ROM_TRANSFER
+                        ));
 
 int main(int argc, char **argv)
 {

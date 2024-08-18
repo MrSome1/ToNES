@@ -195,19 +195,19 @@ public:
 
     /** Constructor
      * @param vbus bus of the ppu
-     * @param cbus bus of the cpu
+     * @param mbus bus of the cpu
      */
-    PictureProcessingUnit(Bus &vbus, Bus &cbus);
+    PictureProcessingUnit(Bus &vbus, Bus &mbus);
 
     void reset();
-
-    void _tick();
 
     void setVideoOut(VideoOut output);
 
     void setFrameEnd(FrameEnd flush);
 
 protected:
+
+    void _tick() override;
 
     //! Next address of VRAM
     void next();

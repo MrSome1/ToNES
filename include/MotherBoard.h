@@ -84,7 +84,7 @@ private:
 
     /* Hardwares */
 
-    Bus _bus; // Bus of CPU
+    Bus _mbus; // Bus of CPU
 
     Bus _vbus; // Bus of PPU
 
@@ -94,9 +94,9 @@ private:
 
     PictureProcessingUnit _ppu;
 
-    RandomAccessMemory _ram;
+    RandomAccessMemory _pram; // RAM of CPU
 
-    VideoRandomAccessMemory _vram;
+    VideoRandomAccessMemory _vram; // RAM of PPU
 
     CartridgePtr _card;
 

@@ -95,24 +95,25 @@ class Cartridge
 {
 public:
 
-    //! Attach to CPU Bus
-    void attachMainBus(Bus &bus);
+    /** Attach to system bus
+     * @param vbus bus of the ppu
+     * @param mbus bus of the cpu
+     */
+    void attach(Bus &mbus, Bus &vbus);
 
-    //! Attach to PPU Bus
-    void attachVideoBus(Bus &vbus);
-
-    //! Detach from all
+    //! Detach from system bus
     void detach();
 
 protected:
 
     Cartridge();
+    Cartridge(Cartridge&) = delete;
 
 private:
 
     friend class CartridgeFactory;
 
-    std::unique_ptr<ReadOnlyMemory> _rom;
+    std::unique_ptr<ReadOnlyMemory> _prom;
 
     std::unique_ptr<PatternTables> _vrom;
 

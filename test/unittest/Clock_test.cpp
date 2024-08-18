@@ -14,9 +14,11 @@ public:
 
     Counter(int multiplier=1) : Tickable(multiplier) {}
 
-    void _tick() { ++value; }
-
     int operator()() { return value; }
+
+protected:
+
+    void _tick() override { ++value; }
 };
 
 TEST(ClockTest, Tick)

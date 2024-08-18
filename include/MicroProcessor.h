@@ -18,7 +18,8 @@ class MicroProcessor;
 namespace cpu {
 
 // TODO: Where is this mentioned
-const uint16_t ResetVector = 0xfffc;
+const uint16_t ResetVector  = 0xfffc;
+const uint8_t DefaultStack  = 0xfd; // TODO: Where is this mentioned
 const uint8_t DefaultStatus = 0x24; // 0010 0100
 
 /**
@@ -149,13 +150,13 @@ public:
     MicroProcessor(Bus &bus);
     ~MicroProcessor();
 
-    void _tick();
-
     void reset();
 
     void dump(Registers_t &registers) const;
 
 protected:
+
+    void _tick() override;
 
     //! Read one byte from memory
     void read();

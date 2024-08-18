@@ -9,7 +9,7 @@ message("Build Type: ${CMAKE_BUILD_TYPE}")
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
-option(BUILD_TEST "Compile the test cases" OFF)
+option(BUILD_TESTING "Compile the test cases" OFF)
 
 INCLUDE_DIRECTORIES(./include)
 
@@ -21,8 +21,9 @@ add_library(tones SHARED
     ${SOURCES}
 )
 
-if (${BUILD_TEST})
-    include(CTest)
+include(CTest)
+
+if (${BUILD_TESTING})
     enable_testing()
     add_subdirectory(test)
 endif()

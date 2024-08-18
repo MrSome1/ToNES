@@ -22,6 +22,8 @@ public:
 
     void tick();
 
+protected:
+
     virtual void _tick() = 0;
 
 private:

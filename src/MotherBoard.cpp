@@ -14,12 +14,12 @@ using namespace std::chrono;
 
 MotherBoard::MotherBoard() 
     : _frequency(29781) // TODO: frequency depending on video type
-    , _cpu(_bus)
-    , _ppu(_vbus, _bus)
+    , _cpu(_mbus)
+    , _ppu(_vbus, _mbus)
     , _started(false)
     , _running(false)
 {
-    _ram.attach(_bus);
+    _pram.attach(_mbus);
     _vram.attach(_vbus);
 
     _cpu.attach(_clock);
@@ -93,8 +93,7 @@ void MotherBoard::run()
 void MotherBoard::insert(CartridgePtr &card)
 {
     _card = card;
-    _card->attachMainBus(_bus);
-    _card->attachVideoBus(_vbus);
+    _card->attach(_mbus, _vbus);
 }
 
 void MotherBoard::eject()
