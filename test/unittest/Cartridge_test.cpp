@@ -55,19 +55,19 @@ TEST_F(CartridgeTest, iNES)
     _mbus.read(genRomAddr(1), buffer);
     EXPECT_EQ(buffer, 0x01);
 
-    // LDX #$1
+    // LDX #$2
     _mbus.read(genRomAddr(2), buffer);
     EXPECT_EQ(buffer, 0xa2);
 
     _mbus.read(genRomAddr(3), buffer);
-    EXPECT_EQ(buffer, 0x01);
+    EXPECT_EQ(buffer, 0x02);
 
-    // LDY #$1
+    // LDY #$3
     _mbus.read(genRomAddr(4), buffer);
     EXPECT_EQ(buffer, 0xa0);
 
     _mbus.read(genRomAddr(5), buffer);
-    EXPECT_EQ(buffer, 0x01);
+    EXPECT_EQ(buffer, 0x03);
 
     // ResetVector
     _mbus.read(cpu::ResetVector, buffer);

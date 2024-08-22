@@ -88,7 +88,12 @@ TEST_P(MicroProcessorTest, Instructions)
         auto *regs = _parser.next();
         ASSERT_NE(regs, nullptr);
 
-        ASSERT_EQ(0, memcmp(&_cpu.regs, regs, sizeof(Registers_t)));
+        ASSERT_EQ(_cpu.regs.A, regs->A) << *(_parser.code());
+        ASSERT_EQ(_cpu.regs.X, regs->X) << *(_parser.code());
+        ASSERT_EQ(_cpu.regs.Y, regs->Y) << *(_parser.code());
+        ASSERT_EQ(_cpu.regs.S, regs->S) << *(_parser.code());
+        ASSERT_EQ(_cpu.regs.P, regs->P) << *(_parser.code());
+        ASSERT_EQ(_cpu.regs.PC, regs->PC) << *(_parser.code());
     }
 }
 
