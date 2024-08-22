@@ -16,5 +16,7 @@ inline const std::string getRomBin(const std::string &rom)
 
 /* CPU Test ROMs */
 
+const char *ROM_NOP = "nop";
 const char *ROM_LOAD = "load";
+const char *ROM_STATUS = "status";
 const char *ROM_TRANSFER = "transfer";

@@ -100,7 +100,9 @@ TEST_P(MicroProcessorTest, Instructions)
 INSTANTIATE_TEST_SUITE_P(BasicTest,
                          MicroProcessorTest,
                          testing::Values(
+                            ROM_NOP,
                             ROM_LOAD,
+                            ROM_STATUS,
                             ROM_TRANSFER
                         ));
 
