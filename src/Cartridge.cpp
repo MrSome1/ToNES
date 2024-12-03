@@ -14,7 +14,12 @@ const char *iNES = ".nes";
 
 /* CartridgeReader */
 
-CartridgeReader::~CartridgeReader() {}
+CartridgeReader::CartridgeReader()
+    : _prg_rom(ReadOnlyMemory::RomBankCount * ReadOnlyMemory::RomBankSize)
+    , _chr_rom(PatternTables::TotalSize)
+{
+
+}
 
 const std::vector<uint8_t> &CartridgeReader::prgRom() const
 {
@@ -49,7 +54,7 @@ bool iNESReader::load(const std::string &path)
     }
 
     // Load PRG-ROM
-    _prg_rom.resize(_header.prg * PrgRomBanckSize);
+    _prg_rom.resize(_header.prg * ReadOnlyMemory::RomBankSize);
     if (!file.read((char*)_prg_rom.data(), _prg_rom.size())) {
         LOG_ERROR() << "Failed to load PRG-ROM from " << path;
         return false;
@@ -58,7 +63,7 @@ bool iNESReader::load(const std::string &path)
 
     // Load CHR-ROM
     if (_header.chr) {
-        _chr_rom.resize(_header.chr * ChrRomBanckSize);
+        _chr_rom.resize(_header.chr * PatternTables::TotalSize);
         if (!file.read((char*)_chr_rom.data(), _chr_rom.size())) {
             LOG_ERROR() << "Failed to load CHR-ROM from " << path;
             return false;

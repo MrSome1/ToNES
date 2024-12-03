@@ -104,7 +104,7 @@ typedef struct Cycle: public Base<uint16_t> {
     void reset(uint16_t bound)
     {
         value = 0;
-        limit = bound;
+        limit = bound ? bound - 1 : 0;
     }
 
     bool empty()

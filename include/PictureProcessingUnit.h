@@ -419,8 +419,8 @@ inline void PictureProcessingUnit::copyHorizontal()
 inline void PictureProcessingUnit::copyVertical()
 {
     SET_BIT(_reg_YX, ppu::ControllerBit::Y, _reg_T & 0x0800);
-    _reg_CY = _reg_T & 0x03e0;
-    _reg_FY = _reg_T & 0x7000;
+    _reg_CY = (_reg_T & 0x03e0) >> 5;
+    _reg_FY = (_reg_T & 0x7000) >> 12;
 }
 
 inline uint16_t PictureProcessingUnit::getPatternTable(ppu::ControllerBit bit)

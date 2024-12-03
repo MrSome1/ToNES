@@ -12,9 +12,6 @@
 namespace tones {
 namespace rom {
 
-const int PrgRomBanckSize = 0x4000; // 16kB
-const int ChrRomBanckSize = 0x2000; // 8kB
-
 /* Cartridge File Format */
 extern const char *iNES;
 /* TODO: Other formats */
@@ -24,7 +21,8 @@ class CartridgeReader
 {
 public:
 
-    virtual ~CartridgeReader();
+    CartridgeReader();
+    virtual ~CartridgeReader() = default;
 
     //! Load from a file
     virtual bool load(const std::string &path) = 0;

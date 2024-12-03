@@ -10,6 +10,8 @@ namespace tones {
 
 using namespace std::chrono;
 
+static OutputPanel DefaultOuput;
+
 /* MotherBoard */
 
 MotherBoard::MotherBoard() 
@@ -18,27 +20,32 @@ MotherBoard::MotherBoard()
     , _ppu(_vbus, _mbus)
     , _started(false)
     , _running(false)
+    , _output(&DefaultOuput)
 {
     _pram.attach(_mbus);
     _vram.attach(_vbus);
 
     _cpu.attach(_clock);
-    _ppu.attach(_clock); // TODO: crash here
+    _ppu.attach(_clock);
 }
 
-void MotherBoard::reset()
+void MotherBoard::insert(CartridgePtr &card)
 {
-    _cpu.reset();
-    debugCpu();
+    eject();
+    _card = card;
+    _card->attach(_mbus, _vbus);
 }
 
 void MotherBoard::start()
 {
-    if (!_started) {
-        _started = true;
-        _running = true;
-        run();
-    }
+    if ( _started || !_card)
+        return;
+
+    _started = true;
+    _running = true;
+
+    reset();
+    run();
 }
 
 void MotherBoard::stop()
@@ -67,6 +74,33 @@ bool MotherBoard::isRunning() const
     return _running;
 }
 
+void MotherBoard::setOutputPanel(OutputPanel &output)
+{
+    _output = &output;
+
+    _ppu.setVideoOut([this] (int x, int y, const RGB &color) {
+        _output->onVideoDotRendered(x, y, color);
+    });
+
+    _ppu.setFrameEnd([this] () {
+        _output->onVideoFrameRendered();
+    });
+}
+
+void MotherBoard::reset()
+{
+    _cpu.reset();
+    debugCpu();
+}
+
+void MotherBoard::eject()
+{
+    if (_card) {
+        _card->detach();
+        _card.reset();
+    }
+}
+
 void MotherBoard::run()
 {
     std::chrono::microseconds cycle(16667); // 1/60 s
@@ -90,42 +124,10 @@ void MotherBoard::run()
     }
 }
 
-void MotherBoard::insert(CartridgePtr &card)
-{
-    _card = card;
-    _card->attach(_mbus, _vbus);
-}
-
-void MotherBoard::eject()
-{
-    _card->detach();
-    _card.reset();
-}
-
-void MotherBoard::setVideoOut(VideoOut output)
-{
-    _ppu.setVideoOut(output);
-}
-
-void MotherBoard::setFrameEnd(FrameEnd flush)
-{
-    _ppu.setFrameEnd(flush);
-}
-
-void MotherBoard::setCpuViewer(CpuViewer viewer)
-{
-    if (!viewer)
-        return;
-    _cpuViewer = viewer;
-}
-
 void MotherBoard::debugCpu()
 {
-    if (_cpuViewer) {
-        MicroProcessor::Registers_t regs;
-        _cpu.dump(regs);
-        _cpuViewer(regs);
-    }
+    _cpu.dump(_output->_registers);
+    _output->onCpuStepped();
 }
 
 } // namespace tones

@@ -154,7 +154,8 @@ class ReadOnlyMemory: public Device
 public:
 
     static const int RomMask = 0x7fff;
-    static const int RomBankCount = 2; // 4KB * 2
+    static const int RomBankSize  = 0x4000; // 16KB
+    static const int RomBankCount = 2;
     static const int RomLowerBankBase = 0x8000;
     static const int RomUpperBankBase = 0xC000;
 
@@ -167,8 +168,6 @@ public:
     void write(uint16_t address, uint8_t data) override;
 
 private:
-
-    uint16_t _base;
 
     const std::vector<uint8_t> &_memory;
 };
@@ -233,8 +232,6 @@ public:
     void write(uint16_t address, uint8_t data) override;
 
 private:
-
-    uint16_t _base;
 
     const std::vector<uint8_t> &_memory;
 };

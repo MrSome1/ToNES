@@ -6,13 +6,15 @@
 #include <QMainWindow>
 #include <QAction>
 #include <QLabel>
+#include <QLineEdit>
 #include <QImage>
+#include <QPixmap>
 
 #include "MotherBoard.h"
 
 namespace tones {
 
-class Simulator : public  QMainWindow
+class Simulator : public QMainWindow, public OutputPanel
 {
     Q_OBJECT
 
@@ -21,6 +23,18 @@ public:
     Simulator(QWidget *parent=nullptr);
     ~Simulator();
 
+    void onVideoDotRendered(int x, int y, const RGB &color) override;
+
+    void onVideoFrameRendered() override;
+
+    void onAudioOutput() override;
+
+    void onCpuStepped() override;
+
+Q_SIGNALS:
+
+    void frameRendred();
+
 public Q_SLOTS:
 
     void onOpen();
@@ -28,6 +42,8 @@ public Q_SLOTS:
     void onPause();
 
     void onResume();
+
+    void onFrameRendred();
 
 protected:
 
@@ -43,13 +59,9 @@ protected:
 
     /* */
 
-    void setupEngine();
-
     void start();
 
     void stop();
-
-    void refresh();
 
 private:
 
@@ -57,11 +69,21 @@ private:
 
     tones::MotherBoard _engine;
 
+    /* CPU Registers */
+    QLineEdit _cpu_pc;
+    QLineEdit _cpu_s;
+    QLineEdit _cpu_a;
+    QLineEdit _cpu_p;
+    QLineEdit _cpu_x;
+    QLineEdit _cpu_y;
+
     /* Video */
 
     QLabel _screen;
 
-    QImage _image;
+    QImage _videoBuffer;
+
+    QPixmap _videoFrame;
 
     /* Actions */
 

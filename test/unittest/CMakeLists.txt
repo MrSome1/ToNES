@@ -17,5 +17,6 @@ endmacro(add_unittest)
 
 add_unittest(Clock)
 add_unittest(Device)
+add_unittest(Register)
 add_unittest(Cartridge)
 add_unittest(MicroProcessor)

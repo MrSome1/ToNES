@@ -91,8 +91,7 @@ void RandomAccessMemory::write(uint16_t address, uint8_t data)
 /* ReadOnlyMemory */
 
 ReadOnlyMemory::ReadOnlyMemory(const std::vector<uint8_t> &memory)
-    : _base(0)
-    , _memory(memory) {}
+    : _memory(memory) {}
 
 bool ReadOnlyMemory::contains(uint16_t addr) const
 {
@@ -101,8 +100,7 @@ bool ReadOnlyMemory::contains(uint16_t addr) const
 
 void ReadOnlyMemory::read(uint16_t address, uint8_t &buffer) const
 {
-    // buffer = _memory[address - RomLowerBankBase + _base];
-    buffer = _memory[address & RomMask + _base];
+    buffer = _memory[address & RomMask];
 }
 
 void ReadOnlyMemory::write(uint16_t address, uint8_t data)
@@ -141,7 +139,7 @@ bool PatternTables::contains(uint16_t addr) const
 
 void PatternTables::read(uint16_t address, uint8_t &buffer) const
 {
-    buffer = _memory[address + _base];
+    buffer = _memory[address];
 }
 
 void PatternTables::write(uint16_t address, uint8_t data)

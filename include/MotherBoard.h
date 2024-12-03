@@ -29,7 +29,39 @@
 
 namespace tones {
 
-typedef std::function<void(MicroProcessor::Registers_t&)> CpuViewer;
+class MotherBoard;
+
+/**
+ * @brief A base class to get the output signals
+ *
+ */
+class OutputPanel
+{
+
+public:
+
+    /* Real Outputs */
+    virtual void onVideoDotRendered(int x, int y, const RGB &color)
+    {
+        (void)x;
+        (void)y;
+        (void)color;
+    };
+
+    virtual void onVideoFrameRendered() {};
+
+    virtual void onAudioOutput() {};
+
+    /* Debug Infos */
+
+    virtual void onCpuStepped() {};
+
+protected:
+
+    friend class MotherBoard;
+
+    MicroProcessor::Registers_t _registers;
+};
 
 /**
  * @brief MotherBoard of NES
@@ -42,7 +74,7 @@ public:
 
     MotherBoard();
 
-    void reset();
+    void insert(CartridgePtr &card);
 
     void start();
 
@@ -52,10 +84,6 @@ public:
 
     void resume();
 
-    void insert(CartridgePtr &card);
-
-    void eject();
-
     /* Status */
 
     bool isStarted() const;
@@ -64,15 +92,13 @@ public:
 
     /* Callbacks */
 
-    void setVideoOut(VideoOut output);
-
-    void setFrameEnd(FrameEnd flush);
-
-    /* Debug APIs */
-
-    void setCpuViewer(CpuViewer viewer);
+    void setOutputPanel(OutputPanel &output);
 
 protected:
+
+    void reset();
+
+    void eject();
 
     void run();
 
@@ -106,9 +132,9 @@ private:
 
     std::atomic<bool> _running;
 
-    /* Debuggers */
+    /* Output */
 
-    CpuViewer _cpuViewer;
+    OutputPanel *_output;
 };
 
 } // namespace tones

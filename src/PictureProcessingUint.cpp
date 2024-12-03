@@ -1,6 +1,7 @@
 
 #include "PictureProcessingUnit.h"
 #include "Register.h"
+#include "Log.h"
 
 namespace tones {
 
@@ -86,14 +87,14 @@ PictureProcessingUnit::PictureProcessingUnit(Bus &vbus, Bus &mbus)
     , _mode(ppu::VideoMode::NTSC)
     , _format(ppu::NTSC)
 {
-    _reg_frame.reset(_format.frameCount - 1);
-    _reg_line.reset(_format.lineEnd);
-    _reg_dot.reset(_format.dotEnd);
+    _reg_frame.reset(_format.frameCount);
+    _reg_line.reset(_format.lineEnd + 1);
+    _reg_dot.reset(_format.dotEnd + 1);
 
-    _reg_CX.reset(ppu::TilesOnWidth - 1);
-    _reg_CY.reset(ppu::TilesOnHeight - 1);
-    _reg_FX.reset(ppu::TileSize - 1);
-    _reg_FY.reset(ppu::TileSize - 1);
+    _reg_CX.reset(ppu::TilesOnWidth);
+    _reg_CY.reset(ppu::TilesOnHeight);
+    _reg_FX.reset(ppu::TileSize);
+    _reg_FY.reset(ppu::TileSize);
 
     _registers.attach(mbus);
     _palettes.attach(_vbus);
@@ -122,7 +123,6 @@ void PictureProcessingUnit::_tick()
         linePre();
     } else if (_reg_line == _format.lineVBlank) {
         lineVBlank();
-        if (_flush) _flush();
     } // Just idles for other scanlines
 
     forward();
@@ -262,6 +262,10 @@ void PictureProcessingUnit::lineVBlank()
     if (GET_BIT(_reg_CTRL, ppu::ControllerBit::V)) {
         // TODO: NMI
     }
+
+    if (_flush) {
+        _flush();
+    }
 }
 
 void PictureProcessingUnit::dotRender()
@@ -277,6 +281,8 @@ void PictureProcessingUnit::dotRender()
 
 void PictureProcessingUnit::dotSprite()
 {
+    // Something wrong here, it can render a whole
+    // frame without the syncHorizontal()
     syncHorizontal();
     fetchSprite();
 }
@@ -420,6 +426,8 @@ void PictureProcessingUnit::fetchSprite()
 
 void PictureProcessingUnit::renderPixel()
 {
+    static int32_t mockColor = 0;
+
     // Outputs of multiplexers
     uint8_t pixelColor;
     uint8_t spriteColor;
@@ -455,8 +463,32 @@ void PictureProcessingUnit::renderPixel()
 
     if (_output) {
         // TODO: Output the color in _reg_DBB
-        _output(_reg_CX << 3 | _reg_FX, _reg_CY << 3 | _reg_CY,
-                std::make_tuple(_reg_DBB, _reg_DBB, _reg_DBB));
+        // _output(_reg_CX << 3 | _reg_FX, _reg_CY << 3 | _reg_FY,
+        //         std::make_tuple(_reg_DBB, _reg_DBB, _reg_DBB));
+
+        uint16_t x = _reg_CX << 3 | _reg_FX;
+        uint16_t y = _reg_CY << 3 | _reg_FY;
+
+        if (x >= ppu::PictureWidth) {
+            LOG_DEBUG() << std::hex
+                        << " CX: " << _reg_CX.value
+                        << " FX: " << _reg_FX.value
+                        << std::dec;
+        }
+
+        if (y >= ppu::PictureHeight) {
+            LOG_DEBUG() << std::hex
+                        << " CY: " << _reg_CY.value
+                        << " FY: " << _reg_FY.value
+                        << std::dec;
+        }
+
+        uint8_t r = (mockColor >> 16) & 0xff;
+        uint8_t g = (mockColor >>  8) & 0xff;
+        uint8_t b = mockColor & 0xff;
+        ++mockColor;
+
+        _output(x, y, std::make_tuple(r, g, b));
     }
 }
 
