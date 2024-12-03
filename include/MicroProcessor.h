@@ -19,7 +19,7 @@ namespace cpu {
 
 // TODO: Where is this mentioned
 const uint16_t ResetVector  = 0xfffc;
-const uint8_t DefaultStack  = 0xfd; // TODO: Where is this mentioned
+const uint8_t DefaultStack  = 0xfd;
 const uint8_t DefaultStatus = 0x24; // 0010 0100
 
 /**
@@ -36,7 +36,7 @@ enum class StatusBit {
     D, // Decimal
     B, // Break
     n, // Null
-    O, // Overflow
+    V, // Overflow
     N, // Negative
 };
 
@@ -81,9 +81,6 @@ public:
      * data bus buffer register simultaneously
      */
 
-    //! Copy to the accumultor with status
-    void LDA();
-
     //! Operation logic 'OR'
     void ORA();
 
@@ -102,26 +99,20 @@ public:
     //! Operation arithmetic 'Compare'
     void CMP();
 
+    inline void checkCarry(uint8_t &reg);
+
+    inline void checkZero(uint8_t &reg);
+
+    inline void checkOverflow(uint8_t &reg);
+
+    inline void checkNegative(uint8_t &reg);
+
 private:
-
-    inline void checkCarry();
-
-    inline void checkZero();
-
-    inline void checkOverflow();
-
-    inline void checkNegative();
 
     /* Registers refered to the cpu */
     uint8_t &_reg_A;
     uint8_t &_reg_DBB;
-    // StatusRegister_t &_reg_P;
     reg::Bitwise_t &_reg_P;
-
-    /* Not sure if there is a real register in ALU, just
-     * for convtnience to check overflow and carry here
-     */
-    uint16_t _reg;
 };
 
 } // namespace cpu

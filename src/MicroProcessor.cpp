@@ -25,116 +25,101 @@ ArithmeticAndLogicUnit::~ArithmeticAndLogicUnit()
 void ArithmeticAndLogicUnit::INC()
 {
     ++_reg_A;
+    // TODO: check status
 }
 
 void ArithmeticAndLogicUnit::DEC()
 {
     --_reg_A;
+    // TODO: check status
 }
 
 void ArithmeticAndLogicUnit::ASL()
 {
-
+    _reg_A <<= 1;
+    // TODO: check status
 }
 
 void ArithmeticAndLogicUnit::LSR()
 {
-
+    _reg_A >>= 1;
+    // TODO: check status
 }
 
 void ArithmeticAndLogicUnit::ROL()
 {
 
+    // TODO: check status
 }
 
 void ArithmeticAndLogicUnit::ROR()
 {
 
+    // TODO: check status
 }
 
 /* Two operands operations */
 
-void ArithmeticAndLogicUnit::LDA()
-{
-    _reg = _reg_DBB;
-    checkZero();
-    checkNegative();
-    _reg_A = _reg;
-}
-
 void ArithmeticAndLogicUnit::ORA()
 {
-    _reg = _reg_DBB;
-    _reg |= _reg_A;
-    checkZero();
-    checkNegative();
-    _reg_A = _reg;
+    _reg_A |= _reg_DBB;
+    checkZero(_reg_A);
+    checkNegative(_reg_A);
 }
 
 void ArithmeticAndLogicUnit::AND()
 {
-    _reg = _reg_DBB;
-    _reg &= _reg_A;
-    checkZero();
-    checkNegative();
-    _reg_A = _reg;
+    _reg_A &= _reg_DBB;
+    checkZero(_reg_A);
+    checkNegative(_reg_A);
 }
 
 void ArithmeticAndLogicUnit::EOR()
 {
-    _reg = _reg_DBB;
-    _reg ^= _reg_A;
-    checkZero();
-    checkNegative();
-    _reg_A = _reg;
+    _reg_A ^= _reg_DBB;
+    checkZero(_reg_A);
+    checkNegative(_reg_A);
 }
 
 void ArithmeticAndLogicUnit::ADC()
 {
-    // TODO: Decimal ???
-    _reg = _reg_DBB;
-    _reg += _reg_A;
+    _reg_A += _reg_DBB; // TODO: Decimal ???
     // TODO: check status
-    _reg_A = _reg;
 }
 
 void ArithmeticAndLogicUnit::SBC()
 {
-    // TODO: Decimal ???
-    _reg = _reg_A;
-    _reg -= _reg_DBB;
+
+    _reg_A -= _reg_DBB; // TODO: Decimal ???
     // TODO: check status
-    _reg_A = _reg;
 }
 
 void ArithmeticAndLogicUnit::CMP()
 {
-    _reg = _reg_A;
-    _reg -= _reg_DBB;
-    checkCarry();
-    checkZero();
-    checkNegative();
-    _reg_A = _reg;
+    _reg_A -= _reg_DBB;
+    checkCarry(_reg_A);
+    checkZero(_reg_A);
+    checkNegative(_reg_A);
 }
 
-inline void ArithmeticAndLogicUnit::checkCarry()
+inline void ArithmeticAndLogicUnit::checkCarry(uint8_t &reg)
 {
-    SET_BIT(_reg_P, StatusBit::Z, _reg & 0x0100); // TODO
+    SET_BIT(_reg_P, StatusBit::Z, reg & 0x0100); // TODO
 }
 
-inline void ArithmeticAndLogicUnit::checkZero()
+inline void ArithmeticAndLogicUnit::checkZero(uint8_t &reg)
 {
-    SET_BIT(_reg_P, StatusBit::Z, !_reg);
+    SET_BIT(_reg_P, StatusBit::Z, !reg);
 }
 
-inline void ArithmeticAndLogicUnit::checkOverflow()
+inline void ArithmeticAndLogicUnit::checkOverflow(uint8_t &reg)
 {
-    SET_BIT(_reg_P, StatusBit::O, _reg & 0x0100); // TODO
+    SET_BIT(_reg_P, StatusBit::V, reg & 0x0100); // TODO
 }
 
-inline void ArithmeticAndLogicUnit::checkNegative()
+inline void ArithmeticAndLogicUnit::checkNegative(uint8_t &reg)
 {
-    SET_BIT(_reg_P, StatusBit::N, _reg & 0x8000);
+    SET_BIT(_reg_P, StatusBit::N, reg & 0x8000);
 }
 
 } // namespace cpu

@@ -103,7 +103,9 @@ INSTANTIATE_TEST_SUITE_P(BasicTest,
                             ROM_NOP,
                             ROM_LOAD,
                             ROM_STATUS,
-                            ROM_TRANSFER
+                            ROM_TRANSFER,
+                            ROM_ARITHMETIC,
+                            ROM_LOGIC
                         ));
 
 int main(int argc, char **argv)

@@ -4,6 +4,7 @@
 #include "InstructionDecoder.h"
 #include "Instruction.h"
 #include "MicroProcessor.h"
+#include "Register.h"
 
 namespace tones {
 namespace cpu {
@@ -121,13 +122,13 @@ void InstructionDecoder::BMI(tones::MicroProcessor &cpu)
 
 void InstructionDecoder::BVC(tones::MicroProcessor &cpu)
 {
-    if (!GET_BIT(cpu._reg_P, StatusBit::O))
+    if (!GET_BIT(cpu._reg_P, StatusBit::V))
         cpu.branch();
 }
 
 void InstructionDecoder::BVS(tones::MicroProcessor &cpu)
 {
-    if (GET_BIT(cpu._reg_P, StatusBit::O))
+    if (GET_BIT(cpu._reg_P, StatusBit::V))
         cpu.branch();
 }
 
@@ -205,7 +206,7 @@ void InstructionDecoder::SEI(tones::MicroProcessor &cpu)
 
 void InstructionDecoder::CLV(tones::MicroProcessor &cpu)
 {
-    CLR_BIT(cpu._reg_P, StatusBit::O);
+    CLR_BIT(cpu._reg_P, StatusBit::V);
 }
 
 void InstructionDecoder::CLD(tones::MicroProcessor &cpu)
@@ -252,19 +253,23 @@ void InstructionDecoder::DEX(tones::MicroProcessor &cpu)
 
 void InstructionDecoder::TYA(tones::MicroProcessor &cpu)
 {
-    cpu._reg_DBB = cpu._reg_Y;
-    cpu._alu.LDA();
+    cpu._alu.checkNegative(cpu._reg_Y);
+    cpu._alu.checkZero(cpu._reg_Y);
+    cpu._reg_A = cpu._reg_Y;
 }
 
 void InstructionDecoder::TAY(tones::MicroProcessor &cpu)
 {
+    cpu._alu.checkNegative(cpu._reg_A);
+    cpu._alu.checkZero(cpu._reg_A);
     cpu._reg_Y = cpu._reg_A;
 }
 
 void InstructionDecoder::TXA(tones::MicroProcessor &cpu)
 {
-    cpu._reg_DBB = cpu._reg_X;
-    cpu._alu.LDA();
+    cpu._alu.checkNegative(cpu._reg_X);
+    cpu._alu.checkZero(cpu._reg_X);
+    cpu._reg_A = cpu._reg_X;
 }
 
 void InstructionDecoder::TXS(tones::MicroProcessor &cpu)
@@ -274,11 +279,15 @@ void InstructionDecoder::TXS(tones::MicroProcessor &cpu)
 
 void InstructionDecoder::TAX(tones::MicroProcessor &cpu)
 {
+    cpu._alu.checkNegative(cpu._reg_A);
+    cpu._alu.checkZero(cpu._reg_A);
     cpu._reg_X = cpu._reg_A;
 }
 
 void InstructionDecoder::TSX(tones::MicroProcessor &cpu)
 {
+    cpu._alu.checkNegative(cpu._reg_S);
+    cpu._alu.checkZero(cpu._reg_S);
     cpu._reg_X = cpu._reg_S; // check zero and negative ???
 }
 
@@ -294,7 +303,6 @@ void InstructionDecoder::NOP(tones::MicroProcessor &cpu)
 void InstructionDecoder::BIT(tones::MicroProcessor &cpu)
 {
     // TODO: ???
-    cpu._alu.LDA();
 }
 
 void InstructionDecoder::STY(tones::MicroProcessor &cpu)
@@ -304,6 +312,8 @@ void InstructionDecoder::STY(tones::MicroProcessor &cpu)
 
 void InstructionDecoder::LDY(tones::MicroProcessor &cpu)
 {
+    cpu._alu.checkNegative(cpu._reg_DBB);
+    cpu._alu.checkZero(cpu._reg_DBB);
     cpu._reg_Y = cpu._reg_DBB;
 }
 
@@ -348,6 +358,8 @@ void InstructionDecoder::STA(tones::MicroProcessor &cpu)
 
 void InstructionDecoder::LDA(tones::MicroProcessor &cpu)
 {
+    cpu._alu.checkNegative(cpu._reg_DBB);
+    cpu._alu.checkZero(cpu._reg_DBB);
     cpu._reg_A = cpu._reg_DBB;
 }
 
@@ -390,8 +402,9 @@ void InstructionDecoder::STX(tones::MicroProcessor &cpu)
 
 void InstructionDecoder::LDX(tones::MicroProcessor &cpu)
 {
-    cpu._alu.LDA();
-    cpu._reg_X = cpu._reg_A;
+    cpu._alu.checkNegative(cpu._reg_DBB);
+    cpu._alu.checkZero(cpu._reg_DBB);
+    cpu._reg_X = cpu._reg_DBB;
 }
 
 void InstructionDecoder::DEC(tones::MicroProcessor &cpu)
