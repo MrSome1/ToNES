@@ -9,7 +9,9 @@
 #include <QLineEdit>
 #include <QImage>
 #include <QPixmap>
+#include <QString>
 
+#include "ui_mainwindow.h"
 #include "MotherBoard.h"
 
 namespace tones {
@@ -19,6 +21,14 @@ class Simulator : public QMainWindow, public OutputPanel
     Q_OBJECT
 
 public:
+
+    enum Status {
+        Started,
+        Paused,
+        Resumed,
+        Stopped,
+        Invalid
+    };
 
     Simulator(QWidget *parent=nullptr);
     ~Simulator();
@@ -33,31 +43,33 @@ public:
 
 Q_SIGNALS:
 
-    void frameRendred();
+    void showFrame();
+
+    void showCartridge();
 
 public Q_SLOTS:
 
     void onOpen();
 
+    void onStart();
+
+    void onStop();
+
     void onPause();
 
-    void onResume();
+    void onShowFrame();
 
-    void onFrameRendred();
+    void onShowCartridge();
+
+    void onShowCurrentLine(uint16_t pc);
 
 protected:
 
-    /* UI Setup */
-
-    void setupActions();
-
-    void setupMenu();
-
-    void setupTool();
-
     void setupView();
 
-    /* */
+    void setupConnections();
+
+    void changeStatus(Status s = Invalid);
 
     void start();
 
@@ -65,33 +77,21 @@ protected:
 
 private:
 
+    Ui::MainWindow *_ui;
+
     std::thread *_thread;
 
-    tones::MotherBoard _engine;
+    CartridgePtr _card;
 
-    /* CPU Registers */
-    QLineEdit _cpu_pc;
-    QLineEdit _cpu_s;
-    QLineEdit _cpu_a;
-    QLineEdit _cpu_p;
-    QLineEdit _cpu_x;
-    QLineEdit _cpu_y;
+    MotherBoard _engine;
 
-    /* Video */
+    QString _cpuP;
 
-    QLabel _screen;
+    /* Video Buffers */
 
     QImage _videoBuffer;
 
     QPixmap _videoFrame;
-
-    /* Actions */
-
-    QAction *_openAction;
-
-    QAction *_pauseAction;
-
-    QAction *_resumeAction;
 };
 
 } // namespace tones

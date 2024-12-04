@@ -12,7 +12,6 @@ int main(int argc, char* argv[]) {
     tones::Simulator simulator;
 
     simulator.setWindowTitle("ToNES");
-    simulator.resize(640, 480);
     simulator.show();
 
     return app.exec();

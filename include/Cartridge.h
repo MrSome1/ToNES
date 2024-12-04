@@ -102,6 +102,12 @@ public:
     //! Detach from system bus
     void detach();
 
+    //! Get the content of PRG-ROM
+    const std::vector<uint8_t> &prgRom() const;
+
+    //! Get the content of CHR-ROM
+    const std::vector<uint8_t> &chrRom() const;
+
 protected:
 
     Cartridge();

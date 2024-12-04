@@ -122,6 +122,18 @@ void Cartridge::detach()
     _vrom->detach();
 }
 
+//! Get the content of PRG-ROM
+const std::vector<uint8_t> &Cartridge::prgRom() const
+{
+    return _reader->prgRom();
+}
+
+//! Get the content of CHR-ROM
+const std::vector<uint8_t> &Cartridge::chrRom() const
+{
+    return _reader->chrRom();
+}
+
 /* CartridgeFactory */
 
 CartridgePtr CartridgeFactory::createCartridge(const std::string &path)
