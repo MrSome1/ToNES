@@ -62,6 +62,7 @@ void Simulator::setupConnections()
     connect(_ui->pauseButton, &QPushButton::clicked, this, &Simulator::onPause);
 
     connect(this, &Simulator::showFrame, this, &Simulator::onShowFrame);
+    connect(this, &Simulator::showRegisters, this, &Simulator::onShowRegisters);
     connect(this, &Simulator::showCartridge, this, &Simulator::onShowCartridge);
 }
 
@@ -108,7 +109,7 @@ void Simulator::changeStatus(Status s)
 void Simulator::onOpen()
 {
     QString filename = QFileDialog::getOpenFileName(this, tr("Select Rom:"),
-                                                    ".", tr("*.nes")); // "Roms (*.nes)"
+                                                    "", tr("*.nes")); // "Roms (*.nes)"
     if (filename.isEmpty())
         return;
 
@@ -146,6 +147,24 @@ void Simulator::onShowFrame()
     _ui->screen->setPixmap(_videoFrame);
 }
 
+void Simulator::onShowRegisters()
+{
+    _ui->cpuPC->setText(QString::number(_registers.PC, 16));
+    _ui->cpuS->setText(QString::number(_registers.S, 16));
+
+    _ui->cpuA->setText(QString::number(_registers.A, 16));
+    _ui->cpuX->setText(QString::number(_registers.X, 16));
+    _ui->cpuY->setText(QString::number(_registers.Y, 16));
+
+    for (int i = 0, mask = 0x80; mask; mask >>= 1) {
+        _cpuP[i] = _registers.P & mask ? '1' : '0';
+        i += CpuPSepLen;
+    }
+    _ui->cpuP->setText(_cpuP);
+
+    showCurrentLine(_registers.PC);
+}
+
 void Simulator::onShowCartridge()
 {
     // Show PROM
@@ -161,7 +180,7 @@ void Simulator::onShowCartridge()
     // TODO: Show CROM
 }
 
-void Simulator::onShowCurrentLine(uint16_t pc)
+void Simulator::showCurrentLine(uint16_t pc)
 {
     int line = pc - ReadOnlyMemory::RomLowerBankBase;
     (void)line; // TODO: Highlight the line
@@ -207,23 +226,10 @@ void Simulator::onAudioOutput()
 
 void Simulator::onCpuStepped()
 {
-    if (_engine.isRunning())
-        return; // refresh too often will crash
-
-    _ui->cpuPC->setText(QString::number(_registers.PC, 16));
-    _ui->cpuS->setText(QString::number(_registers.S, 16));
-
-    _ui->cpuA->setText(QString::number(_registers.A, 16));
-    _ui->cpuX->setText(QString::number(_registers.X, 16));
-    _ui->cpuY->setText(QString::number(_registers.Y, 16));
-
-    for (int i = 0, mask = 0x80; mask; mask >>= 1) {
-        _cpuP[i] = _registers.P & mask ? '1' : '0';
-        i += CpuPSepLen;
+    // refresh too often will crash
+    if (!_engine.isRunning()) {
+        emit showRegisters();
     }
-    _ui->cpuP->setText(_cpuP);
-
-    onShowCurrentLine(_registers.PC);
 }
 
 } // namespace tones

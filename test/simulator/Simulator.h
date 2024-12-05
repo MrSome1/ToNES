@@ -45,6 +45,8 @@ Q_SIGNALS:
 
     void showFrame();
 
+    void showRegisters();
+
     void showCartridge();
 
 public Q_SLOTS:
@@ -59,9 +61,9 @@ public Q_SLOTS:
 
     void onShowFrame();
 
-    void onShowCartridge();
+    void onShowRegisters();
 
-    void onShowCurrentLine(uint16_t pc);
+    void onShowCartridge();
 
 protected:
 
@@ -70,6 +72,8 @@ protected:
     void setupConnections();
 
     void changeStatus(Status s = Invalid);
+
+    void showCurrentLine(uint16_t pc);
 
     void start();
 
