@@ -39,13 +39,11 @@ public:
 
     void onAudioOutput() override;
 
-    void onCpuStepped() override;
+    void onCpuStepped(const MicroProcessor::Registers_t &regs) override;
 
 Q_SIGNALS:
 
     void showFrame();
-
-    void showRegisters();
 
     void showCartridge();
 
@@ -59,9 +57,9 @@ public Q_SLOTS:
 
     void onPause();
 
-    void onShowFrame();
+    void onStep();
 
-    void onShowRegisters();
+    void onShowFrame();
 
     void onShowCartridge();
 

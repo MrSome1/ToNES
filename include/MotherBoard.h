@@ -41,26 +41,24 @@ class OutputPanel
 public:
 
     /* Real Outputs */
+
     virtual void onVideoDotRendered(int x, int y, const RGB &color)
     {
         (void)x;
         (void)y;
         (void)color;
-    };
+    }
 
-    virtual void onVideoFrameRendered() {};
+    virtual void onVideoFrameRendered() {}
 
-    virtual void onAudioOutput() {};
+    virtual void onAudioOutput() {}
 
     /* Debug Infos */
 
-    virtual void onCpuStepped() {};
-
-protected:
-
-    friend class MotherBoard;
-
-    MicroProcessor::Registers_t _registers;
+    virtual void onCpuStepped(const MicroProcessor::Registers_t &regs)
+    {
+        (void)regs;
+    }
 };
 
 /**
@@ -84,9 +82,13 @@ public:
 
     void resume();
 
+    void step();
+
     /* Status */
 
     bool isStarted() const;
+
+    bool isPaused() const;
 
     bool isRunning() const;
 
@@ -102,7 +104,7 @@ protected:
 
     void run();
 
-    void debugCpu();
+    void dumpRegisters();
 
 private:
 
@@ -130,9 +132,11 @@ private:
 
     std::atomic<bool> _started;
 
-    std::atomic<bool> _running;
+    std::atomic<bool> _paused;
 
     /* Output */
+
+    MicroProcessor::Registers_t _cpuRegisters;
 
     OutputPanel *_output;
 };

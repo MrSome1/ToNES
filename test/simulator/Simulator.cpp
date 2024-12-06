@@ -60,9 +60,9 @@ void Simulator::setupConnections()
     connect(_ui->startButton, &QPushButton::clicked, this, &Simulator::onStart);
     connect(_ui->stopButton, &QPushButton::clicked, this, &Simulator::onStop);
     connect(_ui->pauseButton, &QPushButton::clicked, this, &Simulator::onPause);
+    connect(_ui->stepButton, &QPushButton::clicked, this, &Simulator::onStep);
 
     connect(this, &Simulator::showFrame, this, &Simulator::onShowFrame);
-    connect(this, &Simulator::showRegisters, this, &Simulator::onShowRegisters);
     connect(this, &Simulator::showCartridge, this, &Simulator::onShowCartridge);
 }
 
@@ -142,27 +142,14 @@ void Simulator::onPause()
     }
 }
 
+void Simulator::onStep()
+{
+    _engine.step();
+}
+
 void Simulator::onShowFrame()
 {
     _ui->screen->setPixmap(_videoFrame);
-}
-
-void Simulator::onShowRegisters()
-{
-    _ui->cpuPC->setText(QString::number(_registers.PC, 16));
-    _ui->cpuS->setText(QString::number(_registers.S, 16));
-
-    _ui->cpuA->setText(QString::number(_registers.A, 16));
-    _ui->cpuX->setText(QString::number(_registers.X, 16));
-    _ui->cpuY->setText(QString::number(_registers.Y, 16));
-
-    for (int i = 0, mask = 0x80; mask; mask >>= 1) {
-        _cpuP[i] = _registers.P & mask ? '1' : '0';
-        i += CpuPSepLen;
-    }
-    _ui->cpuP->setText(_cpuP);
-
-    showCurrentLine(_registers.PC);
 }
 
 void Simulator::onShowCartridge()
@@ -224,12 +211,22 @@ void Simulator::onAudioOutput()
     // TODO
 }
 
-void Simulator::onCpuStepped()
+void Simulator::onCpuStepped(const MicroProcessor::Registers_t &regs)
 {
-    // refresh too often will crash
-    if (!_engine.isRunning()) {
-        emit showRegisters();
+    _ui->cpuPC->setText(QString::number(regs.PC, 16));
+    _ui->cpuS->setText(QString::number(regs.S, 16));
+
+    _ui->cpuA->setText(QString::number(regs.A, 16));
+    _ui->cpuX->setText(QString::number(regs.X, 16));
+    _ui->cpuY->setText(QString::number(regs.Y, 16));
+
+    for (int i = 0, mask = 0x80; mask; mask >>= 1) {
+        _cpuP[i] = regs.P & mask ? '1' : '0';
+        i += CpuPSepLen;
     }
+    _ui->cpuP->setText(_cpuP);
+
+    showCurrentLine(regs.PC);
 }
 
 } // namespace tones

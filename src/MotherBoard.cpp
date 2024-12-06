@@ -19,7 +19,7 @@ MotherBoard::MotherBoard()
     , _cpu(_mbus)
     , _ppu(_vbus, _mbus)
     , _started(false)
-    , _running(false)
+    , _paused(true)
     , _output(&DefaultOuput)
 {
     _pram.attach(_mbus);
@@ -42,7 +42,7 @@ void MotherBoard::start()
         return;
 
     _started = true;
-    _running = true;
+    _paused = false;
 
     reset();
     run();
@@ -51,17 +51,25 @@ void MotherBoard::start()
 void MotherBoard::stop()
 {
     _started = false;
-    _running = false;
+    _paused = true;
+    dumpRegisters();
 }
 
 void MotherBoard::pause()
 {
-    _running = false; 
+    _paused = true;
+    dumpRegisters();
 }
 
 void MotherBoard::resume()
 {
-    _running = true;
+    _paused = false;
+}
+
+void MotherBoard::step()
+{
+    _clock.tick();
+    dumpRegisters();
 }
 
 bool MotherBoard::isStarted() const
@@ -69,9 +77,14 @@ bool MotherBoard::isStarted() const
     return _started;
 }
 
+bool MotherBoard::isPaused() const
+{
+    return _paused;
+}
+
 bool MotherBoard::isRunning() const
 {
-    return _running;
+    return _started && !_paused;
 }
 
 void MotherBoard::setOutputPanel(OutputPanel &output)
@@ -90,7 +103,7 @@ void MotherBoard::setOutputPanel(OutputPanel &output)
 void MotherBoard::reset()
 {
     _cpu.reset();
-    debugCpu();
+    dumpRegisters();
 }
 
 void MotherBoard::eject()
@@ -108,15 +121,10 @@ void MotherBoard::run()
     while (_started) { // loop on video frame
         auto start = system_clock::now();
 
-        if (_running) {
-            for (uint32_t i = 0; i < _frequency; ++i) {
-                if (_running) {
-                    _clock.tick(); // TODO: too slow
-                    debugCpu();
-                } else {
-                    break;
-                }
-            }
+        for (uint32_t i = 0; i < _frequency; ++i) {
+            if (_paused)
+                break;
+            _clock.tick();
         }
 
         auto duration = duration_cast<microseconds>(system_clock::now() - start);
@@ -124,10 +132,12 @@ void MotherBoard::run()
     }
 }
 
-void MotherBoard::debugCpu()
+void MotherBoard::dumpRegisters()
 {
-    _cpu.dump(_output->_registers);
-    _output->onCpuStepped();
+    _cpu.dump(_cpuRegisters);
+    _output->onCpuStepped(_cpuRegisters);
+
+    // TODO: Dump PPU registers
 }
 
 } // namespace tones
