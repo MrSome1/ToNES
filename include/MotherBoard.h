@@ -82,8 +82,6 @@ public:
 
     void resume();
 
-    void step();
-
     /* Status */
 
     bool isStarted() const;
@@ -92,13 +90,17 @@ public:
 
     bool isRunning() const;
 
+    /* Debuging */
+
+    void step();
+
+    void reset();
+
     /* Callbacks */
 
     void setOutputPanel(OutputPanel &output);
 
 protected:
-
-    void reset();
 
     void eject();
 

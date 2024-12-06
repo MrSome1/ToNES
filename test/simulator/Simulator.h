@@ -59,6 +59,8 @@ public Q_SLOTS:
 
     void onStep();
 
+    void onReset();
+
     void onShowFrame();
 
     void onShowCartridge();

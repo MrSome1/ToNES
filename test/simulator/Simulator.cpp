@@ -61,6 +61,7 @@ void Simulator::setupConnections()
     connect(_ui->stopButton, &QPushButton::clicked, this, &Simulator::onStop);
     connect(_ui->pauseButton, &QPushButton::clicked, this, &Simulator::onPause);
     connect(_ui->stepButton, &QPushButton::clicked, this, &Simulator::onStep);
+    connect(_ui->resetButton, &QPushButton::clicked, this, &Simulator::onReset);
 
     connect(this, &Simulator::showFrame, this, &Simulator::onShowFrame);
     connect(this, &Simulator::showCartridge, this, &Simulator::onShowCartridge);
@@ -74,12 +75,14 @@ void Simulator::changeStatus(Status s)
         _ui->pauseButton->setEnabled(true);
         _ui->stopButton->setEnabled(true);
         _ui->stepButton->setEnabled(false);
+        _ui->resetButton->setEnabled(false);
         break;
     case Stopped:
         _ui->startButton->setEnabled(true);
         _ui->pauseButton->setEnabled(false);
         _ui->stopButton->setEnabled(false);
         _ui->stepButton->setEnabled(true);
+        _ui->resetButton->setEnabled(true);
         _ui->pauseButton->setText(Pause);
         break;
     case Paused:
@@ -87,13 +90,15 @@ void Simulator::changeStatus(Status s)
         _ui->pauseButton->setEnabled(true);
         _ui->stopButton->setEnabled(true);
         _ui->stepButton->setEnabled(true);
+        _ui->resetButton->setEnabled(true);
         _ui->pauseButton->setText(Resume);
         break;
     case Resumed:
         _ui->startButton->setEnabled(false);
         _ui->pauseButton->setEnabled(true);
         _ui->stopButton->setEnabled(true);
-        _ui->stepButton->setEnabled(false);
+        _ui->resetButton->setEnabled(false);
+        _ui->resetButton->setEnabled(false);
         _ui->pauseButton->setText(Pause);
         break;
     case Invalid:
@@ -102,6 +107,7 @@ void Simulator::changeStatus(Status s)
         _ui->pauseButton->setEnabled(false);
         _ui->stopButton->setEnabled(false);
         _ui->stepButton->setEnabled(false);
+        _ui->resetButton->setEnabled(false);
         break;
     }
 }
@@ -114,8 +120,9 @@ void Simulator::onOpen()
         return;
 
     _card = CartridgeFactory::createCartridge(filename.toStdString());
-    changeStatus(Stopped);
+    _engine.insert(_card);
 
+    changeStatus(Stopped);
     emit showCartridge();
 }
 
@@ -147,6 +154,11 @@ void Simulator::onStep()
     _engine.step();
 }
 
+void Simulator::onReset()
+{
+    _engine.reset();
+}
+
 void Simulator::onShowFrame()
 {
     _ui->screen->setPixmap(_videoFrame);
@@ -175,10 +187,6 @@ void Simulator::showCurrentLine(uint16_t pc)
 
 void Simulator::start()
 {
-    onStop();
-
-    _engine.insert(_card);
-
     _thread = new std::thread([this] () {
         _engine.start();
     });

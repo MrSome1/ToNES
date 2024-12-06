@@ -491,6 +491,24 @@ li.checked::marker { content: &quot;\2612&quot;; }
         <layout class="QHBoxLayout" name="horizontalLayout_2">
          <item>
           <widget class="QPushButton" name="startButton">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>60</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>60</width>
+             <height>16777215</height>
+            </size>
+           </property>
            <property name="text">
             <string>Start</string>
            </property>
@@ -498,6 +516,24 @@ li.checked::marker { content: &quot;\2612&quot;; }
          </item>
          <item>
           <widget class="QPushButton" name="pauseButton">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>60</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>60</width>
+             <height>16777215</height>
+            </size>
+           </property>
            <property name="text">
             <string>Pause</string>
            </property>
@@ -505,6 +541,24 @@ li.checked::marker { content: &quot;\2612&quot;; }
          </item>
          <item>
           <widget class="QPushButton" name="stopButton">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>60</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>60</width>
+             <height>16777215</height>
+            </size>
+           </property>
            <property name="text">
             <string>Stop</string>
            </property>
@@ -516,7 +570,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
             <enum>Qt::Horizontal</enum>
            </property>
            <property name="sizeType">
-            <enum>QSizePolicy::Minimum</enum>
+            <enum>QSizePolicy::Expanding</enum>
            </property>
            <property name="sizeHint" stdset="0">
             <size>
@@ -528,8 +582,51 @@ li.checked::marker { content: &quot;\2612&quot;; }
          </item>
          <item>
           <widget class="QPushButton" name="stepButton">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>60</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>60</width>
+             <height>16777215</height>
+            </size>
+           </property>
            <property name="text">
             <string>Step</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="resetButton">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>60</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>60</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>Reset</string>
            </property>
           </widget>
          </item>

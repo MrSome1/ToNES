@@ -34,6 +34,7 @@ void MotherBoard::insert(CartridgePtr &card)
     eject();
     _card = card;
     _card->attach(_mbus, _vbus);
+    reset();
 }
 
 void MotherBoard::start()
@@ -44,7 +45,6 @@ void MotherBoard::start()
     _started = true;
     _paused = false;
 
-    reset();
     run();
 }
 
