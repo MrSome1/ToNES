@@ -243,6 +243,7 @@ void PictureProcessingUnit::linePre()
 void PictureProcessingUnit::lineRender()
 {
     if (_reg_dot < _format.dotSprite) {
+        renderPixel();
         dotRender();
     } else if (_reg_dot < _format.dotTile) {
         dotSprite();
@@ -273,7 +274,6 @@ void PictureProcessingUnit::dotRender()
     if (_reg_dot == _format.dotIdle)
         return;
 
-    renderPixel();
     fetchBackground();
     scrollHorizontal();
     scrollVertical();
@@ -281,8 +281,6 @@ void PictureProcessingUnit::dotRender()
 
 void PictureProcessingUnit::dotSprite()
 {
-    // Something wrong here, it can render a whole
-    // frame without the syncHorizontal()
     syncHorizontal();
     fetchSprite();
 }
@@ -426,8 +424,6 @@ void PictureProcessingUnit::fetchSprite()
 
 void PictureProcessingUnit::renderPixel()
 {
-    static int32_t mockColor = 0;
-
     // Outputs of multiplexers
     uint8_t pixelColor;
     uint8_t spriteColor;
@@ -462,33 +458,7 @@ void PictureProcessingUnit::renderPixel()
     read();
 
     if (_output) {
-        // TODO: Output the color in _reg_DBB
-        // _output(_reg_CX << 3 | _reg_FX, _reg_CY << 3 | _reg_FY,
-        //         std::make_tuple(_reg_DBB, _reg_DBB, _reg_DBB));
-
-        uint16_t x = _reg_CX << 3 | _reg_FX;
-        uint16_t y = _reg_CY << 3 | _reg_FY;
-
-        if (x >= ppu::PictureWidth) {
-            LOG_DEBUG() << std::hex
-                        << " CX: " << _reg_CX.value
-                        << " FX: " << _reg_FX.value
-                        << std::dec;
-        }
-
-        if (y >= ppu::PictureHeight) {
-            LOG_DEBUG() << std::hex
-                        << " CY: " << _reg_CY.value
-                        << " FY: " << _reg_FY.value
-                        << std::dec;
-        }
-
-        uint8_t r = (mockColor >> 16) & 0xff;
-        uint8_t g = (mockColor >>  8) & 0xff;
-        uint8_t b = mockColor & 0xff;
-        ++mockColor;
-
-        _output(x, y, std::make_tuple(r, g, b));
+         _output(_reg_dot.value, _reg_line, std::make_tuple(_reg_DBB, _reg_DBB, _reg_DBB));
     }
 }
 

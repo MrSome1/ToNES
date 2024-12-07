@@ -101,7 +101,6 @@ void Simulator::changeStatus(Status s)
         _ui->resetButton->setEnabled(false);
         _ui->pauseButton->setText(Pause);
         break;
-    case Invalid:
     default:
         _ui->startButton->setEnabled(false);
         _ui->pauseButton->setEnabled(false);
