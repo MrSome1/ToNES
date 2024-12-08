@@ -9,8 +9,8 @@ namespace cpu {
 
 ArithmeticAndLogicUnit::ArithmeticAndLogicUnit(tones::MicroProcessor &cpu)
     : _reg_A(cpu._reg_A)
-    , _reg_P(cpu._reg_P)
     , _reg_DBB(cpu._reg_DBB)
+    , _reg_P(cpu._reg_P)
 {
 
 }

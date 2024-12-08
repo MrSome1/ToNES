@@ -47,12 +47,12 @@ code::AddressingMode_t InstructionDecoder::mode() const
 
 void InstructionDecoder::decode()
 {
-    _instruction = code::InstructionSet[_cpu._reg_IR];
+    _instruction = code::getInstruction(_cpu._reg_IR);
 }
 
 void InstructionDecoder::execute()
 {
-    _operations[_instruction->name](_cpu);
+    _operations[_instruction->kind](_cpu);
 }
 
 void InstructionDecoder::load()

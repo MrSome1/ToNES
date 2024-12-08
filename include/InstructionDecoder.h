@@ -197,15 +197,15 @@ inline bool InstructionDecoder::hasOperands(const code::Instruction_t *instructi
 
 inline bool InstructionDecoder::needsToLoad(const code::Instruction_t *instruction)
 {
-    return code::ReadWriteModeSet[instruction->name] & InstructionReadMask;
+    return code::getReadWriteMode(instruction->kind) & InstructionReadMask;
 }
 
 inline bool InstructionDecoder::needsToSave(const code::Instruction_t *instruction)
 {
-    return code::ReadWriteModeSet[instruction->name] & InstructionWriteMask;
+    return code::getReadWriteMode(instruction->kind) & InstructionWriteMask;
 }
 
 } // namespace cpu
 } // namespace tones
 
-#endif // _TONES_INSTRUCTIONDECODER_H_ 
+#endif // _TONES_INSTRUCTIONDECODER_H_

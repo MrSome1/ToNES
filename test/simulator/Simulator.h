@@ -4,12 +4,10 @@
 #include <thread>
 
 #include <QMainWindow>
-#include <QAction>
-#include <QLabel>
-#include <QLineEdit>
 #include <QImage>
 #include <QPixmap>
 #include <QString>
+#include <QTextDocument>
 
 #include "ui_mainwindow.h"
 #include "MotherBoard.h"
@@ -83,19 +81,23 @@ private:
 
     Ui::MainWindow *_ui;
 
-    std::thread *_thread;
+    std::thread _thread;
 
     CartridgePtr _card;
 
     MotherBoard _engine;
-
-    QString _cpuP;
 
     /* Video Buffers */
 
     QImage _videoBuffer;
 
     QPixmap _videoFrame;
+
+    /* Debuging Info */
+
+    QString _cpuP;
+
+    QTextDocument *_prom;
 };
 
 } // namespace tones

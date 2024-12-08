@@ -69,7 +69,7 @@ typedef enum AddressingMode {
 } AddressingMode_t;
 
 /* Alphabetic List of Instruction Set */
-typedef enum InstructionName {
+typedef enum InstructionKind {
     ADC, // Add Memory to Accumulator with Carry
     AND, // 'AND' Memory with Accumulator
     ASL, // Shift Left One Bit (Memory or Accumulator)
@@ -141,7 +141,7 @@ typedef enum InstructionName {
     TYA, // Transfer Index Y to Accumulator
 
     Unknown
-} InstructionName_t;
+} InstructionKind_t;
 
 /* Read and Write Mode
  *
@@ -159,7 +159,7 @@ typedef enum ReadWriteMode {
 } ReadWriteMode_t;
 
 typedef struct Instruction {
-    InstructionName_t name;
+    InstructionKind_t kind;
     AddressingMode_t mode;
     int cycles;
 } Instruction_t;
@@ -167,11 +167,16 @@ typedef struct Instruction {
 //! The Unknown Instruction
 extern const Instruction_t UnknownInstruction;
 
-//! Instruction Set Op Code Matrix
-extern const std::array<const Instruction_t*, InstructionSetSize> InstructionSet;
+//! Get the instruction according to the op code
+const Instruction_t *getInstruction(uint16_t op);
 
-//! Read Write Mode for Each Instruction
-extern const std::array<ReadWriteMode_t, Unknown + 1> ReadWriteModeSet;
+//! Get the name of an instruction
+const char *getInstructionName(InstructionKind_t kind);
+
+//! Get the read write mode for Each Instruction
+ReadWriteMode getReadWriteMode(InstructionKind_t kind);
+
+int getOperandNumber(AddressingMode_t mode);
 
 } // namespace code
 } // namespace cpu

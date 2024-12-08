@@ -1,20 +1,17 @@
 
 #include "Simulator.h"
 
-#include <QMenu>
-#include <QMenuBar>
-#include <QToolBar>
 #include <QFileDialog>
-#include <QWidget>
-#include <QGridLayout>
-#include <QHBoxLayout>
-#include <QVBoxLayout>
+#include <QTextBlock>
+#include <QTextCursor>
 
 #include "Device.h"
 #include "Cartridge.h"
 #include "Log.h"
 
 namespace tones {
+
+const QLatin1Char HexPrefix('0');
 
 const char *Pause  = "Pause";
 const char *Resume = "Resume";
@@ -26,9 +23,9 @@ const int CpuPSepLen = 5;
 Simulator::Simulator(QWidget *parent)
     : QMainWindow(parent)
     , _ui(new Ui::MainWindow)
-    , _thread(nullptr)
-    , _cpuP(CpuPValue)
     , _videoBuffer(360, 320, QImage::Format_RGB888)
+    , _cpuP(CpuPValue)
+    , _prom(nullptr)
 {
     _ui->setupUi(this);
 
@@ -52,6 +49,7 @@ Simulator::~Simulator()
 void Simulator::setupView()
 {
     _ui->cpuPHeader->setText(CpuPHeader);
+    _prom = _ui->programRom->document();
 }
 
 void Simulator::setupConnections()
@@ -123,6 +121,8 @@ void Simulator::onOpen()
 
     changeStatus(Stopped);
     emit showCartridge();
+
+    _ui->statusBar->showMessage(filename);
 }
 
 void Simulator::onStart()
@@ -166,14 +166,16 @@ void Simulator::onShowFrame()
 void Simulator::onShowCartridge()
 {
     // Show PROM
+    int addr = ReadOnlyMemory::RomLowerBankBase;
     QString prom;
 
     for (auto byte : _card->prgRom()) {
-        QString line = QString("%1\n").arg(byte, 2, 16, QLatin1Char('0'));
-        prom.append(line);
+        prom.append(QString("%1 |  %2\n").arg(addr, 4, 16, HexPrefix)
+                                         .arg(byte, 2, 16, HexPrefix));
+        ++addr;
     }
 
-    _ui->programRom->setText(prom);
+    _prom->setPlainText(prom);
 
     // TODO: Show CROM
 }
@@ -181,12 +183,14 @@ void Simulator::onShowCartridge()
 void Simulator::showCurrentLine(uint16_t pc)
 {
     int line = pc - ReadOnlyMemory::RomLowerBankBase;
-    (void)line; // TODO: Highlight the line
+    QTextCursor cursor(_prom->findBlockByLineNumber(line));
+    cursor.select(QTextCursor::LineUnderCursor);
+    _ui->programRom->setTextCursor(cursor);
 }
 
 void Simulator::start()
 {
-    _thread = new std::thread([this] () {
+    _thread = std::thread([this] () {
         _engine.start();
     });
 }
@@ -194,9 +198,8 @@ void Simulator::start()
 void Simulator::stop()
 {
     _engine.stop();
-    if (_thread) {
-        _thread->join();
-        _thread = nullptr;
+    if (_thread.joinable()) {
+        _thread.join();
     }
 }
 

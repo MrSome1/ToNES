@@ -369,25 +369,26 @@ const Instruction_t INC_ABS_X = {INC, IndexedAbsoluteX, 7};
  * copy of the manual, thank god there are only 256 ones
  */
 const std::array<const Instruction_t*, InstructionSetSize> InstructionSet = {
-/*      0              1           2         3     4          5          6          7     8             9           A             B              C     D           E           F */
-/* 0 */ &BRK_Implied,  &ORA_IND_X, Null,     Null, Null,      &ORA_ZP  , &ASL_ZP,   Null, &PHP_Implied, &ORA_IMM  , &ASL_Accum,   Null,          Null, &ORA_ABS  , &ASL_ABS,   Null,
-/* 1 */ &BPL_Relative, &ORA_IND_Y, Null,     Null, Null,      &ORA_ZP_X, &ASL_ZP_X, Null, &CLC_Implied, &ORA_ABS_Y, Null,         Null,          Null, &ORA_ABS_X, &ASL_ABS_X, Null,
-/* 2 */ &JSR_Absolute, &AND_IND_X, Null,     Null, &BIT_ZP,   &AND_ZP  , &ROL_ZP,   Null, &PLP_Implied, &AND_IMM  , &ROL_Accum,   &BIT_ABS,      Null, &AND_ABS  , &ROL_ABS,   Null,
-/* 3 */ &BMI_Relative, &AND_IND_Y, Null,     Null, Null,      &AND_ZP_X, &ROL_ZP_X, Null, &SEC_Implied, &AND_ABS_Y, Null,         Null,          Null, &AND_ABS_X, &ROL_ABS_X, Null,
-/* 4 */ &RTI_Implied,  &EOR_IND_X, Null,     Null, Null,      &EOR_ZP  , &LSR_ZP  , Null, &PHA_Implied, &EOR_IMM  , &LSR_Accum,   &JMP_ABS,      Null, &EOR_ABS  , &LSR_ABS,   Null,
-/* 5 */ &BVC_Relative, &EOR_IND_Y, Null,     Null, Null,      &EOR_ZP_X, &LSR_ZP_X, Null, &CLI_Implied, &EOR_ABS_Y, Null,         Null,          Null, &EOR_ABS_X, &LSR_ABS_X, Null,
-/* 6 */ &RTS_Implied,  &ADC_IND_X, Null,     Null, Null,      &ADC_ZP  , &ROR_ZP  , Null, &PLA_Implied, &ADC_IMM  , &ROR_Accum,   &JMP_Indirect, Null, &ADC_ABS  , &ROR_ABS,   Null,
-/* 7 */ &BVS_Relative, &ADC_IND_Y, Null,     Null, Null,      &ADC_ZP_X, &ROR_ZP_X, Null, &SEI_Implied, &ADC_ABS_Y, Null,         Null,          Null, &ADC_ABS_X, &ROR_ABS_X, Null,
-/* 8 */ Null,          &STA_IND_X, Null,     Null, &STY_ZP,   &STA_ZP  , &STX_ZP  , Null, &DEY_Implied, &STA_IMM  , &TXA_Implied, &STY_ABS,      Null, &STA_ABS  , &STX_ABS,   Null,
-/* 9 */ &BCC_Relative, &STA_IND_Y, Null,     Null, &STY_ZP_X, &STA_ZP_X, &STX_ZP_Y, Null, &TYA_Implied, &STA_ABS_Y, &TXS_Implied, Null,          Null, &STA_ABS_X, Null,       Null,
-/* A */ &LDY_IMM,      &LDA_IND_X, &LDX_IMM, Null, &LDY_ZP,   &LDA_ZP  , &LDX_ZP  , Null, &TAY_Implied, &LDA_IMM  , &TAX_Implied, &LDY_ABS,      Null, &LDA_ABS  , &LDX_ABS,   Null,
-/* B */ &BCS_Relative, &LDA_IND_Y, Null,     Null, &LDY_ZP_X, &LDA_ZP_X, &LDX_ZP_Y, Null, &CLV_Implied, &LDA_ABS_Y, &TSX_Implied, &LDY_ABS_X,    Null, &LDA_ABS_X, &LDX_ABS_Y, Null,
-/* C */ &CPY_IMM,      &CMP_IND_X, Null,     Null, &CPY_ZP,   &CMP_ZP  , &DEC_ZP  , Null, &INY_Implied, &CMP_IMM  , &DEX_Implied, &DEC_ABS,      Null, &CMP_ABS  , &DEC_ABS,   Null,
-/* D */ &BNE_Relative, &CMP_IND_Y, Null,     Null, Null,      &CMP_ZP_X, &DEC_ZP_X, Null, &CLD_Implied, &CMP_ABS_Y, Null,         &DEC_ABS_X,    Null, &CMP_ABS_X, &DEC_ABS_X, Null,
-/* E */ &CPX_IMM,      &SBC_IND_X, Null,     Null, &CPX_ZP,   &SBC_ZP  , &INC_ZP  , Null, &INX_Implied, &SBC_IMM  , &NOP_Implied, &INC_ABS,      Null, &SBC_ABS  , &INC_ABS,   Null,
-/* F */ &BEQ_Relative, &SBC_IND_Y, Null,     Null, Null,      &SBC_ZP_X, &INC_ZP_X, Null, &SED_Implied, &SBC_ABS_Y, Null,         &INC_ABS_X,    Null, &SBC_ABS_X, &INC_ABS_X, Null,
+/*      0              1           2         3     4          5          6          7     8             9           A             B     C              D           E           F */
+/* 0 */ &BRK_Implied,  &ORA_IND_X, Null,     Null, Null,      &ORA_ZP  , &ASL_ZP,   Null, &PHP_Implied, &ORA_IMM  , &ASL_Accum,   Null, Null,          &ORA_ABS  , &ASL_ABS,   Null,
+/* 1 */ &BPL_Relative, &ORA_IND_Y, Null,     Null, Null,      &ORA_ZP_X, &ASL_ZP_X, Null, &CLC_Implied, &ORA_ABS_Y, Null,         Null, Null,          &ORA_ABS_X, &ASL_ABS_X, Null,
+/* 2 */ &JSR_Absolute, &AND_IND_X, Null,     Null, &BIT_ZP,   &AND_ZP  , &ROL_ZP,   Null, &PLP_Implied, &AND_IMM  , &ROL_Accum,   Null, &BIT_ABS,      &AND_ABS  , &ROL_ABS,   Null,
+/* 3 */ &BMI_Relative, &AND_IND_Y, Null,     Null, Null,      &AND_ZP_X, &ROL_ZP_X, Null, &SEC_Implied, &AND_ABS_Y, Null,         Null, Null,          &AND_ABS_X, &ROL_ABS_X, Null,
+/* 4 */ &RTI_Implied,  &EOR_IND_X, Null,     Null, Null,      &EOR_ZP  , &LSR_ZP  , Null, &PHA_Implied, &EOR_IMM  , &LSR_Accum,   Null, &JMP_ABS,      &EOR_ABS  , &LSR_ABS,   Null,
+/* 5 */ &BVC_Relative, &EOR_IND_Y, Null,     Null, Null,      &EOR_ZP_X, &LSR_ZP_X, Null, &CLI_Implied, &EOR_ABS_Y, Null,         Null, Null,          &EOR_ABS_X, &LSR_ABS_X, Null,
+/* 6 */ &RTS_Implied,  &ADC_IND_X, Null,     Null, Null,      &ADC_ZP  , &ROR_ZP  , Null, &PLA_Implied, &ADC_IMM  , &ROR_Accum,   Null, &JMP_Indirect, &ADC_ABS  , &ROR_ABS,   Null,
+/* 7 */ &BVS_Relative, &ADC_IND_Y, Null,     Null, Null,      &ADC_ZP_X, &ROR_ZP_X, Null, &SEI_Implied, &ADC_ABS_Y, Null,         Null, Null,          &ADC_ABS_X, &ROR_ABS_X, Null,
+/* 8 */ Null,          &STA_IND_X, Null,     Null, &STY_ZP,   &STA_ZP  , &STX_ZP  , Null, &DEY_Implied, &STA_IMM  , &TXA_Implied, Null, &STY_ABS,      &STA_ABS  , &STX_ABS,   Null,
+/* 9 */ &BCC_Relative, &STA_IND_Y, Null,     Null, &STY_ZP_X, &STA_ZP_X, &STX_ZP_Y, Null, &TYA_Implied, &STA_ABS_Y, &TXS_Implied, Null, Null,          &STA_ABS_X, Null,       Null,
+/* A */ &LDY_IMM,      &LDA_IND_X, &LDX_IMM, Null, &LDY_ZP,   &LDA_ZP  , &LDX_ZP  , Null, &TAY_Implied, &LDA_IMM  , &TAX_Implied, Null, &LDY_ABS,      &LDA_ABS  , &LDX_ABS,   Null,
+/* B */ &BCS_Relative, &LDA_IND_Y, Null,     Null, &LDY_ZP_X, &LDA_ZP_X, &LDX_ZP_Y, Null, &CLV_Implied, &LDA_ABS_Y, &TSX_Implied, Null, &LDY_ABS_X,    &LDA_ABS_X, &LDX_ABS_Y, Null,
+/* C */ &CPY_IMM,      &CMP_IND_X, Null,     Null, &CPY_ZP,   &CMP_ZP  , &DEC_ZP  , Null, &INY_Implied, &CMP_IMM  , &DEX_Implied, Null, &CPY_ABS,      &CMP_ABS  , &DEC_ABS,   Null,
+/* D */ &BNE_Relative, &CMP_IND_Y, Null,     Null, Null,      &CMP_ZP_X, &DEC_ZP_X, Null, &CLD_Implied, &CMP_ABS_Y, Null,         Null, Null,          &CMP_ABS_X, &DEC_ABS_X, Null,
+/* E */ &CPX_IMM,      &SBC_IND_X, Null,     Null, &CPX_ZP,   &SBC_ZP  , &INC_ZP  , Null, &INX_Implied, &SBC_IMM  , &NOP_Implied, Null, &CPX_ABS,      &SBC_ABS  , &INC_ABS,   Null,
+/* F */ &BEQ_Relative, &SBC_IND_Y, Null,     Null, Null,      &SBC_ZP_X, &INC_ZP_X, Null, &SED_Implied, &SBC_ABS_Y, Null,         Null, Null,          &SBC_ABS_X, &INC_ABS_X, Null,
 };
 
+/* Read Write Mode for Each Instruction */
 const std::array<ReadWriteMode_t, Unknown + 1> ReadWriteModeSet = {
     R,  // ADC
     R,  // AND
@@ -461,6 +462,65 @@ const std::array<ReadWriteMode_t, Unknown + 1> ReadWriteModeSet = {
 
     NO, // Unknown
 };
+
+/* Name for Each Instruction */
+const std::array<const char*, code::Unknown + 1> InstructionNameSet = {
+    "ADC", "AND", "ASL",
+    "BCC", "BCS", "BEQ", "BIT", "BMI", "BNE", "BPL", "BRK", "BVC", "BVS",
+    "CLC", "CLD", "CLI", "CLV", "CMP", "CPX", "CPY",
+    "DEC", "DEX", "DEY",
+    "EOR",
+    "INC", "INX", "INY",
+    "JMP", "JSR",
+    "LDA", "LDX", "LDY", "LSR",
+    "NOP",
+    "ORA",
+    "PHA", "PHP", "PLA", "PLP",
+    "ROL", "ROR", "RTI", "RTS",
+    "SBC", "SEC", "SED", "SEI", "STA", "STX", "STY",
+    "TAX", "TAY", "TSX", "TXA", "TXS", "TYA",
+
+    "UNKNOWN" // for instruction Unknown
+};
+
+/* Operand Number of Each Addressing Mode */
+const std::array<int, code::Invalid + 1> OperandNumberSet = {
+    0, // Implied
+    0, // Accumulator
+    1, // Immediate
+    2, // Absolute
+    1, // ZeroPage
+    1, // IndexedZeroPageX
+    1, // IndexedZeroPageY
+    2, // IndexedAbsoluteX
+    2, // IndexedAbsoluteY
+    1, // Relative
+    1, // IndexedIndirect
+    1, // IndirectIndexed
+    2, // AbsoluteIndirect
+
+    0  // Invalid
+};
+
+const Instruction_t *getInstruction(uint16_t op)
+{
+    return InstructionSet[op];
+}
+
+const char *getInstructionName(InstructionKind_t kind)
+{
+    return InstructionNameSet[kind];
+}
+
+ReadWriteMode getReadWriteMode(InstructionKind_t kind)
+{
+    return ReadWriteModeSet[kind];
+}
+
+int getOperandNumber(AddressingMode_t mode)
+{
+    return OperandNumberSet[mode];
+}
 
 } // namespace code
 } // namespace cpu
