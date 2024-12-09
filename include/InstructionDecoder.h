@@ -11,8 +11,6 @@ class MicroProcessor;
 
 namespace cpu {
 
-typedef void (*Operation_t)(tones::MicroProcessor&);
-
 /**
  * @brief Instruction Decoder
  * 
@@ -21,11 +19,14 @@ class InstructionDecoder
 {
 
 public:
+
+    typedef void (*Instruction_t)(tones::MicroProcessor&);
+
     InstructionDecoder(tones::MicroProcessor &cpu);
     ~InstructionDecoder();
 
     //! Current addressing mode
-    code::AddressingMode_t mode() const;
+    code::AddressingKind_t mode() const;
 
     //! Parse the operation code
     void decode();
@@ -38,6 +39,9 @@ public:
 
     //! Store to memory
     void save();
+
+    //! Get the instruction according to the op code
+    static const Operation_t *getOperation(uint16_t op);
 
 protected:
 
@@ -175,34 +179,39 @@ protected:
 
     /* Helper Functions */
 
-    static bool hasOperands(const code::Instruction_t *instruction);
+    static bool hasOperands(const Operation_t *operation);
 
-    static bool needsToLoad(const code::Instruction_t *instruction);
+    static bool needsToLoad(const Operation_t *operation);
 
-    static bool needsToSave(const code::Instruction_t *instruction);
+    static bool needsToSave(const Operation_t *operation);
 
 private:
 
     tones::MicroProcessor &_cpu;
 
-    const code::Instruction_t *_instruction;
+    const Operation_t *_operation;
 
-    static const std::array<Operation_t, code::Unknown + 1> _operations;
+    static const std::array<Instruction_t, code::Unknown + 1> _instructions;
 };
 
-inline bool InstructionDecoder::hasOperands(const code::Instruction_t *instruction)
+inline const Operation_t *InstructionDecoder::getOperation(uint16_t op)
 {
-    return instruction->mode & 0xfe; // mode > Accum
+    return OperationSet[op];
 }
 
-inline bool InstructionDecoder::needsToLoad(const code::Instruction_t *instruction)
+inline bool InstructionDecoder::hasOperands(const Operation_t *operation)
 {
-    return code::getReadWriteMode(instruction->kind) & InstructionReadMask;
+    return operation->mode->operands;
 }
 
-inline bool InstructionDecoder::needsToSave(const code::Instruction_t *instruction)
+inline bool InstructionDecoder::needsToLoad(const Operation_t *operation)
 {
-    return code::getReadWriteMode(instruction->kind) & InstructionWriteMask;
+    return operation->inst->kind & InstructionReadMask;
+}
+
+inline bool InstructionDecoder::needsToSave(const Operation_t *operation)
+{
+    return operation->inst->kind & InstructionWriteMask;
 }
 
 } // namespace cpu

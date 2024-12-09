@@ -9,7 +9,7 @@
 namespace tones {
 namespace cpu {
 
-const std::array<Operation_t, code::Unknown + 1> InstructionDecoder::_operations = {
+const std::array<InstructionDecoder::Instruction_t, code::Unknown + 1> InstructionDecoder::_instructions = {
     ADC, AND, ASL,
     BCC, BCS, BEQ, BIT, BMI, BNE, BPL, BRK, BVC, BVS,
     CLC, CLD, CLI, CLV, CMP, CPX, CPY,
@@ -30,7 +30,7 @@ const std::array<Operation_t, code::Unknown + 1> InstructionDecoder::_operations
 
 InstructionDecoder::InstructionDecoder(tones::MicroProcessor &cpu)
     : _cpu(cpu)
-    , _instruction(&cpu::code::UnknownInstruction)
+    , _operation(&UnknownOperation)
 {
 
 }
@@ -40,30 +40,30 @@ InstructionDecoder::~InstructionDecoder()
 
 }
 
-code::AddressingMode_t InstructionDecoder::mode() const
+code::AddressingKind_t InstructionDecoder::mode() const
 {
-    return _instruction->mode;
+    return _operation->mode->kind;
 }
 
 void InstructionDecoder::decode()
 {
-    _instruction = code::getInstruction(_cpu._reg_IR);
+    _operation = getOperation(_cpu._reg_IR);
 }
 
 void InstructionDecoder::execute()
 {
-    _operations[_instruction->kind](_cpu);
+    _instructions[_operation->inst->kind](_cpu);
 }
 
 void InstructionDecoder::load()
 {
-    if (hasOperands(_instruction) && needsToLoad(_instruction))
+    if (hasOperands(_operation) && needsToLoad(_operation))
         _cpu.read();
 }
 
 void InstructionDecoder::save()
 {
-    if (hasOperands(_instruction) && needsToSave(_instruction))
+    if (hasOperands(_operation) && needsToSave(_operation))
         _cpu.write();
 }
 

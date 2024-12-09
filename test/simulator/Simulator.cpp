@@ -7,9 +7,12 @@
 
 #include "Device.h"
 #include "Cartridge.h"
+#include "InstructionDecoder.h"
 #include "Log.h"
 
 namespace tones {
+
+using Decoder = cpu::InstructionDecoder;
 
 const QLatin1Char HexPrefix('0');
 
@@ -117,12 +120,12 @@ void Simulator::onOpen()
         return;
 
     _card = CartridgeFactory::createCartridge(filename.toStdString());
-    _engine.insert(_card);
 
     changeStatus(Stopped);
+    _ui->statusBar->showMessage(filename);
     emit showCartridge();
 
-    _ui->statusBar->showMessage(filename);
+    _engine.insert(_card);
 }
 
 void Simulator::onStart()
@@ -166,12 +169,23 @@ void Simulator::onShowFrame()
 void Simulator::onShowCartridge()
 {
     // Show PROM
-    int addr = ReadOnlyMemory::RomLowerBankBase;
     QString prom;
 
+    int argv = 0;
+    int addr = ReadOnlyMemory::RomLowerBankBase;
+
     for (auto byte : _card->prgRom()) {
-        prom.append(QString("%1 |  %2\n").arg(addr, 4, 16, HexPrefix)
-                                         .arg(byte, 2, 16, HexPrefix));
+        auto line = QString("%1 |  %2\n").arg(addr, 4, 16, HexPrefix);
+        if (!argv) {
+            auto *op = Decoder::getOperation(byte);
+            argv = op->mode->operands;
+            prom.append(line.arg(QString("%1  # %2, %3").arg(byte, 2, 16, HexPrefix)
+                                                        .arg(QString(op->inst->name))
+                                                        .arg(QString(op->mode->name))));
+        } else {
+            --argv;
+            prom.append(line.arg(byte, 2, 16, HexPrefix));
+        }
         ++addr;
     }
 

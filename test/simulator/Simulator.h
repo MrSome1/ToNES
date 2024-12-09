@@ -65,6 +65,10 @@ public Q_SLOTS:
 
 protected:
 
+    void start();
+
+    void stop();
+
     void setupView();
 
     void setupConnections();
@@ -72,10 +76,6 @@ protected:
     void changeStatus(Status s = Invalid);
 
     void showCurrentLine(uint16_t pc);
-
-    void start();
-
-    void stop();
 
 private:
 

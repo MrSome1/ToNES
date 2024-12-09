@@ -7,7 +7,7 @@
 namespace tones {
 namespace cpu {
 
-/* The Instruction Code
+/** The Operation Code
  *
  * According to the op code matrix, 6502 processors
  * use one byte as the operation code, as bellow:
@@ -15,11 +15,11 @@ namespace cpu {
  *   Bit  7  6  5  4  3  2  1  0
  *        -------  -------  ----
  *           |        |      |
- *           |        |      +-- Instruction Group
+ *           |        |      +-- Operation Group
  *           |        +--------- Addressing Mode
  *           +------------------ Instruction Number
  * 
- * Instructions in the same group do have something
+ * Operations in the same group do have something
  * in common, and share similar addressing modes.
  * 
  * Group 0 is especially for implied instructions,
@@ -29,7 +29,7 @@ namespace cpu {
  * instructions.
  *
  * Group 3 is totally empty by now, maybe used for
- * some extention operations
+ * some extention instructions
  */
 
 const int InstructionGroupMask  = 0x3;   // 0000 0011
@@ -49,8 +49,8 @@ const int InstructionWriteMask = 0x02;   // 0000 0010
 
 namespace code {
 
-/* Addressing Mode */
-typedef enum AddressingMode {
+/* Addressing Modes */
+typedef enum AddressingKind {
     Implied,          //
     Accumulator,      // Accum
     Immediate,        // IMM
@@ -66,9 +66,24 @@ typedef enum AddressingMode {
     AbsoluteIndirect, // Indirect  
 
     Invalid
-} AddressingMode_t;
+} AddressingKind_t;
 
-/* Alphabetic List of Instruction Set */
+/* Read and Write Mode
+ *
+ * This means if an instruction needs to read from or
+ * write to the main memory. This is specific for each
+ * instruction actually, so this mode was not defined
+ * explicitly in the 6502 manual, defined it here just
+ * for decoding the instructions conveniently
+ */
+typedef enum ReadWriteMode {
+    NO,
+    R,
+    W,
+    RW
+} ReadWriteMode_t;
+
+/* Instructions */
 typedef enum InstructionKind {
     ADC, // Add Memory to Accumulator with Carry
     AND, // 'AND' Memory with Accumulator
@@ -143,42 +158,35 @@ typedef enum InstructionKind {
     Unknown
 } InstructionKind_t;
 
-/* Read and Write Mode
- *
- * This means if an instruction needs to read from or
- * write to the main memory. This is specific for each
- * instruction actually, so this mode was not defined
- * explicitly in the 6502 manual, defined it here just
- * for decoding the instructions conveniently
- */
-typedef enum ReadWriteMode {
-    NO,
-    R,
-    W,
-    RW
-} ReadWriteMode_t;
+} // namespace code
 
+/* Addressing Mode */
+typedef struct AddressingMode {
+    const code::AddressingKind_t kind;
+    const int operands;
+    const char *name;
+} AddressingMode_t;
+
+/* Instruction */
 typedef struct Instruction {
-    InstructionKind_t kind;
-    AddressingMode_t mode;
-    int cycles;
+    const code::InstructionKind_t kind;
+    const code::ReadWriteMode_t mode;
+    const char *name;
 } Instruction_t;
 
+/* Operation */
+typedef struct Operation {
+    const Instruction_t *inst;
+    const AddressingMode_t *mode;
+    const int cycles;
+} Operation_t;
+
 //! The Unknown Instruction
-extern const Instruction_t UnknownInstruction;
+extern const Operation_t UnknownOperation;
 
-//! Get the instruction according to the op code
-const Instruction_t *getInstruction(uint16_t op);
+//! Instruction Set Op Code Matrix
+extern const std::array<const Operation_t*, InstructionSetSize> OperationSet;
 
-//! Get the name of an instruction
-const char *getInstructionName(InstructionKind_t kind);
-
-//! Get the read write mode for Each Instruction
-ReadWriteMode getReadWriteMode(InstructionKind_t kind);
-
-int getOperandNumber(AddressingMode_t mode);
-
-} // namespace code
 } // namespace cpu
 } // namespace tones
 
