@@ -126,7 +126,7 @@ inline void ArithmeticAndLogicUnit::checkNegative(uint8_t &reg)
 
 /* MicroProcessor */
 
-const std::array<MicroProcessor::Fetcher, cpu::code::Invalid + 1>
+const std::array<MicroProcessor::Fetcher, cpu::AddressingModeSize>
 MicroProcessor::_fetchers = {
     fetchNull, 
     fetchNull,
@@ -141,7 +141,6 @@ MicroProcessor::_fetchers = {
     fetchIndexedIndirect,
     fetchIndirectIndexed,
     fetchAbsoluteIndirect,
-    fetchNull, // for addressing mode Invalid
 };
 
 MicroProcessor::MicroProcessor(Bus &bus)

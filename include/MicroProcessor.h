@@ -253,7 +253,7 @@ private:
 
     Bus &_bus;
 
-    static const std::array<Fetcher, cpu::code::Invalid + 1> _fetchers;
+    static const std::array<Fetcher, cpu::AddressingModeSize> _fetchers;
 };
 
 inline void MicroProcessor::read()

@@ -9,7 +9,7 @@
 namespace tones {
 namespace cpu {
 
-const std::array<InstructionDecoder::Instruction_t, code::Unknown + 1> InstructionDecoder::_instructions = {
+const std::array<InstructionDecoder::Instruction_t, InstructionSetSize> InstructionDecoder::_instructions = {
     ADC, AND, ASL,
     BCC, BCS, BEQ, BIT, BMI, BNE, BPL, BRK, BVC, BVS,
     CLC, CLD, CLI, CLV, CMP, CPX, CPY,
@@ -24,8 +24,6 @@ const std::array<InstructionDecoder::Instruction_t, code::Unknown + 1> Instructi
     ROL, ROR, RTI, RTS,
     SBC, SEC, SED, SEI, STA, STX, STY,
     TAX, TAY, TSX, TXA, TXS, TYA,
-
-    NOP // for instruction Unknown
 };
 
 InstructionDecoder::InstructionDecoder(tones::MicroProcessor &cpu)

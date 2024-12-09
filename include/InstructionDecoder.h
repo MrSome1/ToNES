@@ -2,6 +2,7 @@
 #define _TONES_INSTRUCTIONDECODER_H_
 
 #include <array>
+#include <cinttypes>
 
 #include "Instruction.h"
 
@@ -191,7 +192,7 @@ private:
 
     const Operation_t *_operation;
 
-    static const std::array<Instruction_t, code::Unknown + 1> _instructions;
+    static const std::array<Instruction_t, InstructionSetSize> _instructions;
 };
 
 inline const Operation_t *InstructionDecoder::getOperation(uint16_t op)

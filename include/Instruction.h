@@ -1,9 +1,6 @@
 #ifndef _TONES_INSTRUCTION_H_
 #define _TONES_INSTRUCTION_H_
 
-#include <array>
-#include <cinttypes>
-
 namespace tones {
 namespace cpu {
 
@@ -32,17 +29,14 @@ namespace cpu {
  * some extention instructions
  */
 
-const int InstructionGroupMask  = 0x3;   // 0000 0011
-const int InstructionGroupCount = 4;
+const int OperationGroupMask  = 0x3;   // 0000 0011
+const int OperationGroupCount = 4;
 
 const int AddressingModeMask  = 0x1c;    // 0001 1100
 const int AddressingModeShift = 2;
 
 const int InstructionNumberMask  = 0xe0; // 1110 0000
 const int InstructionNumberShift = 5;
-
-const int AddressingModeCount = 13;
-const int InstructionSetSize  = 256;
 
 const int InstructionReadMask  = 0x01;   // 0000 0001
 const int InstructionWriteMask = 0x02;   // 0000 0010
@@ -64,8 +58,6 @@ typedef enum AddressingKind {
     IndexedIndirect,  // (IND, X)
     IndirectIndexed,  // (IND), Y
     AbsoluteIndirect, // Indirect  
-
-    Invalid
 } AddressingKind_t;
 
 /* Read and Write Mode
@@ -154,8 +146,6 @@ typedef enum InstructionKind {
     TXA, // Transfer Index X to Accumulator
     TXS, // Transfer Index X to Stack Register
     TYA, // Transfer Index Y to Accumulator
-
-    Unknown
 } InstructionKind_t;
 
 } // namespace code
@@ -181,11 +171,20 @@ typedef struct Operation {
     const int cycles;
 } Operation_t;
 
+//! Count of Addressing Modes
+const int AddressingModeSize = code::AbsoluteIndirect + 1;
+
+//! Count of Valid Instructions
+const int InstructionSetSize = code::TYA + 1;
+
+//! Count of All Operation Codes
+const int OperationSetSize = 256;
+
 //! The Unknown Instruction
 extern const Operation_t UnknownOperation;
 
 //! Instruction Set Op Code Matrix
-extern const std::array<const Operation_t*, InstructionSetSize> OperationSet;
+extern const Operation_t* const OperationSet[OperationSetSize];
 
 } // namespace cpu
 } // namespace tones

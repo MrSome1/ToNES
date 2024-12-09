@@ -20,7 +20,7 @@ const AddressingMode_t IDX = { code::IndexedIndirect,  1, "IDX" };
 const AddressingMode_t IDY = { code::IndirectIndexed,  1, "IDY" };
 const AddressingMode_t IND = { code::AbsoluteIndirect, 2, "IND" };
 
-const AddressingMode_t INVALID = { code::Invalid, 0, "INVALID" };
+const AddressingMode_t INVALID = { code::Implied, 0, "INVALID" };
 
 /* Instructions */
 
@@ -94,7 +94,7 @@ const Instruction_t TXA = { code::TXA, code::NO, "TXA" };
 const Instruction_t TXS = { code::TXS, code::NO, "TXS" };
 const Instruction_t TYA = { code::TYA, code::NO, "TYA" };
 
-const Instruction_t UNKNOWN = { code::Unknown, code::NO, "Unknown"};
+const Instruction_t UNKNOWN = { code::NOP, code::NO, "UNKNOWN"};
 
 /* Operations */
 
@@ -456,7 +456,7 @@ const Operation_t INC_ABX = { &INC, &ABX, 7};
  * This the whole instruction set of 6502 processor, an 1:1
  * copy of the manual, thank god there are only 256 ones
  */
-const std::array<const Operation_t*, InstructionSetSize> OperationSet = {
+const Operation_t* const OperationSet[OperationSetSize] = {
 /*             0         1         2     3         4         5         6     7         8         9         A     B         C         D         E     F */
 /* 0 */ &BRK_IMP, &ORA_IDX,     Null, Null,     Null,  &ORA_ZP,  &ASL_ZP, Null, &PHP_IMP, &ORA_IMM, &ASL_ACC, Null,     Null, &ORA_ABS, &ASL_ABS, Null,
 /* 1 */ &BPL_REL, &ORA_IDY,     Null, Null,     Null, &ORA_ZPX, &ASL_ZPX, Null, &CLC_IMP, &ORA_ABY,     Null, Null,     Null, &ORA_ABX, &ASL_ABX, Null,
