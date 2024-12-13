@@ -154,20 +154,20 @@ typedef enum InstructionKind {
 typedef struct AddressingMode {
     const code::AddressingKind_t kind;
     const int operands;
-    const char *name;
+    const char* const name;
 } AddressingMode_t;
 
 /* Instruction */
 typedef struct Instruction {
     const code::InstructionKind_t kind;
     const code::ReadWriteMode_t mode;
-    const char *name;
+    const char* const name;
 } Instruction_t;
 
 /* Operation */
 typedef struct Operation {
-    const Instruction_t *inst;
-    const AddressingMode_t *mode;
+    const Instruction_t* const type;
+    const AddressingMode_t* const mode;
     const int cycles;
 } Operation_t;
 

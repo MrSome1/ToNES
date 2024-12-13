@@ -14,14 +14,19 @@ namespace tones {
 
 using Decoder = cpu::InstructionDecoder;
 
-const QLatin1Char HexPrefix('0');
-
 const char *Pause  = "Pause";
 const char *Resume = "Resume";
 
 const char *CpuPHeader = "N    V    -    B    D    I    Z    C";
 const char *CpuPValue  = "0    0    0    0    0    0    0    0";
 const int CpuPSepLen = 5;
+
+const QLatin1Char HexPrefix('0');
+
+inline QString toHexString(uint8_t byte)
+{
+    return QString("%1").arg(byte, 2, 16, HexPrefix);
+}
 
 Simulator::Simulator(QWidget *parent)
     : QMainWindow(parent)
@@ -180,7 +185,7 @@ void Simulator::onShowCartridge()
             auto *op = Decoder::getOperation(byte);
             argv = op->mode->operands;
             prom.append(line.arg(QString("%1  # %2, %3").arg(byte, 2, 16, HexPrefix)
-                                                        .arg(QString(op->inst->name))
+                                                        .arg(QString(op->type->name))
                                                         .arg(QString(op->mode->name))));
         } else {
             --argv;
@@ -237,12 +242,12 @@ void Simulator::onAudioOutput()
 
 void Simulator::onCpuStepped(const MicroProcessor::Registers_t &regs)
 {
-    _ui->cpuPC->setText(QString::number(regs.PC, 16));
-    _ui->cpuS->setText(QString::number(regs.S, 16));
+    _ui->cpuPC->setText(toHexString(regs.PC));
+    _ui->cpuS->setText(toHexString(regs.S));
 
-    _ui->cpuA->setText(QString::number(regs.A, 16));
-    _ui->cpuX->setText(QString::number(regs.X, 16));
-    _ui->cpuY->setText(QString::number(regs.Y, 16));
+    _ui->cpuA->setText(toHexString(regs.A));
+    _ui->cpuX->setText(toHexString(regs.X));
+    _ui->cpuY->setText(toHexString(regs.Y));
 
     for (int i = 0, mask = 0x80; mask; mask >>= 1) {
         _cpuP[i] = regs.P & mask ? '1' : '0';

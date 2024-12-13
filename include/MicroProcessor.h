@@ -99,13 +99,15 @@ public:
     //! Operation arithmetic 'Compare'
     void CMP();
 
-    inline void checkCarry(uint8_t &reg);
-
     inline void checkZero(uint8_t &reg);
 
-    inline void checkOverflow(uint8_t &reg);
-
     inline void checkNegative(uint8_t &reg);
+
+    inline void checkZeroNegative(uint8_t &reg);
+
+    inline void checkCarry(uint8_t reg);
+
+    inline void checkOverflow(uint8_t reg);
 
 private:
 
@@ -133,9 +135,9 @@ public:
         uint8_t A;   // accumulator
         uint8_t X;   // index register X
         uint8_t Y;   // index register Y
-        uint8_t S;   // program counter
+        uint8_t S;   // stack pointer
         uint8_t P;   // status register
-        uint16_t PC; // stack pointer
+        uint16_t PC; // program counter
     } Registers_t;
 
     MicroProcessor(Bus &bus);
@@ -237,8 +239,8 @@ private:
     uint8_t  _reg_A;  // accumulator
     uint8_t  _reg_X;  // index register X
     uint8_t  _reg_Y;  // index register Y
-    uint8_t  _reg_S;  // program counter
-    uint16_t _reg_PC; // stack pointer
+    uint8_t  _reg_S;  // stack pointer
+    uint16_t _reg_PC; // program counter
 
     /* Internal Registers */
     uint8_t  _reg_IR;  // instruction register
@@ -252,6 +254,8 @@ private:
     cpu::ArithmeticAndLogicUnit _alu;
 
     Bus &_bus;
+
+    uint8_t _skip;
 
     static const std::array<Fetcher, cpu::AddressingModeSize> _fetchers;
 };

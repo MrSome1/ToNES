@@ -20,7 +20,7 @@ const AddressingMode_t IDX = { code::IndexedIndirect,  1, "IDX" };
 const AddressingMode_t IDY = { code::IndirectIndexed,  1, "IDY" };
 const AddressingMode_t IND = { code::AbsoluteIndirect, 2, "IND" };
 
-const AddressingMode_t INVALID = { code::Implied, 0, "INVALID" };
+const AddressingMode_t INVALID = { code::Implied, 0, "NIL" };
 
 /* Instructions */
 
@@ -94,7 +94,7 @@ const Instruction_t TXA = { code::TXA, code::NO, "TXA" };
 const Instruction_t TXS = { code::TXS, code::NO, "TXS" };
 const Instruction_t TYA = { code::TYA, code::NO, "TYA" };
 
-const Instruction_t UNKNOWN = { code::NOP, code::NO, "UNKNOWN"};
+const Instruction_t UNKNOWN = { code::NOP, code::NO, "NIL"};
 
 /* Operations */
 

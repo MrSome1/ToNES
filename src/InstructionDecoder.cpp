@@ -9,31 +9,10 @@
 namespace tones {
 namespace cpu {
 
-const std::array<InstructionDecoder::Instruction_t, InstructionSetSize> InstructionDecoder::_instructions = {
-    ADC, AND, ASL,
-    BCC, BCS, BEQ, BIT, BMI, BNE, BPL, BRK, BVC, BVS,
-    CLC, CLD, CLI, CLV, CMP, CPX, CPY,
-    DEC, DEX, DEY,
-    EOR,
-    INC, INX, INY,
-    JMP, JSR,
-    LDA, LDX, LDY, LSR,
-    NOP,
-    ORA,
-    PHA, PHP, PLA, PLP,
-    ROL, ROR, RTI, RTS,
-    SBC, SEC, SED, SEI, STA, STX, STY,
-    TAX, TAY, TSX, TXA, TXS, TYA,
-};
-
 InstructionDecoder::InstructionDecoder(tones::MicroProcessor &cpu)
     : _cpu(cpu)
+    , _alu(cpu._alu)
     , _operation(&UnknownOperation)
-{
-
-}
-
-InstructionDecoder::~InstructionDecoder()
 {
 
 }
@@ -46,11 +25,70 @@ code::AddressingKind_t InstructionDecoder::mode() const
 void InstructionDecoder::decode()
 {
     _operation = getOperation(_cpu._reg_IR);
+    _cpu._skip = _operation->cycles; // TODO: Dynamic cycles
 }
 
 void InstructionDecoder::execute()
 {
-    _instructions[_operation->inst->kind](_cpu);
+    switch(_operation->type->kind) {
+        case code::ADC: ADC(); break;  // TODO: Check
+        case code::AND: AND(); break;
+        case code::ASL: ASL(); break;
+        case code::BCC: BCC(); break;  // TODO: Check
+        case code::BCS: BCS(); break;  // TODO: Check
+        case code::BEQ: BEQ(); break;  // TODO: Check
+        case code::BIT: BIT(); break;
+        case code::BMI: BMI(); break;  // TODO: Check
+        case code::BNE: BNE(); break;  // TODO: Check
+        case code::BPL: BPL(); break;  // TODO: Check
+        case code::BRK: BRK(); break;  // TODO: Check
+        case code::BVC: BVC(); break;  // TODO: Check
+        case code::BVS: BVS(); break;  // TODO: Check
+        case code::CLC: CLC(); break;
+        case code::CLD: CLD(); break;
+        case code::CLI: CLI(); break;
+        case code::CLV: CLV(); break;
+        case code::CMP: CMP(); break;
+        case code::CPX: CPX(); break;
+        case code::CPY: CPY(); break;
+        case code::DEC: DEC(); break;
+        case code::DEX: DEX(); break;
+        case code::DEY: DEY(); break;
+        case code::EOR: EOR(); break;
+        case code::INC: INC(); break;
+        case code::INX: INX(); break;
+        case code::INY: INY(); break;
+        case code::JMP: JMP(); break;  // TODO: Check
+        case code::JSR: JSR(); break;  // TODO: Check
+        case code::LDA: LDA(); break;
+        case code::LDX: LDX(); break;
+        case code::LDY: LDY(); break;
+        case code::LSR: LSR(); break;
+        case code::NOP: NOP(); break;
+        case code::ORA: ORA(); break;
+        case code::PHA: PHA(); break;
+        case code::PHP: PHP(); break;
+        case code::PLA: PLA(); break;
+        case code::PLP: PLP(); break;
+        case code::ROL: ROL(); break;
+        case code::ROR: ROR(); break;
+        case code::RTI: RTI(); break;  // TODO: Check
+        case code::RTS: RTS(); break;  // TODO: Check
+        case code::SBC: SBC(); break;  // TODO: Check
+        case code::SEC: SEC(); break;
+        case code::SED: SED(); break;
+        case code::SEI: SEI(); break;
+        case code::STA: STA(); break;
+        case code::STX: STX(); break;
+        case code::STY: STY(); break;
+        case code::TAX: TAX(); break;
+        case code::TAY: TAY(); break;
+        case code::TSX: TSX(); break;
+        case code::TXA: TXA(); break;
+        case code::TXS: TXS(); break;
+        case code::TYA: TYA(); break;
+               default: NOP(); break;
+    }
 }
 
 void InstructionDecoder::load()
@@ -65,358 +103,334 @@ void InstructionDecoder::save()
         _cpu.write();
 }
 
-/* Routine Instructions */
+/* Instructions */
 
-void InstructionDecoder::BRK(tones::MicroProcessor &cpu)
+void InstructionDecoder::ADC()
+{
+    _alu.ADC();
+}
+
+void InstructionDecoder::AND()
+{
+    _alu.AND();
+}
+
+void InstructionDecoder::ASL()
+{
+    _alu.ASL();
+}
+
+void InstructionDecoder::BCC()
+{
+    if (!GET_BIT(_cpu._reg_P, StatusBit::C))
+        _cpu.branch();
+}
+
+void InstructionDecoder::BCS()
+{
+    if (GET_BIT(_cpu._reg_P, StatusBit::C))
+        _cpu.branch();
+}
+
+void InstructionDecoder::BEQ()
+{
+    if (GET_BIT(_cpu._reg_P, StatusBit::Z))
+        _cpu.branch();
+}
+
+void InstructionDecoder::BIT()
+{
+    _alu.checkZeroNegative(_cpu._reg_DBB);
+    _alu.checkOverflow(_cpu._reg_DBB & 0x40); // TODO: What are this used for?
+}
+
+void InstructionDecoder::BMI()
+{
+    if (GET_BIT(_cpu._reg_P, StatusBit::N))
+        _cpu.branch();
+}
+
+void InstructionDecoder::BNE()
+{
+    if (!GET_BIT(_cpu._reg_P, StatusBit::Z))
+        _cpu.branch();
+}
+
+void InstructionDecoder::BPL()
+{
+    if (!GET_BIT(_cpu._reg_P, StatusBit::N))
+        _cpu.branch();
+}
+
+void InstructionDecoder::BRK()
 {
     // TODO: ???
 }
 
-void InstructionDecoder::JSR(tones::MicroProcessor &cpu)
+void InstructionDecoder::BVC()
+{
+    if (!GET_BIT(_cpu._reg_P, StatusBit::V))
+        _cpu.branch();
+}
+
+void InstructionDecoder::BVS()
+{
+    if (GET_BIT(_cpu._reg_P, StatusBit::V))
+        _cpu.branch();
+}
+
+void InstructionDecoder::CLC()
+{
+    CLR_BIT(_cpu._reg_P, StatusBit::C);
+}
+
+void InstructionDecoder::CLD()
+{
+    CLR_BIT(_cpu._reg_P, StatusBit::D);
+}
+
+void InstructionDecoder::CLI()
+{
+    CLR_BIT(_cpu._reg_P, StatusBit::I);
+}
+
+void InstructionDecoder::CLV()
+{
+    CLR_BIT(_cpu._reg_P, StatusBit::V);
+}
+
+void InstructionDecoder::CMP()
+{
+    _alu.CMP();
+}
+
+void InstructionDecoder::CPX()
+{
+    _cpu._reg_A = _cpu._reg_X;
+    _alu.CMP();
+}
+
+void InstructionDecoder::CPY()
+{
+    _cpu._reg_A = _cpu._reg_X;
+    _alu.CMP();
+}
+
+void InstructionDecoder::DEC()
+{
+    _cpu._reg_A = _cpu._reg_DBB;
+    _alu.DEC();
+    _cpu._reg_DBB = _cpu._reg_A;
+}
+
+void InstructionDecoder::DEX()
+{
+    _cpu._reg_A = _cpu._reg_X;
+    _alu.DEC();
+    _cpu._reg_X = _cpu._reg_A;
+}
+
+void InstructionDecoder::DEY()
+{
+    _cpu._reg_A = _cpu._reg_Y;
+    _alu.DEC();
+    _cpu._reg_Y = _cpu._reg_A;
+}
+
+void InstructionDecoder::EOR()
+{
+    _alu.EOR();
+}
+
+void InstructionDecoder::INC()
+{
+    _cpu._reg_A = _cpu._reg_DBB;
+    _alu.INC();
+    _cpu._reg_DBB = _cpu._reg_A;
+}
+
+void InstructionDecoder::INX()
+{
+    _cpu._reg_A = _cpu._reg_X;
+    _alu.INC();
+    _cpu._reg_X = _cpu._reg_A;
+}
+
+void InstructionDecoder::INY()
+{
+    _cpu._reg_A = _cpu._reg_Y;
+    _alu.INC();
+    _cpu._reg_Y = _cpu._reg_A;
+}
+
+void InstructionDecoder::JMP()
+{
+    _cpu._reg_PC = _cpu._reg_DBB;
+    _cpu._reg_PC <<= 8;
+    _cpu._reg_PC |= _cpu._reg_DL;
+}
+
+void InstructionDecoder::JSR()
 {
     // TODO: ???
-    cpu._reg_DBB = (cpu._reg_PC + 1) >> 8;
-    cpu.push();
-    cpu._reg_DBB = (cpu._reg_PC + 1);
-    cpu.push();
-    JMP(cpu);
+    _cpu._reg_DBB = (_cpu._reg_PC + 1) >> 8;
+    _cpu.push();
+    _cpu._reg_DBB = (_cpu._reg_PC + 1);
+    _cpu.push();
+    JMP();
 }
 
-void InstructionDecoder::RTI(tones::MicroProcessor &cpu)
+void InstructionDecoder::LDA()
 {
-    cpu.pop();
-    cpu._reg_P = cpu._reg_DBB;
-    cpu.popTwo();
-    JMP(cpu);
+    _alu.checkZeroNegative(_cpu._reg_DBB);
+    _cpu._reg_A = _cpu._reg_DBB;
 }
 
-void InstructionDecoder::RTS(tones::MicroProcessor &cpu)
+void InstructionDecoder::LDX()
 {
-    cpu.popTwo();
-    JMP(cpu);
-    ++cpu._reg_PC; // TODO: ???
+    _alu.checkZeroNegative(_cpu._reg_DBB);
+    _cpu._reg_X = _cpu._reg_DBB;
 }
 
-void InstructionDecoder::JMP(tones::MicroProcessor &cpu)
+void InstructionDecoder::LDY()
 {
-    cpu._reg_PC = cpu._reg_DBB;
-    cpu._reg_PC <<= 8;
-    cpu._reg_PC |= cpu._reg_DL;
+    _alu.checkZeroNegative(_cpu._reg_DBB);
+    _cpu._reg_Y = _cpu._reg_DBB;
 }
 
-/* Branch Instructions */
-
-void InstructionDecoder::BPL(tones::MicroProcessor &cpu)
+void InstructionDecoder::LSR()
 {
-    if (!GET_BIT(cpu._reg_P, StatusBit::N))
-        cpu.branch();
+    _alu.LSR();
 }
 
-void InstructionDecoder::BMI(tones::MicroProcessor &cpu)
-{
-    if (GET_BIT(cpu._reg_P, StatusBit::N))
-        cpu.branch();
-}
-
-void InstructionDecoder::BVC(tones::MicroProcessor &cpu)
-{
-    if (!GET_BIT(cpu._reg_P, StatusBit::V))
-        cpu.branch();
-}
-
-void InstructionDecoder::BVS(tones::MicroProcessor &cpu)
-{
-    if (GET_BIT(cpu._reg_P, StatusBit::V))
-        cpu.branch();
-}
-
-void InstructionDecoder::BCC(tones::MicroProcessor &cpu)
-{
-    if (!GET_BIT(cpu._reg_P, StatusBit::C))
-        cpu.branch();
-}
-
-void InstructionDecoder::BCS(tones::MicroProcessor &cpu)
-{
-    if (GET_BIT(cpu._reg_P, StatusBit::C))
-        cpu.branch();
-}
-
-void InstructionDecoder::BNE(tones::MicroProcessor &cpu)
-{
-    if (!GET_BIT(cpu._reg_P, StatusBit::Z))
-        cpu.branch();
-}
-
-void InstructionDecoder::BEQ(tones::MicroProcessor &cpu)
-{
-    if (GET_BIT(cpu._reg_P, StatusBit::Z))
-        cpu.branch();
-}
-
-/* Stack Instructions */
-
-void InstructionDecoder::PHP(tones::MicroProcessor &cpu)
-{
-    cpu._reg_DBB = cpu._reg_P;
-    cpu.push();
-}
-
-void InstructionDecoder::PLP(tones::MicroProcessor &cpu)
-{
-    cpu.pop();
-    cpu._reg_P = cpu._reg_DBB;
-}
-
-void InstructionDecoder::PHA(tones::MicroProcessor &cpu)
-{
-    cpu._reg_DBB = cpu._reg_A;
-    cpu.push();
-}
-
-void InstructionDecoder::PLA(tones::MicroProcessor &cpu)
-{
-    cpu.pop();
-    cpu._reg_A = cpu._reg_DBB;
-}
-
-/* Status Instructions */
-
-void InstructionDecoder::CLC(tones::MicroProcessor &cpu)
-{
-    CLR_BIT(cpu._reg_P, StatusBit::C);
-}
-
-void InstructionDecoder::SEC(tones::MicroProcessor &cpu)
-{
-    SEL_BIT(cpu._reg_P, StatusBit::C);
-}
-
-void InstructionDecoder::CLI(tones::MicroProcessor &cpu)
-{
-    CLR_BIT(cpu._reg_P, StatusBit::I);
-}
-
-void InstructionDecoder::SEI(tones::MicroProcessor &cpu)
-{
-    SEL_BIT(cpu._reg_P, StatusBit::I);
-}
-
-void InstructionDecoder::CLV(tones::MicroProcessor &cpu)
-{
-    CLR_BIT(cpu._reg_P, StatusBit::V);
-}
-
-void InstructionDecoder::CLD(tones::MicroProcessor &cpu)
-{
-    CLR_BIT(cpu._reg_P, StatusBit::D);
-}
-
-void InstructionDecoder::SED(tones::MicroProcessor &cpu)
-{
-    SEL_BIT(cpu._reg_P, StatusBit::D);
-}
-
-/* Index Instructions */
-
-void InstructionDecoder::DEY(tones::MicroProcessor &cpu)
-{
-    cpu._reg_A = cpu._reg_Y;
-    cpu._alu.DEC();
-    cpu._reg_Y = cpu._reg_A;
-}
-
-void InstructionDecoder::INY(tones::MicroProcessor &cpu)
-{
-    cpu._reg_A = cpu._reg_Y;
-    cpu._alu.INC();
-    cpu._reg_Y = cpu._reg_A;
-}
-
-void InstructionDecoder::INX(tones::MicroProcessor &cpu)
-{
-    cpu._reg_A = cpu._reg_X;
-    cpu._alu.INC();
-    cpu._reg_X = cpu._reg_A;
-}
-
-void InstructionDecoder::DEX(tones::MicroProcessor &cpu)
-{
-    cpu._reg_A = cpu._reg_X;
-    cpu._alu.DEC();
-    cpu._reg_X = cpu._reg_A;
-}
-
-/* Transfer Instructions */
-
-void InstructionDecoder::TYA(tones::MicroProcessor &cpu)
-{
-    cpu._alu.checkNegative(cpu._reg_Y);
-    cpu._alu.checkZero(cpu._reg_Y);
-    cpu._reg_A = cpu._reg_Y;
-}
-
-void InstructionDecoder::TAY(tones::MicroProcessor &cpu)
-{
-    cpu._alu.checkNegative(cpu._reg_A);
-    cpu._alu.checkZero(cpu._reg_A);
-    cpu._reg_Y = cpu._reg_A;
-}
-
-void InstructionDecoder::TXA(tones::MicroProcessor &cpu)
-{
-    cpu._alu.checkNegative(cpu._reg_X);
-    cpu._alu.checkZero(cpu._reg_X);
-    cpu._reg_A = cpu._reg_X;
-}
-
-void InstructionDecoder::TXS(tones::MicroProcessor &cpu)
-{
-    cpu._reg_S = cpu._reg_X;
-}
-
-void InstructionDecoder::TAX(tones::MicroProcessor &cpu)
-{
-    cpu._alu.checkNegative(cpu._reg_A);
-    cpu._alu.checkZero(cpu._reg_A);
-    cpu._reg_X = cpu._reg_A;
-}
-
-void InstructionDecoder::TSX(tones::MicroProcessor &cpu)
-{
-    cpu._alu.checkNegative(cpu._reg_S);
-    cpu._alu.checkZero(cpu._reg_S);
-    cpu._reg_X = cpu._reg_S; // check zero and negative ???
-}
-
-/* No Operation */
-
-void InstructionDecoder::NOP(tones::MicroProcessor &cpu)
+void InstructionDecoder::NOP()
 {
     /* Just does nothing as all, as named */
 }
 
-/* Instruction Group 0 */
-
-void InstructionDecoder::BIT(tones::MicroProcessor &cpu)
+void InstructionDecoder::ORA()
 {
-    // TODO: ???
+    _alu.ORA();
 }
 
-void InstructionDecoder::STY(tones::MicroProcessor &cpu)
+void InstructionDecoder::PHA()
 {
-    cpu._reg_DBB = cpu._reg_Y;
+    _cpu._reg_DBB = _cpu._reg_A;
+    _cpu.push();
 }
 
-void InstructionDecoder::LDY(tones::MicroProcessor &cpu)
+void InstructionDecoder::PHP()
 {
-    cpu._alu.checkNegative(cpu._reg_DBB);
-    cpu._alu.checkZero(cpu._reg_DBB);
-    cpu._reg_Y = cpu._reg_DBB;
+    _cpu._reg_DBB = _cpu._reg_P;
+    _cpu.push();
 }
 
-void InstructionDecoder::CPY(tones::MicroProcessor &cpu)
+void InstructionDecoder::PLA()
 {
-    cpu._reg_A = cpu._reg_X;
-    cpu._alu.CMP();
+    _cpu.pop();
+    _cpu._reg_A = _cpu._reg_DBB;
+    _alu.checkZeroNegative(_cpu._reg_A);
 }
 
-void InstructionDecoder::CPX(tones::MicroProcessor &cpu)
+void InstructionDecoder::PLP()
 {
-    cpu._reg_A = cpu._reg_X;
-    cpu._alu.CMP();
+    _cpu.pop();
+    _cpu._reg_P = _cpu._reg_DBB;
 }
 
-/* Instruction Group 1 */
-
-void InstructionDecoder::ORA(tones::MicroProcessor &cpu)
+void InstructionDecoder::ROL()
 {
-    cpu._alu.ORA();
+    _alu.ROL();
 }
 
-void InstructionDecoder::AND(tones::MicroProcessor &cpu)
+void InstructionDecoder::ROR()
 {
-    cpu._alu.AND();
+    _alu.ROR();
 }
 
-void InstructionDecoder::EOR(tones::MicroProcessor &cpu)
+void InstructionDecoder::RTI()
 {
-    cpu._alu.EOR();
+    _cpu.pop();
+    _cpu._reg_P = _cpu._reg_DBB;
+    _cpu.popTwo();
+    JMP();
 }
 
-void InstructionDecoder::ADC(tones::MicroProcessor &cpu)
+void InstructionDecoder::RTS()
 {
-    cpu._alu.ADC();
+    _cpu.popTwo();
+    JMP();
+    ++_cpu._reg_PC; // TODO: ???
 }
 
-void InstructionDecoder::STA(tones::MicroProcessor &cpu)
+void InstructionDecoder::SBC()
 {
-    cpu._reg_DBB = cpu._reg_A;
+    _alu.SBC();
 }
 
-void InstructionDecoder::LDA(tones::MicroProcessor &cpu)
+void InstructionDecoder::SEC()
 {
-    cpu._alu.checkNegative(cpu._reg_DBB);
-    cpu._alu.checkZero(cpu._reg_DBB);
-    cpu._reg_A = cpu._reg_DBB;
+    SEL_BIT(_cpu._reg_P, StatusBit::C);
 }
 
-void InstructionDecoder::CMP(tones::MicroProcessor &cpu)
+void InstructionDecoder::SED()
 {
-    cpu._alu.CMP();
+    SEL_BIT(_cpu._reg_P, StatusBit::D);
 }
 
-void InstructionDecoder::SBC(tones::MicroProcessor &cpu)
+void InstructionDecoder::SEI()
 {
-    cpu._alu.SBC();
+    SEL_BIT(_cpu._reg_P, StatusBit::I);
 }
 
-/* Instruction Group 2 */
-
-void InstructionDecoder::ASL(tones::MicroProcessor &cpu)
+void InstructionDecoder::STA()
 {
-    cpu._alu.ASL();
+    _cpu._reg_DBB = _cpu._reg_A;
 }
 
-void InstructionDecoder::ROL(tones::MicroProcessor &cpu)
+void InstructionDecoder::STX()
 {
-    cpu._alu.ROL();
+    _cpu._reg_DBB = _cpu._reg_X;
 }
 
-void InstructionDecoder::LSR(tones::MicroProcessor &cpu)
+void InstructionDecoder::STY()
 {
-    cpu._alu.LSR();
+    _cpu._reg_DBB = _cpu._reg_Y;
 }
 
-void InstructionDecoder::ROR(tones::MicroProcessor &cpu)
+void InstructionDecoder::TAX()
 {
-    cpu._alu.ROR();
+    _alu.checkZeroNegative(_cpu._reg_A);
+    _cpu._reg_X = _cpu._reg_A;
 }
 
-void InstructionDecoder::STX(tones::MicroProcessor &cpu)
+void InstructionDecoder::TAY()
 {
-    cpu._reg_DBB = cpu._reg_X;
+    _alu.checkZeroNegative(_cpu._reg_A);
+    _cpu._reg_Y = _cpu._reg_A;
 }
 
-void InstructionDecoder::LDX(tones::MicroProcessor &cpu)
+void InstructionDecoder::TSX()
 {
-    cpu._alu.checkNegative(cpu._reg_DBB);
-    cpu._alu.checkZero(cpu._reg_DBB);
-    cpu._reg_X = cpu._reg_DBB;
+    _alu.checkZeroNegative(_cpu._reg_S);
+    _cpu._reg_X = _cpu._reg_S;
 }
 
-void InstructionDecoder::DEC(tones::MicroProcessor &cpu)
+void InstructionDecoder::TXA()
 {
-    cpu._reg_A = cpu._reg_DBB;
-    cpu._alu.DEC();
-    cpu._reg_DBB = cpu._reg_A;
+    _alu.checkZeroNegative(_cpu._reg_X);
+    _cpu._reg_A = _cpu._reg_X;
 }
 
-void InstructionDecoder::INC(tones::MicroProcessor &cpu)
+void InstructionDecoder::TXS()
 {
-    cpu._reg_A = cpu._reg_DBB;
-    cpu._alu.INC();
-    cpu._reg_DBB = cpu._reg_A;
+    _cpu._reg_S = _cpu._reg_X;
+}
+
+void InstructionDecoder::TYA()
+{
+    _alu.checkZeroNegative(_cpu._reg_Y);
+    _cpu._reg_A = _cpu._reg_Y;
 }
 
 } // namespace cpu

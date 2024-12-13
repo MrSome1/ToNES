@@ -12,6 +12,8 @@ class MicroProcessor;
 
 namespace cpu {
 
+class ArithmeticAndLogicUnit;
+
 /**
  * @brief Instruction Decoder
  * 
@@ -21,10 +23,8 @@ class InstructionDecoder
 
 public:
 
-    typedef void (*Instruction_t)(tones::MicroProcessor&);
-
     InstructionDecoder(tones::MicroProcessor &cpu);
-    ~InstructionDecoder();
+    ~InstructionDecoder() = default;
 
     //! Current addressing mode
     code::AddressingKind_t mode() const;
@@ -48,135 +48,135 @@ protected:
 
     /* Routine Instructions */
 
-    static void BRK(tones::MicroProcessor &cpu);
+    inline void BRK();
 
-    static void JSR(tones::MicroProcessor &cpu);
+    inline void JSR();
 
-    static void RTI(tones::MicroProcessor &cpu);
+    inline void RTI();
 
-    static void RTS(tones::MicroProcessor &cpu);
+    inline void RTS();
 
-    static void JMP(tones::MicroProcessor &cpu);
+    inline void JMP();
 
     /* Branch Instructions */
 
-    static void BPL(tones::MicroProcessor &cpu);
+    inline void BPL();
 
-    static void BMI(tones::MicroProcessor &cpu);
+    inline void BMI();
 
-    static void BVC(tones::MicroProcessor &cpu);
+    inline void BVC();
 
-    static void BVS(tones::MicroProcessor &cpu);
+    inline void BVS();
 
-    static void BCC(tones::MicroProcessor &cpu);
+    inline void BCC();
 
-    static void BCS(tones::MicroProcessor &cpu);
+    inline void BCS();
 
-    static void BNE(tones::MicroProcessor &cpu);
+    inline void BNE();
 
-    static void BEQ(tones::MicroProcessor &cpu);
+    inline void BEQ();
 
     /* Stack Instructions */
 
-    static void PHP(tones::MicroProcessor &cpu);
+    inline void PHP();
 
-    static void PLP(tones::MicroProcessor &cpu);
+    inline void PLP();
 
-    static void PHA(tones::MicroProcessor &cpu);
+    inline void PHA();
 
-    static void PLA(tones::MicroProcessor &cpu);
+    inline void PLA();
 
     /* Status Instructions */
 
-    static void CLC(tones::MicroProcessor &cpu);
+    inline void CLC();
 
-    static void SEC(tones::MicroProcessor &cpu);
+    inline void SEC();
 
-    static void CLI(tones::MicroProcessor &cpu);
+    inline void CLI();
 
-    static void SEI(tones::MicroProcessor &cpu);
+    inline void SEI();
 
-    static void CLV(tones::MicroProcessor &cpu);
+    inline void CLV();
 
-    static void CLD(tones::MicroProcessor &cpu);
+    inline void CLD();
 
-    static void SED(tones::MicroProcessor &cpu);
+    inline void SED();
 
     /* Index Instructions */
 
-    static void DEY(tones::MicroProcessor &cpu);
+    inline void DEY();
 
-    static void INY(tones::MicroProcessor &cpu);
+    inline void INY();
 
-    static void INX(tones::MicroProcessor &cpu);
+    inline void INX();
 
-    static void DEX(tones::MicroProcessor &cpu);
+    inline void DEX();
 
     /* Transfer Instructions */
 
-    static void TYA(tones::MicroProcessor &cpu);
+    inline void TYA();
 
-    static void TAY(tones::MicroProcessor &cpu);
+    inline void TAY();
 
-    static void TXA(tones::MicroProcessor &cpu);
+    inline void TXA();
 
-    static void TXS(tones::MicroProcessor &cpu);
+    inline void TXS();
 
-    static void TAX(tones::MicroProcessor &cpu);
+    inline void TAX();
 
-    static void TSX(tones::MicroProcessor &cpu);
+    inline void TSX();
 
     /* No Operation */
 
-    static void NOP(tones::MicroProcessor &cpu);
+    inline void NOP();
 
     /* Instruction Group 0 */
 
-    static void BIT(tones::MicroProcessor &cpu);
+    inline void BIT();
 
-    static void STY(tones::MicroProcessor &cpu);
+    inline void STY();
 
-    static void LDY(tones::MicroProcessor &cpu);
+    inline void LDY();
 
-    static void CPY(tones::MicroProcessor &cpu);
+    inline void CPY();
 
-    static void CPX(tones::MicroProcessor &cpu);
+    inline void CPX();
 
     /* Instruction Group 1 */
 
-    static void ORA(tones::MicroProcessor &cpu);
+    inline void ORA();
 
-    static void AND(tones::MicroProcessor &cpu);
+    inline void AND();
 
-    static void EOR(tones::MicroProcessor &cpu);
+    inline void EOR();
 
-    static void ADC(tones::MicroProcessor &cpu);
+    inline void ADC();
 
-    static void STA(tones::MicroProcessor &cpu);
+    inline void STA();
 
-    static void LDA(tones::MicroProcessor &cpu);
+    inline void LDA();
 
-    static void CMP(tones::MicroProcessor &cpu);
+    inline void CMP();
 
-    static void SBC(tones::MicroProcessor &cpu);
+    inline void SBC();
 
     /* Instruction Group 2 */
 
-    static void ASL(tones::MicroProcessor &cpu);
+    inline void ASL();
 
-    static void ROL(tones::MicroProcessor &cpu);
+    inline void ROL();
 
-    static void LSR(tones::MicroProcessor &cpu);
+    inline void LSR();
 
-    static void ROR(tones::MicroProcessor &cpu);
+    inline void ROR();
 
-    static void STX(tones::MicroProcessor &cpu);
+    inline void STX();
 
-    static void LDX(tones::MicroProcessor &cpu);
+    inline void LDX();
 
-    static void DEC(tones::MicroProcessor &cpu);
+    inline void DEC();
 
-    static void INC(tones::MicroProcessor &cpu);
+    inline void INC();
 
     /* Helper Functions */
 
@@ -188,11 +188,11 @@ protected:
 
 private:
 
-    tones::MicroProcessor &_cpu;
+    MicroProcessor &_cpu;
+
+    ArithmeticAndLogicUnit &_alu;
 
     const Operation_t *_operation;
-
-    static const std::array<Instruction_t, InstructionSetSize> _instructions;
 };
 
 inline const Operation_t *InstructionDecoder::getOperation(uint16_t op)
@@ -207,12 +207,12 @@ inline bool InstructionDecoder::hasOperands(const Operation_t *operation)
 
 inline bool InstructionDecoder::needsToLoad(const Operation_t *operation)
 {
-    return operation->inst->kind & InstructionReadMask;
+    return operation->type->kind & InstructionReadMask;
 }
 
 inline bool InstructionDecoder::needsToSave(const Operation_t *operation)
 {
-    return operation->inst->kind & InstructionWriteMask;
+    return operation->type->kind & InstructionWriteMask;
 }
 
 } // namespace cpu
