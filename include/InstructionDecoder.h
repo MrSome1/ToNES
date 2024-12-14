@@ -44,139 +44,139 @@ public:
     //! Get the instruction according to the op code
     static const Operation_t *getOperation(uint16_t op);
 
-protected:
+public:
 
     /* Routine Instructions */
 
-    inline void BRK();
+    void BRK();
 
-    inline void JSR();
+    void JSR();
 
-    inline void RTI();
+    void RTI();
 
-    inline void RTS();
+    void RTS();
 
-    inline void JMP();
+    void JMP();
 
     /* Branch Instructions */
 
-    inline void BPL();
+    void BPL();
 
-    inline void BMI();
+    void BMI();
 
-    inline void BVC();
+    void BVC();
 
-    inline void BVS();
+    void BVS();
 
-    inline void BCC();
+    void BCC();
 
-    inline void BCS();
+    void BCS();
 
-    inline void BNE();
+    void BNE();
 
-    inline void BEQ();
+    void BEQ();
 
     /* Stack Instructions */
 
-    inline void PHP();
+    void PHP();
 
-    inline void PLP();
+    void PLP();
 
-    inline void PHA();
+    void PHA();
 
-    inline void PLA();
+    void PLA();
 
     /* Status Instructions */
 
-    inline void CLC();
+    void CLC();
 
-    inline void SEC();
+    void SEC();
 
-    inline void CLI();
+    void CLI();
 
-    inline void SEI();
+    void SEI();
 
-    inline void CLV();
+    void CLV();
 
-    inline void CLD();
+    void CLD();
 
-    inline void SED();
+    void SED();
 
     /* Index Instructions */
 
-    inline void DEY();
+    void DEY();
 
-    inline void INY();
+    void INY();
 
-    inline void INX();
+    void INX();
 
-    inline void DEX();
+    void DEX();
 
     /* Transfer Instructions */
 
-    inline void TYA();
+    void TYA();
 
-    inline void TAY();
+    void TAY();
 
-    inline void TXA();
+    void TXA();
 
-    inline void TXS();
+    void TXS();
 
-    inline void TAX();
+    void TAX();
 
-    inline void TSX();
+    void TSX();
 
     /* No Operation */
 
-    inline void NOP();
+    void NOP();
 
     /* Instruction Group 0 */
 
-    inline void BIT();
+    void BIT();
 
-    inline void STY();
+    void STY();
 
-    inline void LDY();
+    void LDY();
 
-    inline void CPY();
+    void CPY();
 
-    inline void CPX();
+    void CPX();
 
     /* Instruction Group 1 */
 
-    inline void ORA();
+    void ORA();
 
-    inline void AND();
+    void AND();
 
-    inline void EOR();
+    void EOR();
 
-    inline void ADC();
+    void ADC();
 
-    inline void STA();
+    void STA();
 
-    inline void LDA();
+    void LDA();
 
-    inline void CMP();
+    void CMP();
 
-    inline void SBC();
+    void SBC();
 
     /* Instruction Group 2 */
 
-    inline void ASL();
+    void ASL();
 
-    inline void ROL();
+    void ROL();
 
-    inline void LSR();
+    void LSR();
 
-    inline void ROR();
+    void ROR();
 
-    inline void STX();
+    void STX();
 
-    inline void LDX();
+    void LDX();
 
-    inline void DEC();
+    void DEC();
 
-    inline void INC();
+    void INC();
 
     /* Helper Functions */
 

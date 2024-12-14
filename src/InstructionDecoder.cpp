@@ -30,65 +30,7 @@ void InstructionDecoder::decode()
 
 void InstructionDecoder::execute()
 {
-    switch(_operation->type->kind) {
-        case code::ADC: ADC(); break;  // TODO: Check
-        case code::AND: AND(); break;
-        case code::ASL: ASL(); break;
-        case code::BCC: BCC(); break;  // TODO: Check
-        case code::BCS: BCS(); break;  // TODO: Check
-        case code::BEQ: BEQ(); break;  // TODO: Check
-        case code::BIT: BIT(); break;
-        case code::BMI: BMI(); break;  // TODO: Check
-        case code::BNE: BNE(); break;  // TODO: Check
-        case code::BPL: BPL(); break;  // TODO: Check
-        case code::BRK: BRK(); break;  // TODO: Check
-        case code::BVC: BVC(); break;  // TODO: Check
-        case code::BVS: BVS(); break;  // TODO: Check
-        case code::CLC: CLC(); break;
-        case code::CLD: CLD(); break;
-        case code::CLI: CLI(); break;
-        case code::CLV: CLV(); break;
-        case code::CMP: CMP(); break;
-        case code::CPX: CPX(); break;
-        case code::CPY: CPY(); break;
-        case code::DEC: DEC(); break;
-        case code::DEX: DEX(); break;
-        case code::DEY: DEY(); break;
-        case code::EOR: EOR(); break;
-        case code::INC: INC(); break;
-        case code::INX: INX(); break;
-        case code::INY: INY(); break;
-        case code::JMP: JMP(); break;  // TODO: Check
-        case code::JSR: JSR(); break;  // TODO: Check
-        case code::LDA: LDA(); break;
-        case code::LDX: LDX(); break;
-        case code::LDY: LDY(); break;
-        case code::LSR: LSR(); break;
-        case code::NOP: NOP(); break;
-        case code::ORA: ORA(); break;
-        case code::PHA: PHA(); break;
-        case code::PHP: PHP(); break;
-        case code::PLA: PLA(); break;
-        case code::PLP: PLP(); break;
-        case code::ROL: ROL(); break;
-        case code::ROR: ROR(); break;
-        case code::RTI: RTI(); break;  // TODO: Check
-        case code::RTS: RTS(); break;  // TODO: Check
-        case code::SBC: SBC(); break;  // TODO: Check
-        case code::SEC: SEC(); break;
-        case code::SED: SED(); break;
-        case code::SEI: SEI(); break;
-        case code::STA: STA(); break;
-        case code::STX: STX(); break;
-        case code::STY: STY(); break;
-        case code::TAX: TAX(); break;
-        case code::TAY: TAY(); break;
-        case code::TSX: TSX(); break;
-        case code::TXA: TXA(); break;
-        case code::TXS: TXS(); break;
-        case code::TYA: TYA(); break;
-               default: NOP(); break;
-    }
+    (this->*(_operation->type->execution))();
 }
 
 void InstructionDecoder::load()
@@ -141,7 +83,7 @@ void InstructionDecoder::BEQ()
 void InstructionDecoder::BIT()
 {
     _alu.checkZeroNegative(_cpu._reg_DBB);
-    _alu.checkOverflow(_cpu._reg_DBB & 0x40); // TODO: What are this used for?
+    //_alu.checkOverflow(_cpu._reg_DBB & 0x40); // TODO: What are this used for?
 }
 
 void InstructionDecoder::BMI()

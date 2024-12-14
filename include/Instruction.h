@@ -2,7 +2,12 @@
 #define _TONES_INSTRUCTION_H_
 
 namespace tones {
+
+class MicroProcessor;
+
 namespace cpu {
+
+class InstructionDecoder;
 
 /** The Operation Code
  *
@@ -159,6 +164,7 @@ typedef struct AddressingMode {
 
 /* Instruction */
 typedef struct Instruction {
+    void (InstructionDecoder::*execution)();
     const code::InstructionKind_t kind;
     const code::ReadWriteMode_t mode;
     const char* const name;
