@@ -26,4 +26,5 @@ target_link_libraries(${PROJECT_NAME}
     Qt5::Widgets
     Qt5::Gui
     tones
+    pthread
 )

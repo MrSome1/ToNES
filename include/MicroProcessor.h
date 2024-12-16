@@ -5,11 +5,10 @@
 #include <cinttypes>
 #include <functional>
 
-#include "Instruction.h"
-#include "InstructionDecoder.h"
 #include "Clock.h"
 #include "Device.h"
 #include "Register.h"
+#include "Instruction.h"
 
 namespace tones {
 
@@ -40,17 +39,20 @@ enum class StatusBit {
     N, // Negative
 };
 
+class InstructionDecoder;
+
 /**
  * @brief ALU
  * 
  */
 class ArithmeticAndLogicUnit
 {
+    friend class InstructionDecoder;
+    friend class tones::MicroProcessor;
 
-public:
+private:
 
     ArithmeticAndLogicUnit(tones::MicroProcessor &cpu);
-    ~ArithmeticAndLogicUnit();
 
     /* One operand operations
      *
@@ -58,22 +60,22 @@ public:
      */
 
     //! Increment the accumulator by one
-    void INC();
+    inline void INC();
     
     //! Decrement the accumulator by one
-    void DEC();
+    inline void DEC();
 
     //! Shift one bit left
-    void ASL();
+    inline void ASL();
 
     //! Shift one bit right
-    void LSR();
+    inline void LSR();
 
     //! Rotate one bit left
-    void ROL();
+    inline void ROL();
 
     //! Rotate one bit right
-    void ROR();
+    inline void ROR();
 
     /* Two operands operations
      *
@@ -82,22 +84,22 @@ public:
      */
 
     //! Operation logic 'OR'
-    void ORA();
+    inline void ORA();
 
     //! Operation logic 'AND'
-    void AND();
+    inline void AND();
 
     //! Operation logic 'Exclusive OR'
-    void EOR();
+    inline void EOR();
 
     //! Operation arithmetic 'Add'
-    void ADC();
+    inline void ADC();
 
     //! Operation arithmetic 'Subtract'
-    void SBC();
+    inline void SBC();
 
     //! Operation arithmetic 'Compare'
-    void CMP();
+    inline void CMP();
 
     inline void checkZero(uint8_t &reg);
 
@@ -117,6 +119,183 @@ private:
     reg::Bitwise_t &_reg_P;
 };
 
+/**
+ * @brief Instruction Decoder
+ *
+ */
+class InstructionDecoder
+{
+    friend class tones::MicroProcessor;
+    friend class ArithmeticAndLogicUnit;
+
+public:
+
+    /* No Operation */
+
+    void NOP();
+
+    /* Routine Instructions */
+
+    void BRK();
+
+    void JMP();
+
+    void JSR();
+
+    void RTI();
+
+    void RTS();
+
+    /* Branch Instructions */
+
+    void BCC();
+
+    void BCS();
+
+    void BEQ();
+
+    void BMI();
+
+    void BNE();
+
+    void BPL();
+
+    void BVC();
+
+    void BVS();
+
+    /* Stack Instructions */
+
+    void PHA();
+
+    void PHP();
+
+    void PLA();
+
+    void PLP();
+
+    /* Status Instructions */
+
+    void BIT();
+
+    void CLC();
+
+    void CLD();
+
+    void CLI();
+
+    void CLV();
+
+    void SEC();
+
+    void SED();
+
+    void SEI();
+
+    /* Load & Save Instructions */
+
+    void LDA();
+
+    void LDX();
+
+    void LDY();
+
+    void STA();
+
+    void STX();
+
+    void STY();
+
+    /* Transfer Instructions */
+
+    void TAX();
+
+    void TAY();
+
+    void TSX();
+
+    void TXA();
+
+    void TXS();
+
+    void TYA();
+
+    /* Arithmetic Instructions */
+
+    void ADC();
+
+    void CMP();
+
+    void CPX();
+
+    void CPY();
+
+    void DEC();
+
+    void DEX();
+
+    void DEY();
+
+    void INC();
+
+    void INX();
+
+    void INY();
+
+    void SBC();
+
+    /* Logic Instructions */
+
+    void AND();
+
+    void ASL();
+
+    void EOR();
+
+    void LSR();
+
+    void ORA();
+
+    void ROL();
+
+    void ROR();
+
+private:
+
+    InstructionDecoder(tones::MicroProcessor &cpu);
+
+    //! Current addressing mode
+    // code::AddressingKind_t mode() const;
+
+    //! Parse the operation code
+    inline void decode();
+
+    //! Run the operation
+    inline void execute();
+
+    //! Load the content of memory
+    inline void load();
+
+    //! Store to memory
+    inline void save();
+
+    /* Helper Functions */
+
+    inline static bool hasOperands(const Operation_t *operation);
+
+    inline static bool needsToLoad(const Operation_t *operation);
+
+    inline static bool needsToSave(const Operation_t *operation);
+
+private:
+
+    MicroProcessor &_cpu;
+
+    ArithmeticAndLogicUnit &_alu;
+
+    const Operation_t *_operation;
+};
+
 } // namespace cpu
 
 /**
@@ -125,6 +304,8 @@ private:
  */
 class MicroProcessor : public Tickable
 {
+    friend class cpu::InstructionDecoder;
+    friend class cpu::ArithmeticAndLogicUnit;
 
 public:
 
@@ -140,81 +321,88 @@ public:
         uint16_t PC; // program counter
     } Registers_t;
 
+public:
+
     MicroProcessor(Bus &bus);
     ~MicroProcessor();
 
     void reset();
 
+    void step();
+
     void dump(Registers_t &registers) const;
+
+    /* Functions for addressing modes */
+    
+    //! Dose not fetch
+    void fetchNull();
+
+    //! IMM
+    void fetchImmediate();
+
+    //! Absolute or ABS
+    void fetchAbsolute();
+
+    //! ZP
+    void fetchZeroPage();
+
+    //! ZP, X
+    void fetchIndexedZeroPageX();
+
+    //! ZP, Y
+    void fetchIndexedZeroPageY();
+
+    //! ABS, X
+    void fetchIndexedAbsoluteX();
+
+    //! ABS, Y
+    void fetchIndexedAbsoluteY();
+
+    //! Relative
+    void fetchRelative();
+
+    //! (IND, X)
+    void fetchIndexedIndirect();
+
+    //! (IND), Y
+    void fetchIndirectIndexed();
+
+    //! Indirect
+    void fetchAbsoluteIndirect();
 
 protected:
 
     void _tick() override;
 
     //! Read one byte from memory
-    void read();
+    inline void read();
 
     //! Write one byte to memory
-    void write();
+    inline void write();
 
     //! Push into stack
-    void push();
+    inline void push();
 
     //! Pop from stack
-    void pop();
+    inline void pop();
 
     //! Take the execution branch
-    void branch();
+    inline void branch();
 
-    /* Functions for addressing modes */
-    
-    //! Dose not fetch
-    static void fetchNull(MicroProcessor &cpu);
-
-    //! IMM
-    static void fetchImmediate(MicroProcessor &cpu);
-
-    //! Absolute or ABS
-    static void fetchAbsolute(MicroProcessor &cpu);
-
-    //! ZP
-    static void fetchZeroPage(MicroProcessor &cpu);
-
-    //! ZP, X
-    static void fetchIndexedZeroPageX(MicroProcessor &cpu);
-
-    //! ZP, Y
-    static void fetchIndexedZeroPageY(MicroProcessor &cpu);
-
-    //! ABS, X
-    static void fetchIndexedAbsoluteX(MicroProcessor &cpu);
-
-    //! ABS, Y
-    static void fetchIndexedAbsoluteY(MicroProcessor &cpu);
-
-    //! Relative
-    static void fetchRelative(MicroProcessor &cpu);
-
-    //! (IND, X)
-    static void fetchIndexedIndirect(MicroProcessor &cpu);
-
-    //! (IND), Y
-    static void fetchIndirectIndexed(MicroProcessor &cpu);
-
-    //! Indirect
-    static void fetchAbsoluteIndirect(MicroProcessor &cpu);
+    //! Fetch operands
+    inline void fetch();
 
     /* Helper Functions */
 
     //! Pop from stack twice, continuously
-    void popTwo();
+    inline void popTwo();
 
     /* Fetch one operand from memory
      * 
      * Fetch the operand of a two bytes instruction, and
      * store the operand in register DBB
      */
-    static void fetchOne(MicroProcessor &cpu);
+    inline void fetchOne();
 
     /* Fetch two operands from memory
      *
@@ -222,18 +410,17 @@ protected:
      * and store the first operand in register DL, the
      * second one in register DBB
      */ 
-    static void fetchTwo(MicroProcessor &cpu);
+    inline void fetchTwo();
 
     //! Fetch operands for addressing mode ZP, X or Y
-    static void fetchIndexedZeroPage(MicroProcessor &cpu, uint8_t index);
+    inline void fetchIndexedZeroPage(uint8_t index);
 
     //! Fetch operands for addressing mode ABS, X or Y
-    static void fetchIndexedAbsolute(MicroProcessor &cpu, uint8_t index);
+    inline void fetchIndexedAbsolute(uint8_t index);
 
 private:
 
-    friend class cpu::InstructionDecoder;
-    friend class cpu::ArithmeticAndLogicUnit;
+    uint8_t _skip;
 
     /* Programmable Registers */
     uint8_t  _reg_A;  // accumulator
@@ -254,76 +441,7 @@ private:
     cpu::ArithmeticAndLogicUnit _alu;
 
     Bus &_bus;
-
-    uint8_t _skip;
-
-    static const std::array<Fetcher, cpu::AddressingModeSize> _fetchers;
 };
-
-inline void MicroProcessor::read()
-{
-    _bus.read(_reg_AB, _reg_DBB);
-}
-
-inline void MicroProcessor::write()
-{
-    _bus.write(_reg_AB, _reg_DBB);
-}
-
-inline void MicroProcessor::push()
-{
-    _reg_AB = _reg_S--;
-    write();
-}
-
-inline void MicroProcessor::pop()
-{
-    _reg_AB = ++_reg_S;
-    read();
-}
-
-inline void MicroProcessor::popTwo()
-{
-    pop();
-    _reg_DL = _reg_DBB;
-    pop();
-};
-
-inline void MicroProcessor::branch()
-{
-    read();
-    _reg_PC += _reg_DBB;
-}
-
-inline void MicroProcessor::fetchOne(MicroProcessor &cpu)
-{
-    cpu._reg_AB = cpu._reg_PC++;
-    cpu.read();
-}
-
-inline void MicroProcessor::fetchTwo(MicroProcessor &cpu)
-{
-    cpu._reg_AB = cpu._reg_PC++;
-    cpu.read();
-
-    cpu._reg_DL = cpu._reg_DBB;
-
-    cpu._reg_AB = cpu._reg_PC++;
-    cpu.read();
-}
-
-inline void MicroProcessor::fetchIndexedZeroPage(MicroProcessor &cpu, uint8_t index)
-{
-    fetchOne(cpu);
-    cpu._reg_AB = (uint8_t)(cpu._reg_DBB + index);
-}
-
-inline void MicroProcessor::fetchIndexedAbsolute(MicroProcessor &cpu, uint8_t index)
-{
-    fetchTwo(cpu);
-    reg::mergeTwoBytes(cpu._reg_AB, cpu._reg_DBB, cpu._reg_DL);
-    cpu._reg_AB += index;
-}
 
 } // namespace tones
 

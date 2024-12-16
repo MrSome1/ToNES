@@ -1,28 +1,27 @@
 
 #include "Instruction.h"
 #include "MicroProcessor.h"
-#include "InstructionDecoder.h"
 
 namespace tones {
 namespace cpu {
 
 /* Addressing Modes */
 
-const AddressingMode_t IMP = { code::Implied,          0, "IMP" };
-const AddressingMode_t ACC = { code::Accumulator,      0, "ACC" };
-const AddressingMode_t IMM = { code::Immediate,        1, "IMM" };
-const AddressingMode_t ABS = { code::Absolute,         2, "ABS" };
-const AddressingMode_t ZP  = { code::ZeroPage,         1,  "ZP" };
-const AddressingMode_t ZPX = { code::IndexedZeroPageX, 1, "ZPX" };
-const AddressingMode_t ZPY = { code::IndexedZeroPageY, 1, "ZPY" };
-const AddressingMode_t ABX = { code::IndexedAbsoluteX, 2, "ABX" };
-const AddressingMode_t ABY = { code::IndexedAbsoluteY, 2, "ABY" };
-const AddressingMode_t REL = { code::Relative,         1, "REL" };
-const AddressingMode_t IDX = { code::IndexedIndirect,  1, "IDX" };
-const AddressingMode_t IDY = { code::IndirectIndexed,  1, "IDY" };
-const AddressingMode_t IND = { code::AbsoluteIndirect, 2, "IND" };
+const AddressingMode_t IMP = { &MicroProcessor::fetchNull,             code::Implied,          0, "IMP" };
+const AddressingMode_t ACC = { &MicroProcessor::fetchNull,             code::Accumulator,      0, "ACC" };
+const AddressingMode_t IMM = { &MicroProcessor::fetchImmediate,        code::Immediate,        1, "IMM" };
+const AddressingMode_t ABS = { &MicroProcessor::fetchAbsolute,         code::Absolute,         2, "ABS" };
+const AddressingMode_t ZP  = { &MicroProcessor::fetchZeroPage,         code::ZeroPage,         1,  "ZP" };
+const AddressingMode_t ZPX = { &MicroProcessor::fetchIndexedZeroPageX, code::IndexedZeroPageX, 1, "ZPX" };
+const AddressingMode_t ZPY = { &MicroProcessor::fetchIndexedZeroPageY, code::IndexedZeroPageY, 1, "ZPY" };
+const AddressingMode_t ABX = { &MicroProcessor::fetchIndexedAbsoluteX, code::IndexedAbsoluteX, 2, "ABX" };
+const AddressingMode_t ABY = { &MicroProcessor::fetchIndexedAbsoluteY, code::IndexedAbsoluteY, 2, "ABY" };
+const AddressingMode_t REL = { &MicroProcessor::fetchRelative,         code::Relative,         1, "REL" };
+const AddressingMode_t IDX = { &MicroProcessor::fetchIndexedIndirect,  code::IndexedIndirect,  1, "IDX" };
+const AddressingMode_t IDY = { &MicroProcessor::fetchIndirectIndexed,  code::IndirectIndexed,  1, "IDY" };
+const AddressingMode_t IND = { &MicroProcessor::fetchAbsoluteIndirect, code::AbsoluteIndirect, 2, "IND" };
 
-const AddressingMode_t INVALID = { code::Implied, 0, "NIL" };
+const AddressingMode_t INVALID = { &MicroProcessor::fetchNull, code::Implied, 0, "NIL" };
 
 /* Instructions */
 

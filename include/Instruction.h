@@ -157,6 +157,7 @@ typedef enum InstructionKind {
 
 /* Addressing Mode */
 typedef struct AddressingMode {
+    void (MicroProcessor::*fetcher)();
     const code::AddressingKind_t kind;
     const int operands;
     const char* const name;
@@ -164,7 +165,7 @@ typedef struct AddressingMode {
 
 /* Instruction */
 typedef struct Instruction {
-    void (InstructionDecoder::*execution)();
+    void (InstructionDecoder::*executor)();
     const code::InstructionKind_t kind;
     const code::ReadWriteMode_t mode;
     const char* const name;

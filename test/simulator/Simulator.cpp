@@ -7,12 +7,10 @@
 
 #include "Device.h"
 #include "Cartridge.h"
-#include "InstructionDecoder.h"
+#include "Instruction.h"
 #include "Log.h"
 
 namespace tones {
-
-using Decoder = cpu::InstructionDecoder;
 
 const char *Pause  = "Pause";
 const char *Resume = "Resume";
@@ -182,7 +180,7 @@ void Simulator::onShowCartridge()
     for (auto byte : _card->prgRom()) {
         auto line = QString("%1 |  %2\n").arg(addr, 4, 16, HexPrefix);
         if (!argv) {
-            auto *op = Decoder::getOperation(byte);
+            auto *op = cpu::OperationSet[byte];
             argv = op->mode->operands;
             prom.append(line.arg(QString("%1  # %2, %3").arg(byte, 2, 16, HexPrefix)
                                                         .arg(QString(op->type->name))

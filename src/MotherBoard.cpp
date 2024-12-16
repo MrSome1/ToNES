@@ -68,7 +68,7 @@ void MotherBoard::resume()
 
 void MotherBoard::step()
 {
-    _clock.tick();
+    _cpu.step();
     dumpRegisters();
 }
 

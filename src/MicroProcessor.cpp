@@ -15,11 +15,6 @@ ArithmeticAndLogicUnit::ArithmeticAndLogicUnit(tones::MicroProcessor &cpu)
 
 }
 
-ArithmeticAndLogicUnit::~ArithmeticAndLogicUnit()
-{
-
-}
-
 /* One operand operations */
 
 void ArithmeticAndLogicUnit::INC()
@@ -104,55 +99,417 @@ void ArithmeticAndLogicUnit::CMP()
     checkZeroNegative(_reg_A);
 }
 
-inline void ArithmeticAndLogicUnit::checkZero(uint8_t &reg)
+void ArithmeticAndLogicUnit::checkZero(uint8_t &reg)
 {
     SET_BIT(_reg_P, StatusBit::Z, !reg);
 }
 
-inline void ArithmeticAndLogicUnit::checkNegative(uint8_t &reg)
+void ArithmeticAndLogicUnit::checkNegative(uint8_t &reg)
 {
     SET_BIT(_reg_P, StatusBit::N, reg & 0x80);
 }
 
-inline void ArithmeticAndLogicUnit::checkZeroNegative(uint8_t &reg)
+void ArithmeticAndLogicUnit::checkZeroNegative(uint8_t &reg)
 {
     checkZero(reg);
     checkNegative(reg);
 }
 
-inline void ArithmeticAndLogicUnit::checkCarry(uint8_t reg)
+void ArithmeticAndLogicUnit::checkCarry(uint8_t reg)
 {
     SET_BIT(_reg_P, StatusBit::C, reg);
 }
 
-inline void ArithmeticAndLogicUnit::checkOverflow(uint8_t reg)
+void ArithmeticAndLogicUnit::checkOverflow(uint8_t reg)
 {
     SET_BIT(_reg_P, StatusBit::V, reg);
+}
+
+/* InstructionDecoder */
+
+InstructionDecoder::InstructionDecoder(tones::MicroProcessor &cpu)
+    : _cpu(cpu)
+    , _alu(cpu._alu)
+    , _operation(&UnknownOperation)
+{
+
+}
+
+inline void InstructionDecoder::decode()
+{
+    _operation = OperationSet[_cpu._reg_IR];
+    _cpu._skip = _operation->cycles; // TODO: Dynamic cycles
+}
+
+inline void InstructionDecoder::execute()
+{
+    (this->*(_operation->type->executor))();
+}
+
+inline void InstructionDecoder::load()
+{
+    if (hasOperands(_operation) && needsToLoad(_operation))
+        _cpu.read();
+}
+
+inline void InstructionDecoder::save()
+{
+    if (hasOperands(_operation) && needsToSave(_operation))
+        _cpu.write();
+}
+
+/* Instructions */
+
+void InstructionDecoder::ADC()
+{
+    _alu.ADC();
+}
+
+void InstructionDecoder::AND()
+{
+    _alu.AND();
+}
+
+void InstructionDecoder::ASL()
+{
+    _alu.ASL();
+}
+
+void InstructionDecoder::BCC()
+{
+    if (!GET_BIT(_cpu._reg_P, StatusBit::C))
+        _cpu.branch();
+}
+
+void InstructionDecoder::BCS()
+{
+    if (GET_BIT(_cpu._reg_P, StatusBit::C))
+        _cpu.branch();
+}
+
+void InstructionDecoder::BEQ()
+{
+    if (GET_BIT(_cpu._reg_P, StatusBit::Z))
+        _cpu.branch();
+}
+
+void InstructionDecoder::BIT()
+{
+    _alu.checkZeroNegative(_cpu._reg_DBB);
+    _alu.checkOverflow(_cpu._reg_DBB & 0x40); // TODO: What are this used for?
+}
+
+void InstructionDecoder::BMI()
+{
+    if (GET_BIT(_cpu._reg_P, StatusBit::N))
+        _cpu.branch();
+}
+
+void InstructionDecoder::BNE()
+{
+    if (!GET_BIT(_cpu._reg_P, StatusBit::Z))
+        _cpu.branch();
+}
+
+void InstructionDecoder::BPL()
+{
+    if (!GET_BIT(_cpu._reg_P, StatusBit::N))
+        _cpu.branch();
+}
+
+void InstructionDecoder::BRK()
+{
+    // TODO: ???
+}
+
+void InstructionDecoder::BVC()
+{
+    if (!GET_BIT(_cpu._reg_P, StatusBit::V))
+        _cpu.branch();
+}
+
+void InstructionDecoder::BVS()
+{
+    if (GET_BIT(_cpu._reg_P, StatusBit::V))
+        _cpu.branch();
+}
+
+void InstructionDecoder::CLC()
+{
+    CLR_BIT(_cpu._reg_P, StatusBit::C);
+}
+
+void InstructionDecoder::CLD()
+{
+    CLR_BIT(_cpu._reg_P, StatusBit::D);
+}
+
+void InstructionDecoder::CLI()
+{
+    CLR_BIT(_cpu._reg_P, StatusBit::I);
+}
+
+void InstructionDecoder::CLV()
+{
+    CLR_BIT(_cpu._reg_P, StatusBit::V);
+}
+
+void InstructionDecoder::CMP()
+{
+    _alu.CMP();
+}
+
+void InstructionDecoder::CPX()
+{
+    _cpu._reg_A = _cpu._reg_X;
+    _alu.CMP();
+}
+
+void InstructionDecoder::CPY()
+{
+    _cpu._reg_A = _cpu._reg_X;
+    _alu.CMP();
+}
+
+void InstructionDecoder::DEC()
+{
+    _cpu._reg_A = _cpu._reg_DBB;
+    _alu.DEC();
+    _cpu._reg_DBB = _cpu._reg_A;
+}
+
+void InstructionDecoder::DEX()
+{
+    _cpu._reg_A = _cpu._reg_X;
+    _alu.DEC();
+    _cpu._reg_X = _cpu._reg_A;
+}
+
+void InstructionDecoder::DEY()
+{
+    _cpu._reg_A = _cpu._reg_Y;
+    _alu.DEC();
+    _cpu._reg_Y = _cpu._reg_A;
+}
+
+void InstructionDecoder::EOR()
+{
+    _alu.EOR();
+}
+
+void InstructionDecoder::INC()
+{
+    _cpu._reg_A = _cpu._reg_DBB;
+    _alu.INC();
+    _cpu._reg_DBB = _cpu._reg_A;
+}
+
+void InstructionDecoder::INX()
+{
+    _cpu._reg_A = _cpu._reg_X;
+    _alu.INC();
+    _cpu._reg_X = _cpu._reg_A;
+}
+
+void InstructionDecoder::INY()
+{
+    _cpu._reg_A = _cpu._reg_Y;
+    _alu.INC();
+    _cpu._reg_Y = _cpu._reg_A;
+}
+
+void InstructionDecoder::JMP()
+{
+    _cpu._reg_PC = _cpu._reg_DBB;
+    _cpu._reg_PC <<= 8;
+    _cpu._reg_PC |= _cpu._reg_DL;
+}
+
+void InstructionDecoder::JSR()
+{
+    // TODO: ???
+    _cpu._reg_DBB = (_cpu._reg_PC + 1) >> 8;
+    _cpu.push();
+    _cpu._reg_DBB = (_cpu._reg_PC + 1);
+    _cpu.push();
+    JMP();
+}
+
+void InstructionDecoder::LDA()
+{
+    _alu.checkZeroNegative(_cpu._reg_DBB);
+    _cpu._reg_A = _cpu._reg_DBB;
+}
+
+void InstructionDecoder::LDX()
+{
+    _alu.checkZeroNegative(_cpu._reg_DBB);
+    _cpu._reg_X = _cpu._reg_DBB;
+}
+
+void InstructionDecoder::LDY()
+{
+    _alu.checkZeroNegative(_cpu._reg_DBB);
+    _cpu._reg_Y = _cpu._reg_DBB;
+}
+
+void InstructionDecoder::LSR()
+{
+    _alu.LSR();
+}
+
+void InstructionDecoder::NOP()
+{
+    /* Just does nothing as all, as named */
+}
+
+void InstructionDecoder::ORA()
+{
+    _alu.ORA();
+}
+
+void InstructionDecoder::PHA()
+{
+    _cpu._reg_DBB = _cpu._reg_A;
+    _cpu.push();
+}
+
+void InstructionDecoder::PHP()
+{
+    _cpu._reg_DBB = _cpu._reg_P;
+    _cpu.push();
+}
+
+void InstructionDecoder::PLA()
+{
+    _cpu.pop();
+    _cpu._reg_A = _cpu._reg_DBB;
+    _alu.checkZeroNegative(_cpu._reg_A);
+}
+
+void InstructionDecoder::PLP()
+{
+    _cpu.pop();
+    _cpu._reg_P = _cpu._reg_DBB;
+}
+
+void InstructionDecoder::ROL()
+{
+    _alu.ROL();
+}
+
+void InstructionDecoder::ROR()
+{
+    _alu.ROR();
+}
+
+void InstructionDecoder::RTI()
+{
+    _cpu.pop();
+    _cpu._reg_P = _cpu._reg_DBB;
+    _cpu.popTwo();
+    JMP();
+}
+
+void InstructionDecoder::RTS()
+{
+    _cpu.popTwo();
+    JMP();
+    ++_cpu._reg_PC; // TODO: ???
+}
+
+void InstructionDecoder::SBC()
+{
+    _alu.SBC();
+}
+
+void InstructionDecoder::SEC()
+{
+    SEL_BIT(_cpu._reg_P, StatusBit::C);
+}
+
+void InstructionDecoder::SED()
+{
+    SEL_BIT(_cpu._reg_P, StatusBit::D);
+}
+
+void InstructionDecoder::SEI()
+{
+    SEL_BIT(_cpu._reg_P, StatusBit::I);
+}
+
+void InstructionDecoder::STA()
+{
+    _cpu._reg_DBB = _cpu._reg_A;
+}
+
+void InstructionDecoder::STX()
+{
+    _cpu._reg_DBB = _cpu._reg_X;
+}
+
+void InstructionDecoder::STY()
+{
+    _cpu._reg_DBB = _cpu._reg_Y;
+}
+
+void InstructionDecoder::TAX()
+{
+    _alu.checkZeroNegative(_cpu._reg_A);
+    _cpu._reg_X = _cpu._reg_A;
+}
+
+void InstructionDecoder::TAY()
+{
+    _alu.checkZeroNegative(_cpu._reg_A);
+    _cpu._reg_Y = _cpu._reg_A;
+}
+
+void InstructionDecoder::TSX()
+{
+    _alu.checkZeroNegative(_cpu._reg_S);
+    _cpu._reg_X = _cpu._reg_S;
+}
+
+void InstructionDecoder::TXA()
+{
+    _alu.checkZeroNegative(_cpu._reg_X);
+    _cpu._reg_A = _cpu._reg_X;
+}
+
+void InstructionDecoder::TXS()
+{
+    _cpu._reg_S = _cpu._reg_X;
+}
+
+void InstructionDecoder::TYA()
+{
+    _alu.checkZeroNegative(_cpu._reg_Y);
+    _cpu._reg_A = _cpu._reg_Y;
+}
+
+inline bool InstructionDecoder::hasOperands(const Operation_t *operation)
+{
+    return operation->mode->operands;
+}
+
+inline bool InstructionDecoder::needsToLoad(const Operation_t *operation)
+{
+    return operation->type->kind & InstructionReadMask;
+}
+
+inline bool InstructionDecoder::needsToSave(const Operation_t *operation)
+{
+    return operation->type->kind & InstructionWriteMask;
 }
 
 } // namespace cpu
 
 /* MicroProcessor */
 
-const std::array<MicroProcessor::Fetcher, cpu::AddressingModeSize>
-MicroProcessor::_fetchers = {
-    fetchNull, 
-    fetchNull,
-    fetchImmediate,
-    fetchAbsolute,
-    fetchZeroPage,
-    fetchIndexedZeroPageX,
-    fetchIndexedZeroPageY,
-    fetchIndexedAbsoluteX,
-    fetchIndexedAbsoluteY,
-    fetchRelative,
-    fetchIndexedIndirect,
-    fetchIndirectIndexed,
-    fetchAbsoluteIndirect,
-};
-
 MicroProcessor::MicroProcessor(Bus &bus)
     : Tickable(1)
+    , _skip(0)
     , _decoder(*this)
     , _alu(*this)
     , _bus(bus)
@@ -163,6 +520,8 @@ MicroProcessor::~MicroProcessor() {}
 
 void MicroProcessor::reset()
 {
+    _skip = 0;
+
     _reg_A = 0;
     _reg_X = 0;
     _reg_Y = 0;
@@ -171,8 +530,17 @@ void MicroProcessor::reset()
 
     // Load PC from reset vector
     _reg_PC = cpu::ResetVector;
-    fetchTwo(*this);
+    fetchTwo();
     reg::mergeTwoBytes(_reg_PC, _reg_DBB, _reg_DL);
+}
+
+void MicroProcessor::step()
+{
+    while (_skip) {
+        _tick();
+    }
+
+    _tick();
 }
 
 void MicroProcessor::dump(Registers_t &registers) const
@@ -200,7 +568,7 @@ void MicroProcessor::_tick()
     _decoder.decode();
 
     // Fetch oprands
-    _fetchers[_decoder.mode()](*this);
+    fetch();
 
     // Execute
     _decoder.load();
@@ -208,102 +576,172 @@ void MicroProcessor::_tick()
     _decoder.save();
 }
 
-void MicroProcessor::fetchNull(MicroProcessor &cpu) {
+inline void MicroProcessor::read()
+{
+    _bus.read(_reg_AB, _reg_DBB);
+}
+
+inline void MicroProcessor::write()
+{
+    _bus.write(_reg_AB, _reg_DBB);
+}
+
+inline void MicroProcessor::push()
+{
+    _reg_AB = _reg_S--;
+    write();
+}
+
+inline void MicroProcessor::pop()
+{
+    _reg_AB = ++_reg_S;
+    read();
+}
+
+inline void MicroProcessor::branch()
+{
+    read();
+    _reg_PC += _reg_DBB;
+}
+
+inline void MicroProcessor::fetch()
+{
+    (this->*(_decoder._operation->mode->fetcher))();
+}
+
+void MicroProcessor::fetchNull() {
     /* No operand needed */
 }
 
-void MicroProcessor::fetchImmediate(MicroProcessor &cpu)
+void MicroProcessor::fetchImmediate()
 {
-    fetchOne(cpu);
+    fetchOne();
 }
 
-void MicroProcessor::fetchAbsolute(MicroProcessor &cpu)
+void MicroProcessor::fetchAbsolute()
 {
-    fetchTwo(cpu);
-    reg::mergeTwoBytes(cpu._reg_AB, cpu._reg_DBB, cpu._reg_DL);
+    fetchTwo();
+    reg::mergeTwoBytes(_reg_AB, _reg_DBB, _reg_DL);
 }
 
-void MicroProcessor::fetchZeroPage(MicroProcessor &cpu)
+void MicroProcessor::fetchZeroPage()
 {
-    fetchOne(cpu);
-    cpu._reg_AB = cpu._reg_DBB;
+    fetchOne();
+    _reg_AB = _reg_DBB;
 }
 
-void MicroProcessor::fetchIndexedZeroPageX(MicroProcessor &cpu)
+void MicroProcessor::fetchIndexedZeroPageX()
 {
-    fetchIndexedZeroPage(cpu, cpu._reg_X);
+    fetchIndexedZeroPage(_reg_X);
 }
 
-void MicroProcessor::fetchIndexedZeroPageY(MicroProcessor &cpu)
+void MicroProcessor::fetchIndexedZeroPageY()
 {
-    fetchIndexedZeroPage(cpu, cpu._reg_Y);
+    fetchIndexedZeroPage(_reg_Y);
 }
 
-void MicroProcessor::fetchIndexedAbsoluteX(MicroProcessor &cpu)
+void MicroProcessor::fetchIndexedAbsoluteX()
 {
-    fetchIndexedAbsolute(cpu, cpu._reg_X);
+    fetchIndexedAbsolute(_reg_X);
 }
 
-void MicroProcessor::fetchIndexedAbsoluteY(MicroProcessor &cpu)
+void MicroProcessor::fetchIndexedAbsoluteY()
 {
-    fetchIndexedAbsolute(cpu, cpu._reg_Y);
+    fetchIndexedAbsolute(_reg_Y);
 }
 
-void MicroProcessor::fetchRelative(MicroProcessor &cpu)
+void MicroProcessor::fetchRelative()
 {
-    fetchOne(cpu); // branch offset
+    fetchOne(); // branch offset
 }
 
-void MicroProcessor::fetchIndexedIndirect(MicroProcessor &cpu)
+void MicroProcessor::fetchIndexedIndirect()
 {
-    fetchOne(cpu);
+    fetchOne();
 
     // Fetch ABL
-    cpu._reg_AB = (uint8_t)(cpu._reg_DBB + cpu._reg_X);
-    cpu.read();
+    _reg_AB = (uint8_t)(_reg_DBB + _reg_X);
+    read();
 
-    cpu._reg_DL = cpu._reg_DBB;
+    _reg_DL = _reg_DBB;
 
     // Fetch ABH
-    ++cpu._reg_AB;
-    cpu.read();
+    ++_reg_AB;
+    read();
 
-    reg::mergeTwoBytes(cpu._reg_AB, cpu._reg_DBB, cpu._reg_DL);
+    reg::mergeTwoBytes(_reg_AB, _reg_DBB, _reg_DL);
 }
 
-void MicroProcessor::fetchIndirectIndexed(MicroProcessor &cpu)
+void MicroProcessor::fetchIndirectIndexed()
 {
-    fetchOne(cpu);
+    fetchOne();
 
     // Fetch ABL
-    cpu._reg_AB = cpu._reg_DBB;
-    cpu.read();
+    _reg_AB = _reg_DBB;
+    read();
 
-    cpu._reg_DL = cpu._reg_DBB;
+    _reg_DL = _reg_DBB;
 
     // Fetch ABH
-    ++cpu._reg_AB;
-    cpu.read();
+    ++_reg_AB;
+    read();
 
-    reg::mergeTwoBytes(cpu._reg_AB, cpu._reg_DBB, cpu._reg_DL);
-    cpu._reg_AB += cpu._reg_Y;
+    reg::mergeTwoBytes(_reg_AB, _reg_DBB, _reg_DL);
+    _reg_AB += _reg_Y;
 }
 
-void MicroProcessor::fetchAbsoluteIndirect(MicroProcessor &cpu)
+void MicroProcessor::fetchAbsoluteIndirect()
 {
-    fetchTwo(cpu);
+    fetchTwo();
 
     // Fetch ABL
-    reg::mergeTwoBytes(cpu._reg_AB, cpu._reg_DBB, cpu._reg_DL);
-    cpu.read();
+    reg::mergeTwoBytes(_reg_AB, _reg_DBB, _reg_DL);
+    read();
 
-    cpu._reg_DL = cpu._reg_DBB;
+    _reg_DL = _reg_DBB;
 
     // Fetch ABH
-    ++cpu._reg_AB;
-    cpu.read();
+    ++_reg_AB;
+    read();
 
-    reg::mergeTwoBytes(cpu._reg_AB, cpu._reg_DBB, cpu._reg_DL);
+    reg::mergeTwoBytes(_reg_AB, _reg_DBB, _reg_DL);
+}
+
+inline void MicroProcessor::popTwo()
+{
+    pop();
+    _reg_DL = _reg_DBB;
+    pop();
+};
+
+inline void MicroProcessor::fetchOne()
+{
+    _reg_AB = _reg_PC++;
+    read();
+}
+
+inline void MicroProcessor::fetchTwo()
+{
+    _reg_AB = _reg_PC++;
+    read();
+
+    _reg_DL = _reg_DBB;
+
+    _reg_AB = _reg_PC++;
+    read();
+}
+
+inline void MicroProcessor::fetchIndexedZeroPage(uint8_t index)
+{
+    fetchOne();
+    _reg_AB = (uint8_t)(_reg_DBB + index);
+}
+
+inline void MicroProcessor::fetchIndexedAbsolute(uint8_t index)
+{
+    fetchTwo();
+    reg::mergeTwoBytes(_reg_AB, _reg_DBB, _reg_DL);
+    _reg_AB += index;
 }
 
 } // namespace tones
