@@ -158,6 +158,17 @@ inline void InstructionDecoder::save()
         _cpu.write();
 }
 
+inline void InstructionDecoder::accumulate(void (ArithmeticAndLogicUnit::*executor)())
+{
+    if (cpu::code::Accumulator == _operation->mode->kind) {
+        (_alu.*executor)();
+    } else {
+        _cpu._reg_A = _cpu._reg_DBB;
+        (_alu.*executor)();
+        _cpu._reg_DBB = _cpu._reg_A;
+    }
+}
+
 /* Instructions */
 
 void InstructionDecoder::ADC()
@@ -172,7 +183,7 @@ void InstructionDecoder::AND()
 
 void InstructionDecoder::ASL()
 {
-    _alu.ASL();
+    accumulate(&ArithmeticAndLogicUnit::ASL);
 }
 
 void InstructionDecoder::BCC()
@@ -355,7 +366,7 @@ void InstructionDecoder::LDY()
 
 void InstructionDecoder::LSR()
 {
-    _alu.LSR();
+    accumulate(&ArithmeticAndLogicUnit::LSR);
 }
 
 void InstructionDecoder::NOP()
@@ -395,12 +406,12 @@ void InstructionDecoder::PLP()
 
 void InstructionDecoder::ROL()
 {
-    _alu.ROL();
+    accumulate(&ArithmeticAndLogicUnit::ROL);
 }
 
 void InstructionDecoder::ROR()
 {
-    _alu.ROR();
+    accumulate(&ArithmeticAndLogicUnit::ROR);
 }
 
 void InstructionDecoder::RTI()

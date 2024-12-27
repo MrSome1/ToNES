@@ -100,7 +100,7 @@ const Instruction_t UNKNOWN = { &InstructionDecoder::NOP, code::NOP, code::NO, "
 /* Operations */
 
 const Operation_t UnknownOperation = { &UNKNOWN, &INVALID, 0 };
-const Operation_t *Null = &UnknownOperation;
+const Operation_t *NIL = &UnknownOperation;
 
 /** Routine Instructions
  *
@@ -265,29 +265,29 @@ const Operation_t NOP_IMP = { &NOP, &IMP, 2};
  */
 
 // BIT
-const Operation_t BIT_ZP  = { &BIT, &ZP, 3};
+const Operation_t BIT_ZP  = { &BIT, &ZP , 3};
 const Operation_t BIT_ABS = { &BIT, &ABS, 4};
 
 // STY
-const Operation_t STY_ZP  = { &STY, &ZP, 3};
+const Operation_t STY_ZP  = { &STY, &ZP , 3};
 const Operation_t STY_ABS = { &STY, &ABS, 4};
 const Operation_t STY_ZPX = { &STY, &ZPX, 4};
 
 // LDY
 const Operation_t LDY_IMM = { &LDY, &IMM, 2};
-const Operation_t LDY_ZP  = { &LDY, &ZP, 3};
+const Operation_t LDY_ZP  = { &LDY, &ZP , 3};
 const Operation_t LDY_ABS = { &LDY, &ABS, 4};
 const Operation_t LDY_ZPX = { &LDY, &ZPX, 4};
 const Operation_t LDY_ABX = { &LDY, &ABX, 4};
 
 // CPY
 const Operation_t CPY_IMM = { &CPY, &IMM, 2};
-const Operation_t CPY_ZP  = { &CPY, &ZP, 3};
+const Operation_t CPY_ZP  = { &CPY, &ZP , 3};
 const Operation_t CPY_ABS = { &CPY, &ABS, 4};
 
 // CPX
 const Operation_t CPX_IMM = { &CPX, &IMM, 2};
-const Operation_t CPX_ZP  = { &CPX, &ZP, 3};
+const Operation_t CPX_ZP  = { &CPX, &ZP , 3};
 const Operation_t CPX_ABS = { &CPX, &ABS, 4};
    
 /** Instruction Group 1
@@ -307,7 +307,7 @@ const Operation_t CPX_ABS = { &CPX, &ABS, 4};
    
 // ORA
 const Operation_t ORA_IDX = { &ORA, &IDX, 6};
-const Operation_t ORA_ZP  = { &ORA, &ZP, 3};
+const Operation_t ORA_ZP  = { &ORA, &ZP , 3};
 const Operation_t ORA_IMM = { &ORA, &IMM, 2};
 const Operation_t ORA_ABS = { &ORA, &ABS, 4};
 const Operation_t ORA_IDY = { &ORA, &IDY, 5};
@@ -317,7 +317,7 @@ const Operation_t ORA_ABX = { &ORA, &ABX, 4};
 
 // AND
 const Operation_t AND_IDX = { &AND, &IDX, 6};
-const Operation_t AND_ZP  = { &AND, &ZP, 3};
+const Operation_t AND_ZP  = { &AND, &ZP , 3};
 const Operation_t AND_IMM = { &AND, &IMM, 2};
 const Operation_t AND_ABS = { &AND, &ABS, 4};
 const Operation_t AND_IDY = { &AND, &IDY, 5};
@@ -327,7 +327,7 @@ const Operation_t AND_ABX = { &AND, &ABX, 4};
 
 // EOR
 const Operation_t EOR_IDX = { &EOR, &IDX, 6};
-const Operation_t EOR_ZP  = { &EOR, &ZP, 3};
+const Operation_t EOR_ZP  = { &EOR, &ZP , 3};
 const Operation_t EOR_IMM = { &EOR, &IMM, 2};
 const Operation_t EOR_ABS = { &EOR, &ABS, 4};
 const Operation_t EOR_IDY = { &EOR, &IDY, 5};
@@ -337,7 +337,7 @@ const Operation_t EOR_ABX = { &EOR, &ABX, 4};
 
 // ADC
 const Operation_t ADC_IDX = { &ADC, &IDX, 6};
-const Operation_t ADC_ZP  = { &ADC, &ZP, 3};
+const Operation_t ADC_ZP  = { &ADC, &ZP , 3};
 const Operation_t ADC_IMM = { &ADC, &IMM, 2};
 const Operation_t ADC_ABS = { &ADC, &ABS, 4};
 const Operation_t ADC_IDY = { &ADC, &IDY, 5};
@@ -347,7 +347,7 @@ const Operation_t ADC_ABX = { &ADC, &ABX, 4};
 
 // STA
 const Operation_t STA_IDX = { &STA, &IDX, 6};
-const Operation_t STA_ZP  = { &STA, &ZP, 3};
+const Operation_t STA_ZP  = { &STA, &ZP , 3};
 const Operation_t STA_IMM = { &STA, &IMM, 2};
 const Operation_t STA_ABS = { &STA, &ABS, 4};
 const Operation_t STA_IDY = { &STA, &IDY, 5};
@@ -357,7 +357,7 @@ const Operation_t STA_ABX = { &STA, &ABX, 4};
 
 // LDA
 const Operation_t LDA_IDX = { &LDA, &IDX, 6};
-const Operation_t LDA_ZP  = { &LDA, &ZP, 3};
+const Operation_t LDA_ZP  = { &LDA, &ZP , 3};
 const Operation_t LDA_IMM = { &LDA, &IMM, 2};
 const Operation_t LDA_ABS = { &LDA, &ABS, 4};
 const Operation_t LDA_IDY = { &LDA, &IDY, 5};
@@ -367,7 +367,7 @@ const Operation_t LDA_ABX = { &LDA, &ABX, 4};
 
 // CMP
 const Operation_t CMP_IDX = { &CMP, &IDX, 6};
-const Operation_t CMP_ZP  = { &CMP, &ZP, 3};
+const Operation_t CMP_ZP  = { &CMP, &ZP , 3};
 const Operation_t CMP_IMM = { &CMP, &IMM, 2};
 const Operation_t CMP_ABS = { &CMP, &ABS, 4};
 const Operation_t CMP_IDY = { &CMP, &IDY, 5};
@@ -377,7 +377,7 @@ const Operation_t CMP_ABX = { &CMP, &ABX, 4};
 
 // SBC
 const Operation_t SBC_IDX = { &SBC, &IDX, 6};
-const Operation_t SBC_ZP  = { &SBC, &ZP, 3};
+const Operation_t SBC_ZP  = { &SBC, &ZP , 3};
 const Operation_t SBC_IMM = { &SBC, &IMM, 2};
 const Operation_t SBC_ABS = { &SBC, &ABS, 4};
 const Operation_t SBC_IDY = { &SBC, &IDY, 5};
@@ -401,53 +401,53 @@ const Operation_t SBC_ABX = { &SBC, &ABX, 4};
  */
 
 // ASL
-const Operation_t ASL_ZP  = { &ASL, &ZP, 5};
+const Operation_t ASL_ZP  = { &ASL, &ZP , 5};
 const Operation_t ASL_ACC = { &ASL, &ACC, 2};
 const Operation_t ASL_ABS = { &ASL, &ABS, 6};
 const Operation_t ASL_ZPX = { &ASL, &ZPX, 6};
 const Operation_t ASL_ABX = { &ASL, &ABX, 7};
 
 // ROL
-const Operation_t ROL_ZP  = { &ROL, &ZP, 5};
+const Operation_t ROL_ZP  = { &ROL, &ZP , 5};
 const Operation_t ROL_ACC = { &ROL, &ACC, 2};
 const Operation_t ROL_ABS = { &ROL, &ABS, 6};
 const Operation_t ROL_ZPX = { &ROL, &ZPX, 6};
 const Operation_t ROL_ABX = { &ROL, &ABX, 7};
 
 // LSR
-const Operation_t LSR_ZP  = { &LSR, &ZP, 5};
+const Operation_t LSR_ZP  = { &LSR, &ZP , 5};
 const Operation_t LSR_ACC = { &LSR, &ACC, 2};
 const Operation_t LSR_ABS = { &LSR, &ABS, 6};
 const Operation_t LSR_ZPX = { &LSR, &ZPX, 6};
 const Operation_t LSR_ABX = { &LSR, &ABX, 7};
 
 // ROR
-const Operation_t ROR_ZP  = { &ROR, &ZP, 5};
+const Operation_t ROR_ZP  = { &ROR, &ZP , 5};
 const Operation_t ROR_ACC = { &ROR, &ACC, 2};
 const Operation_t ROR_ABS = { &ROR, &ABS, 6};
 const Operation_t ROR_ZPX = { &ROR, &ZPX, 6};
 const Operation_t ROR_ABX = { &ROR, &ABX, 7};
 
 // STX
-const Operation_t STX_ZP  = { &STX, &ZP, 3};
+const Operation_t STX_ZP  = { &STX, &ZP , 3};
 const Operation_t STX_ABS = { &STX, &ABS, 4};
 const Operation_t STX_ZPY = { &STX, &ZPY, 4};
 
 // LDX
 const Operation_t LDX_IMM = { &LDX, &IMM, 2};
-const Operation_t LDX_ZP  = { &LDX, &ZP, 3};
+const Operation_t LDX_ZP  = { &LDX, &ZP , 3};
 const Operation_t LDX_ABS = { &LDX, &ABS, 4};
 const Operation_t LDX_ZPY = { &LDX, &ZPY, 4};
 const Operation_t LDX_ABY = { &LDX, &ABY, 4};
 
 // DEC
-const Operation_t DEC_ZP  = { &DEC, &ZP, 5};
+const Operation_t DEC_ZP  = { &DEC, &ZP , 5};
 const Operation_t DEC_ABS = { &DEC, &ABS, 6};
 const Operation_t DEC_ZPX = { &DEC, &ZPX, 6};
 const Operation_t DEC_ABX = { &DEC, &ABX, 7};
 
 // INC
-const Operation_t INC_ZP  = { &INC, &ZP, 5};
+const Operation_t INC_ZP  = { &INC, &ZP , 5};
 const Operation_t INC_ABS = { &INC, &ABS, 6};
 const Operation_t INC_ZPX = { &INC, &ZPX, 6};
 const Operation_t INC_ABX = { &INC, &ABX, 7};
@@ -458,23 +458,23 @@ const Operation_t INC_ABX = { &INC, &ABX, 7};
  * copy of the manual, thank god there are only 256 ones
  */
 const Operation_t* const OperationSet[OperationSetSize] = {
-/*             0         1         2     3         4         5         6     7         8         9         A     B         C         D         E     F */
-/* 0 */ &BRK_IMP, &ORA_IDX,     Null, Null,     Null,  &ORA_ZP,  &ASL_ZP, Null, &PHP_IMP, &ORA_IMM, &ASL_ACC, Null,     Null, &ORA_ABS, &ASL_ABS, Null,
-/* 1 */ &BPL_REL, &ORA_IDY,     Null, Null,     Null, &ORA_ZPX, &ASL_ZPX, Null, &CLC_IMP, &ORA_ABY,     Null, Null,     Null, &ORA_ABX, &ASL_ABX, Null,
-/* 2 */ &JSR_ABS, &AND_IDX,     Null, Null,  &BIT_ZP,  &AND_ZP,  &ROL_ZP, Null, &PLP_IMP, &AND_IMM, &ROL_ACC, Null, &BIT_ABS, &AND_ABS, &ROL_ABS, Null,
-/* 3 */ &BMI_REL, &AND_IDY,     Null, Null,     Null, &AND_ZPX, &ROL_ZPX, Null, &SEC_IMP, &AND_ABY,     Null, Null,     Null, &AND_ABX, &ROL_ABX, Null,
-/* 4 */ &RTI_IMP, &EOR_IDX,     Null, Null,     Null,  &EOR_ZP,  &LSR_ZP, Null, &PHA_IMP, &EOR_IMM, &LSR_ACC, Null, &JMP_ABS, &EOR_ABS, &LSR_ABS, Null,
-/* 5 */ &BVC_REL, &EOR_IDY,     Null, Null,     Null, &EOR_ZPX, &LSR_ZPX, Null, &CLI_IMP, &EOR_ABY,     Null, Null,     Null, &EOR_ABX, &LSR_ABX, Null,
-/* 6 */ &RTS_IMP, &ADC_IDX,     Null, Null,     Null,  &ADC_ZP,  &ROR_ZP, Null, &PLA_IMP, &ADC_IMM, &ROR_ACC, Null, &JMP_IND, &ADC_ABS, &ROR_ABS, Null,
-/* 7 */ &BVS_REL, &ADC_IDY,     Null, Null,     Null, &ADC_ZPX, &ROR_ZPX, Null, &SEI_IMP, &ADC_ABY,     Null, Null,     Null, &ADC_ABX, &ROR_ABX, Null,
-/* 8 */     Null, &STA_IDX,     Null, Null,  &STY_ZP,  &STA_ZP,  &STX_ZP, Null, &DEY_IMP, &STA_IMM, &TXA_IMP, Null, &STY_ABS, &STA_ABS, &STX_ABS, Null,
-/* 9 */ &BCC_REL, &STA_IDY,     Null, Null, &STY_ZPX, &STA_ZPX, &STX_ZPY, Null, &TYA_IMP, &STA_ABY, &TXS_IMP, Null,     Null, &STA_ABX,     Null, Null,
-/* A */ &LDY_IMM, &LDA_IDX, &LDX_IMM, Null,  &LDY_ZP,  &LDA_ZP,  &LDX_ZP, Null, &TAY_IMP, &LDA_IMM, &TAX_IMP, Null, &LDY_ABS, &LDA_ABS, &LDX_ABS, Null,
-/* B */ &BCS_REL, &LDA_IDY,     Null, Null, &LDY_ZPX, &LDA_ZPX, &LDX_ZPY, Null, &CLV_IMP, &LDA_ABY, &TSX_IMP, Null, &LDY_ABX, &LDA_ABX, &LDX_ABY, Null,
-/* C */ &CPY_IMM, &CMP_IDX,     Null, Null,  &CPY_ZP,  &CMP_ZP,  &DEC_ZP, Null, &INY_IMP, &CMP_IMM, &DEX_IMP, Null, &CPY_ABS, &CMP_ABS, &DEC_ABS, Null,
-/* D */ &BNE_REL, &CMP_IDY,     Null, Null,     Null, &CMP_ZPX, &DEC_ZPX, Null, &CLD_IMP, &CMP_ABY,     Null, Null,     Null, &CMP_ABX, &DEC_ABX, Null,
-/* E */ &CPX_IMM, &SBC_IDX,     Null, Null,  &CPX_ZP,  &SBC_ZP,  &INC_ZP, Null, &INX_IMP, &SBC_IMM, &NOP_IMP, Null, &CPX_ABS, &SBC_ABS, &INC_ABS, Null,
-/* F */ &BEQ_REL, &SBC_IDY,     Null, Null,     Null, &SBC_ZPX, &INC_ZPX, Null, &SED_IMP, &SBC_ABY,     Null, Null,     Null, &SBC_ABX, &INC_ABX, Null,
+/*             0         1         2    3         4         5         6    7         8         9         A    B         C         D         E    F */
+/* 0 */ &BRK_IMP, &ORA_IDX,      NIL, NIL,      NIL, &ORA_ZP , &ASL_ZP , NIL, &PHP_IMP, &ORA_IMM, &ASL_ACC, NIL,      NIL, &ORA_ABS, &ASL_ABS, NIL,
+/* 1 */ &BPL_REL, &ORA_IDY,      NIL, NIL,      NIL, &ORA_ZPX, &ASL_ZPX, NIL, &CLC_IMP, &ORA_ABY,      NIL, NIL,      NIL, &ORA_ABX, &ASL_ABX, NIL,
+/* 2 */ &JSR_ABS, &AND_IDX,      NIL, NIL, &BIT_ZP , &AND_ZP , &ROL_ZP , NIL, &PLP_IMP, &AND_IMM, &ROL_ACC, NIL, &BIT_ABS, &AND_ABS, &ROL_ABS, NIL,
+/* 3 */ &BMI_REL, &AND_IDY,      NIL, NIL,      NIL, &AND_ZPX, &ROL_ZPX, NIL, &SEC_IMP, &AND_ABY,      NIL, NIL,      NIL, &AND_ABX, &ROL_ABX, NIL,
+/* 4 */ &RTI_IMP, &EOR_IDX,      NIL, NIL,      NIL, &EOR_ZP , &LSR_ZP , NIL, &PHA_IMP, &EOR_IMM, &LSR_ACC, NIL, &JMP_ABS, &EOR_ABS, &LSR_ABS, NIL,
+/* 5 */ &BVC_REL, &EOR_IDY,      NIL, NIL,      NIL, &EOR_ZPX, &LSR_ZPX, NIL, &CLI_IMP, &EOR_ABY,      NIL, NIL,      NIL, &EOR_ABX, &LSR_ABX, NIL,
+/* 6 */ &RTS_IMP, &ADC_IDX,      NIL, NIL,      NIL, &ADC_ZP , &ROR_ZP , NIL, &PLA_IMP, &ADC_IMM, &ROR_ACC, NIL, &JMP_IND, &ADC_ABS, &ROR_ABS, NIL,
+/* 7 */ &BVS_REL, &ADC_IDY,      NIL, NIL,      NIL, &ADC_ZPX, &ROR_ZPX, NIL, &SEI_IMP, &ADC_ABY,      NIL, NIL,      NIL, &ADC_ABX, &ROR_ABX, NIL,
+/* 8 */      NIL, &STA_IDX,      NIL, NIL, &STY_ZP , &STA_ZP , &STX_ZP , NIL, &DEY_IMP, &STA_IMM, &TXA_IMP, NIL, &STY_ABS, &STA_ABS, &STX_ABS, NIL,
+/* 9 */ &BCC_REL, &STA_IDY,      NIL, NIL, &STY_ZPX, &STA_ZPX, &STX_ZPY, NIL, &TYA_IMP, &STA_ABY, &TXS_IMP, NIL,      NIL, &STA_ABX,      NIL, NIL,
+/* A */ &LDY_IMM, &LDA_IDX, &LDX_IMM, NIL, &LDY_ZP , &LDA_ZP , &LDX_ZP , NIL, &TAY_IMP, &LDA_IMM, &TAX_IMP, NIL, &LDY_ABS, &LDA_ABS, &LDX_ABS, NIL,
+/* B */ &BCS_REL, &LDA_IDY,      NIL, NIL, &LDY_ZPX, &LDA_ZPX, &LDX_ZPY, NIL, &CLV_IMP, &LDA_ABY, &TSX_IMP, NIL, &LDY_ABX, &LDA_ABX, &LDX_ABY, NIL,
+/* C */ &CPY_IMM, &CMP_IDX,      NIL, NIL, &CPY_ZP , &CMP_ZP , &DEC_ZP , NIL, &INY_IMP, &CMP_IMM, &DEX_IMP, NIL, &CPY_ABS, &CMP_ABS, &DEC_ABS, NIL,
+/* D */ &BNE_REL, &CMP_IDY,      NIL, NIL,      NIL, &CMP_ZPX, &DEC_ZPX, NIL, &CLD_IMP, &CMP_ABY,      NIL, NIL,      NIL, &CMP_ABX, &DEC_ABX, NIL,
+/* E */ &CPX_IMM, &SBC_IDX,      NIL, NIL, &CPX_ZP , &SBC_ZP , &INC_ZP , NIL, &INX_IMP, &SBC_IMM, &NOP_IMP, NIL, &CPX_ABS, &SBC_ABS, &INC_ABS, NIL,
+/* F */ &BEQ_REL, &SBC_IDY,      NIL, NIL,      NIL, &SBC_ZPX, &INC_ZPX, NIL, &SED_IMP, &SBC_ABY,      NIL, NIL,      NIL, &SBC_ABX, &INC_ABX, NIL,
 };
 
 } // namespace cpu

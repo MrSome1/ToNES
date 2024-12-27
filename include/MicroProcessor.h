@@ -264,9 +264,6 @@ private:
 
     InstructionDecoder(tones::MicroProcessor &cpu);
 
-    //! Current addressing mode
-    // code::AddressingKind_t mode() const;
-
     //! Parse the operation code
     inline void decode();
 
@@ -278,6 +275,10 @@ private:
 
     //! Store to memory
     inline void save();
+
+    // TODO: A better way?
+    //! Execute operations of accumulate addressing mode
+    inline void accumulate(void (ArithmeticAndLogicUnit::*executor)());
 
     /* Helper Functions */
 
