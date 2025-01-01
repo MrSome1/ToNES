@@ -20,43 +20,43 @@ ArithmeticAndLogicUnit::ArithmeticAndLogicUnit(tones::MicroProcessor &cpu)
 void ArithmeticAndLogicUnit::INC()
 {
     ++_reg_A;
-    checkZeroNegative(_reg_A);
+    setZeroNegative(_reg_A);
 }
 
 void ArithmeticAndLogicUnit::DEC()
 {
     --_reg_A;
-    checkZeroNegative(_reg_A);
+    setZeroNegative(_reg_A);
 }
 
 void ArithmeticAndLogicUnit::ASL()
 {
-    checkCarry(_reg_A & 0x80);
+    setCarry(_reg_A & 0x80);
     _reg_A <<= 1;
-    checkZeroNegative(_reg_A);
+    setZeroNegative(_reg_A);
 }
 
 void ArithmeticAndLogicUnit::LSR()
 {
-    checkCarry(_reg_A & 0x01);
+    setCarry(_reg_A & 0x01);
     _reg_A >>= 1;
-    checkZeroNegative(_reg_A);
+    setZeroNegative(_reg_A);
 }
 
 void ArithmeticAndLogicUnit::ROL()
 {
-    checkCarry(_reg_A & 0x80);
-    _reg_A <<=1;
-    _reg_A |= GET_BIT(_reg_P, StatusBit::C) ? 0x01 : 0x00;
-    checkZeroNegative(_reg_A);
+    setCarry(_reg_A & 0x80);
+    _reg_A <<= 1;
+    _reg_A |= getCarry() ? 0x01 : 0x00;
+    setZeroNegative(_reg_A);
 }
 
 void ArithmeticAndLogicUnit::ROR()
 {
-    checkCarry(_reg_A & 0x01); // TODO
+    setCarry(_reg_A & 0x01);
     _reg_A >>= 1;
-    _reg_A |= GET_BIT(_reg_P, StatusBit::C) ? 0x80 : 0x00;
-    checkZeroNegative(_reg_A);
+    _reg_A |= getCarry() ? 0x80 : 0x00;
+    setZeroNegative(_reg_A);
 }
 
 /* Two operands operations */
@@ -64,65 +64,108 @@ void ArithmeticAndLogicUnit::ROR()
 void ArithmeticAndLogicUnit::ORA()
 {
     _reg_A |= _reg_DBB;
-    checkZeroNegative(_reg_A);
+    setZeroNegative(_reg_A);
 }
 
 void ArithmeticAndLogicUnit::AND()
 {
     _reg_A &= _reg_DBB;
-    checkZeroNegative(_reg_A);
+    setZeroNegative(_reg_A);
 }
 
 void ArithmeticAndLogicUnit::EOR()
 {
     _reg_A ^= _reg_DBB;
-    checkZeroNegative(_reg_A);
+    setZeroNegative(_reg_A);
 }
 
 void ArithmeticAndLogicUnit::ADC()
 {
-    _reg_A += _reg_DBB; // TODO: Decimal ???
-    // TODO: check status
+    // TODO: Without tmp?
+    uint16_t tmp = _reg_A + _reg_DBB + (getCarry() ? 1 : 0);
+    if (getDecimal()) { // desimal mode
+        // TODO
+    } else { // hex mode
+        // Signed overflow is true when the result sign differs from both operands
+        setOverflow((_reg_A ^ tmp) & (_reg_DBB ^ tmp) & 0x80);
+        setCarry(tmp & 0x100); // unsigned overflow
+        _reg_A = tmp & 0xff;
+        setZeroNegative(_reg_A);
+    }
 }
 
 void ArithmeticAndLogicUnit::SBC()
 {
-
-    _reg_A -= _reg_DBB; // TODO: Decimal ???
-    // TODO: check status
+    // TODO: Without tmp?
+    uint16_t tmp = _reg_A - _reg_DBB - (getCarry() ? 0 : 1);
+    if (getDecimal()) { // desimal mode
+        // TODO
+    } else { // hex mode
+        // TODO: Signed overflow ???
+        setOverflow((_reg_A ^ tmp) & (~_reg_DBB ^ tmp) & 0x80);
+        // TODO: Unsigned overflow ???
+        setCarry(tmp < 0x100);
+        _reg_A = tmp & 0xff;
+        setZeroNegative(_reg_A);
+    }
 }
 
 void ArithmeticAndLogicUnit::CMP()
 {
     _reg_A -= _reg_DBB;
-    checkCarry(_reg_A & 0x80); // TODO
-    checkZeroNegative(_reg_A);
+    setCarry(_reg_A & 0x80); // TODO: ???
+    setZeroNegative(_reg_A);
 }
 
-void ArithmeticAndLogicUnit::checkZero(uint8_t &reg)
+inline void ArithmeticAndLogicUnit::setZero(uint8_t &reg)
 {
     SET_BIT(_reg_P, StatusBit::Z, !reg);
 }
 
-void ArithmeticAndLogicUnit::checkNegative(uint8_t &reg)
+inline void ArithmeticAndLogicUnit::setNegative(uint8_t &reg)
 {
     SET_BIT(_reg_P, StatusBit::N, reg & 0x80);
 }
 
-void ArithmeticAndLogicUnit::checkZeroNegative(uint8_t &reg)
+inline void ArithmeticAndLogicUnit::setZeroNegative(uint8_t &reg)
 {
-    checkZero(reg);
-    checkNegative(reg);
+    setZero(reg);
+    setNegative(reg);
 }
 
-void ArithmeticAndLogicUnit::checkCarry(uint8_t reg)
+inline void ArithmeticAndLogicUnit::setCarry(uint8_t reg)
 {
     SET_BIT(_reg_P, StatusBit::C, reg);
 }
 
-void ArithmeticAndLogicUnit::checkOverflow(uint8_t reg)
+inline void ArithmeticAndLogicUnit::setOverflow(uint8_t reg)
 {
     SET_BIT(_reg_P, StatusBit::V, reg);
+}
+
+inline bool ArithmeticAndLogicUnit::getZero()
+{
+    return GET_BIT(_reg_P, StatusBit::Z);
+}
+
+inline bool ArithmeticAndLogicUnit::getNegative()
+{
+    return GET_BIT(_reg_P, StatusBit::N);
+}
+
+inline bool ArithmeticAndLogicUnit::getCarry()
+{
+    return GET_BIT(_reg_P, StatusBit::C);
+}
+
+inline bool ArithmeticAndLogicUnit::getOverflow()
+{
+    return GET_BIT(_reg_P, StatusBit::V);
+}
+
+inline bool ArithmeticAndLogicUnit::getDecimal()
+{
+    return GET_BIT(_reg_P, StatusBit::D);
 }
 
 /* InstructionDecoder */
@@ -188,61 +231,97 @@ void InstructionDecoder::ASL()
 
 void InstructionDecoder::BCC()
 {
-    if (!GET_BIT(_cpu._reg_P, StatusBit::C))
+    if (!_alu.getCarry()) {
+        // TODO: Dynamic clock
         _cpu.branch();
+    }
 }
 
 void InstructionDecoder::BCS()
 {
-    if (GET_BIT(_cpu._reg_P, StatusBit::C))
+    if (_alu.getCarry()) {
+        // TODO: Dynamic clock
         _cpu.branch();
+    }
 }
 
 void InstructionDecoder::BEQ()
 {
-    if (GET_BIT(_cpu._reg_P, StatusBit::Z))
+    if (_alu.getZero()) {
+        // TODO: Dynamic clock
         _cpu.branch();
+    }
 }
 
 void InstructionDecoder::BIT()
 {
-    _alu.checkZeroNegative(_cpu._reg_DBB);
-    _alu.checkOverflow(_cpu._reg_DBB & 0x40); // TODO: What are this used for?
+    _alu.setZeroNegative(_cpu._reg_DBB);
+    _alu.setOverflow(_cpu._reg_DBB & 0x40); // TODO: ???
 }
 
 void InstructionDecoder::BMI()
 {
-    if (GET_BIT(_cpu._reg_P, StatusBit::N))
+    if (_alu.getNegative()) {
+        // TODO: Dynamic clock
         _cpu.branch();
+    }
 }
 
 void InstructionDecoder::BNE()
 {
-    if (!GET_BIT(_cpu._reg_P, StatusBit::Z))
+    if (!_alu.getZero()) {
+        // TODO: Dynamic clock
         _cpu.branch();
+    }
 }
 
 void InstructionDecoder::BPL()
 {
-    if (!GET_BIT(_cpu._reg_P, StatusBit::N))
+    if (!_alu.getNegative()) {
+        // TODO: Dynamic clock
         _cpu.branch();
+    }
 }
 
 void InstructionDecoder::BRK()
 {
     // TODO: ???
+    ++_cpu._reg_PC;
+
+    // Save register PC to the stack
+    reg::getMSB(_cpu._reg_PC, _cpu._reg_DBB);
+    _cpu.push();
+    reg::getLSB(_cpu._reg_PC, _cpu._reg_DBB);
+    _cpu.push();
+
+    SEL_BIT(_cpu._reg_P, StatusBit::B);
+
+    // Save register P to the stack
+    _cpu._reg_DBB = _cpu._reg_P;
+    _cpu.push();
+
+    SEL_BIT(_cpu._reg_P, StatusBit::I);
+
+    // Load PC from break vector
+    _cpu._reg_PC = cpu::BreakVector;
+    _cpu.fetchTwo();
+    reg::mergeTwoBytes(_cpu._reg_PC, _cpu._reg_DBB, _cpu._reg_DL);
 }
 
 void InstructionDecoder::BVC()
 {
-    if (!GET_BIT(_cpu._reg_P, StatusBit::V))
+    if (!_alu.getOverflow()) {
+        // TODO: Dynamic clock
         _cpu.branch();
+    }
 }
 
 void InstructionDecoder::BVS()
 {
-    if (GET_BIT(_cpu._reg_P, StatusBit::V))
+    if (_alu.getOverflow()) {
+        // TODO: Dynamic clock
         _cpu.branch();
+    }
 }
 
 void InstructionDecoder::CLC()
@@ -331,36 +410,43 @@ void InstructionDecoder::INY()
 
 void InstructionDecoder::JMP()
 {
-    _cpu._reg_PC = _cpu._reg_DBB;
-    _cpu._reg_PC <<= 8;
-    _cpu._reg_PC |= _cpu._reg_DL;
+    reg::mergeTwoBytes(_cpu._reg_PC, _cpu._reg_DBB, _cpu._reg_DL);
 }
 
 void InstructionDecoder::JSR()
 {
-    // TODO: ???
-    _cpu._reg_DBB = (_cpu._reg_PC + 1) >> 8;
+    ++_cpu._reg_PC; // TODO: PC-- in 6502.txt ?
+
+    // Save the new value of PC in AB
+    reg::mergeTwoBytes(_cpu._reg_AB, _cpu._reg_DBB, _cpu._reg_DL);
+
+    // Exchange AB and PC
+    _cpu._reg_PC = _cpu._reg_PC ^ _cpu._reg_AB;
+    _cpu._reg_AB = _cpu._reg_PC ^ _cpu._reg_AB;
+    _cpu._reg_PC = _cpu._reg_PC ^ _cpu._reg_AB;
+
+    // Save the old value of PC
+    reg::splitTwoBytes(_cpu._reg_AB, _cpu._reg_DBB, _cpu._reg_DL);
     _cpu.push();
-    _cpu._reg_DBB = (_cpu._reg_PC + 1);
+    _cpu._reg_DBB = _cpu._reg_DL;
     _cpu.push();
-    JMP();
 }
 
 void InstructionDecoder::LDA()
 {
-    _alu.checkZeroNegative(_cpu._reg_DBB);
+    _alu.setZeroNegative(_cpu._reg_DBB);
     _cpu._reg_A = _cpu._reg_DBB;
 }
 
 void InstructionDecoder::LDX()
 {
-    _alu.checkZeroNegative(_cpu._reg_DBB);
+    _alu.setZeroNegative(_cpu._reg_DBB);
     _cpu._reg_X = _cpu._reg_DBB;
 }
 
 void InstructionDecoder::LDY()
 {
-    _alu.checkZeroNegative(_cpu._reg_DBB);
+    _alu.setZeroNegative(_cpu._reg_DBB);
     _cpu._reg_Y = _cpu._reg_DBB;
 }
 
@@ -395,7 +481,7 @@ void InstructionDecoder::PLA()
 {
     _cpu.pop();
     _cpu._reg_A = _cpu._reg_DBB;
-    _alu.checkZeroNegative(_cpu._reg_A);
+    _alu.setZeroNegative(_cpu._reg_A);
 }
 
 void InstructionDecoder::PLP()
@@ -466,25 +552,25 @@ void InstructionDecoder::STY()
 
 void InstructionDecoder::TAX()
 {
-    _alu.checkZeroNegative(_cpu._reg_A);
+    _alu.setZeroNegative(_cpu._reg_A);
     _cpu._reg_X = _cpu._reg_A;
 }
 
 void InstructionDecoder::TAY()
 {
-    _alu.checkZeroNegative(_cpu._reg_A);
+    _alu.setZeroNegative(_cpu._reg_A);
     _cpu._reg_Y = _cpu._reg_A;
 }
 
 void InstructionDecoder::TSX()
 {
-    _alu.checkZeroNegative(_cpu._reg_S);
+    _alu.setZeroNegative(_cpu._reg_S);
     _cpu._reg_X = _cpu._reg_S;
 }
 
 void InstructionDecoder::TXA()
 {
-    _alu.checkZeroNegative(_cpu._reg_X);
+    _alu.setZeroNegative(_cpu._reg_X);
     _cpu._reg_A = _cpu._reg_X;
 }
 
@@ -495,7 +581,7 @@ void InstructionDecoder::TXS()
 
 void InstructionDecoder::TYA()
 {
-    _alu.checkZeroNegative(_cpu._reg_Y);
+    _alu.setZeroNegative(_cpu._reg_Y);
     _cpu._reg_A = _cpu._reg_Y;
 }
 
@@ -611,7 +697,7 @@ inline void MicroProcessor::pop()
 
 inline void MicroProcessor::branch()
 {
-    read();
+    read(); // TODO: Need this read ?
     _reg_PC += _reg_DBB;
 }
 

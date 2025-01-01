@@ -13,21 +13,6 @@
 
 using namespace tones;
 
-class DebuggingCPU : public MicroProcessor
-{
-public:
-
-    MicroProcessor::Registers_t regs;
-
-    DebuggingCPU(Bus &bus) : MicroProcessor(bus) {}
-
-    void step()
-    {
-        _tick();
-        dump(regs);
-    }
-};
-
 class MicroProcessorTest : public ::testing::TestWithParam<std::string>
 {
 
@@ -42,7 +27,9 @@ protected:
 
     Bus _mbus, _vbus;
     RandomAccessMemory _pram;
-    DebuggingCPU _cpu;
+
+    MicroProcessor _cpu;
+    MicroProcessor::Registers_t _regs;
 
     CpuRegParser _parser;
 };
@@ -55,16 +42,16 @@ TEST_F(MicroProcessorTest, Reset)
 
     card->attach(_mbus, _vbus);
     _cpu.reset();
-    _cpu.dump(_cpu.regs);
+    _cpu.dump(_regs);
 
-    EXPECT_EQ(_cpu.regs.A, 0);
-    EXPECT_EQ(_cpu.regs.X, 0);
-    EXPECT_EQ(_cpu.regs.Y, 0);
-    EXPECT_EQ(_cpu.regs.S, ::cpu::DefaultStack);
-    EXPECT_EQ(_cpu.regs.P, ::cpu::DefaultStatus);
+    EXPECT_EQ(_regs.A, 0);
+    EXPECT_EQ(_regs.X, 0);
+    EXPECT_EQ(_regs.Y, 0);
+    EXPECT_EQ(_regs.S, ::cpu::DefaultStack);
+    EXPECT_EQ(_regs.P, ::cpu::DefaultStatus);
 
     int pc = ReadOnlyMemory::RomLowerBankBase;
-    EXPECT_EQ(_cpu.regs.PC, pc);
+    EXPECT_EQ(_regs.PC, pc);
 }
 
 TEST_P(MicroProcessorTest, Instructions)
@@ -84,16 +71,17 @@ TEST_P(MicroProcessorTest, Instructions)
 
     for (int i = 0; i < _parser.size(); ++i) {
         _cpu.step();
+        _cpu.dump(_regs);
 
         auto *regs = _parser.next();
         ASSERT_NE(regs, nullptr);
 
-        ASSERT_EQ(_cpu.regs.A, regs->A) << *(_parser.code());
-        ASSERT_EQ(_cpu.regs.X, regs->X) << *(_parser.code());
-        ASSERT_EQ(_cpu.regs.Y, regs->Y) << *(_parser.code());
-        ASSERT_EQ(_cpu.regs.S, regs->S) << *(_parser.code());
-        ASSERT_EQ(_cpu.regs.P, regs->P) << *(_parser.code());
-        ASSERT_EQ(_cpu.regs.PC, regs->PC) << *(_parser.code());
+        ASSERT_EQ(_regs.A, regs->A) << *(_parser.code());
+        ASSERT_EQ(_regs.X, regs->X) << *(_parser.code());
+        ASSERT_EQ(_regs.Y, regs->Y) << *(_parser.code());
+        ASSERT_EQ(_regs.S, regs->S) << *(_parser.code());
+        ASSERT_EQ(_regs.P, regs->P) << *(_parser.code()); // TODO: code() cause segment fault
+        ASSERT_EQ(_regs.PC, regs->PC) << *(_parser.code());
     }
 }
 

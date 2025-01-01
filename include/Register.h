@@ -152,9 +152,19 @@ inline void setMSB(uint16_t &value, uint8_t msb)
     value = (uint16_t)msb << 8 | (value & 0x00ff);
 }
 
+inline void getMSB(const uint16_t &value, uint8_t &msb)
+{
+    msb = (value >> 8) & 0xff;
+}
+
 inline void setLSB(uint16_t &value, uint8_t lsb)
 {
     value = value & 0xff00 | lsb;
+}
+
+inline void getLSB(const uint16_t &value, uint8_t &lsb)
+{
+    lsb = value & 0xff;
 }
 
 inline void mergeTwoBytes(uint16_t &value, uint8_t msb, uint8_t lsb)
@@ -165,7 +175,7 @@ inline void mergeTwoBytes(uint16_t &value, uint8_t msb, uint8_t lsb)
 inline void splitTwoBytes(uint16_t value, uint8_t &msb, uint8_t &lsb)
 {
     lsb = value & 0x00ff;
-    msb = value & 0xff00 >> 8;
+    msb = (value & 0xff00) >> 8;
 }
 
 inline bool isOdd(uint16_t value)

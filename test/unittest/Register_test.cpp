@@ -17,6 +17,31 @@ TEST(BaseRegisterTest, Shift)
     EXPECT_EQ(reg.value, 0x55);
 }
 
+TEST(BaseRegisterTest, SplitMerge)
+{
+    uint16_t reg = 0xaa55;
+    uint8_t msb, lsb;
+
+    splitTwoBytes(reg, msb, lsb);
+    EXPECT_EQ(msb,  0xaa);
+    EXPECT_EQ(lsb,  0x55);
+
+    getMSB(reg, msb);
+    EXPECT_EQ(msb,  0xaa);
+
+    getLSB(reg, lsb);
+    EXPECT_EQ(lsb,  0x55);
+
+    setMSB(reg, lsb);
+    EXPECT_EQ(reg,  0x5555);
+
+    setLSB(reg, msb);
+    EXPECT_EQ(reg,  0x55aa);
+
+    mergeTwoBytes(reg, msb, lsb);
+    EXPECT_EQ(reg,  0xaa55);
+}
+
 TEST(CycleRegisterTest, Increment)
 {
     ::Cycle reg;

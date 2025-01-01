@@ -18,6 +18,7 @@ namespace cpu {
 
 // TODO: Where is this mentioned
 const uint16_t ResetVector  = 0xfffc;
+const uint16_t BreakVector  = 0xfffe;
 const uint8_t DefaultStack  = 0xfd;
 const uint8_t DefaultStatus = 0x24; // 0010 0100
 
@@ -101,15 +102,27 @@ private:
     //! Operation arithmetic 'Compare'
     inline void CMP();
 
-    inline void checkZero(uint8_t &reg);
+    /* Access Status Register */
 
-    inline void checkNegative(uint8_t &reg);
+    inline void setZero(uint8_t &reg);
 
-    inline void checkZeroNegative(uint8_t &reg);
+    inline void setNegative(uint8_t &reg);
 
-    inline void checkCarry(uint8_t reg);
+    inline void setZeroNegative(uint8_t &reg);
 
-    inline void checkOverflow(uint8_t reg);
+    inline void setCarry(uint8_t reg);
+
+    inline void setOverflow(uint8_t reg);
+
+    inline bool getZero();
+
+    inline bool getNegative();
+
+    inline bool getCarry();
+
+    inline bool getOverflow();
+
+    inline bool getDecimal();
 
 private:
 
