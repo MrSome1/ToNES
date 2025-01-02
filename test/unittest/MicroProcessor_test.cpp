@@ -73,15 +73,17 @@ TEST_P(MicroProcessorTest, Instructions)
         _cpu.step();
         _cpu.dump(_regs);
 
-        auto *regs = _parser.next();
+        auto *regs = _parser.regs();
         ASSERT_NE(regs, nullptr);
 
-        ASSERT_EQ(_regs.A, regs->A) << *(_parser.code());
-        ASSERT_EQ(_regs.X, regs->X) << *(_parser.code());
-        ASSERT_EQ(_regs.Y, regs->Y) << *(_parser.code());
-        ASSERT_EQ(_regs.S, regs->S) << *(_parser.code());
-        ASSERT_EQ(_regs.P, regs->P) << *(_parser.code()); // TODO: code() cause segment fault
-        ASSERT_EQ(_regs.PC, regs->PC) << *(_parser.code());
+        ASSERT_EQ(_regs.A, regs->A)   << _parser.code();
+        ASSERT_EQ(_regs.X, regs->X)   << _parser.code();
+        ASSERT_EQ(_regs.Y, regs->Y)   << _parser.code();
+        ASSERT_EQ(_regs.S, regs->S)   << _parser.code();
+        ASSERT_EQ(_regs.P, regs->P)   << _parser.code();
+        ASSERT_EQ(_regs.PC, regs->PC) << _parser.code();
+
+        _parser.next();
     }
 }
 

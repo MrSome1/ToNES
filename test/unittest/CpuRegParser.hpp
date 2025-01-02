@@ -6,7 +6,7 @@
 
 #include "MicroProcessor.h"
 
-#define REG_FLAG   "@REG"
+#define REG_FLAG "@REG"
 
 using Registers_t = tones::MicroProcessor::Registers_t;
 
@@ -20,14 +20,16 @@ public:
 
     size_t size() { return _regs.size(); }
 
-    const Registers_t *next()
+    void next() { ++_counter; }
+
+    const Registers_t *regs() const
     {
-        return _counter < _regs.size() ? &(_regs[_counter++]) : nullptr;
+        return _counter < _regs.size() ? &(_regs[_counter]) : nullptr;
     }
 
-    const std::string *code()
+    const char *code() const
     {
-        return _counter < _codes.size() ? &(_codes[_counter]) : nullptr;
+        return _counter < _codes.size() ? _codes[_counter].c_str() : nullptr;
     }
 
     static bool parseRegs(const std::string &str, Registers_t &reg);

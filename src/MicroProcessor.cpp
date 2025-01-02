@@ -417,16 +417,11 @@ void InstructionDecoder::JSR()
 {
     ++_cpu._reg_PC; // TODO: PC-- in 6502.txt ?
 
-    // Save the new value of PC in AB
-    reg::mergeTwoBytes(_cpu._reg_AB, _cpu._reg_DBB, _cpu._reg_DL);
-
-    // Exchange AB and PC
-    _cpu._reg_PC = _cpu._reg_PC ^ _cpu._reg_AB;
-    _cpu._reg_AB = _cpu._reg_PC ^ _cpu._reg_AB;
-    _cpu._reg_PC = _cpu._reg_PC ^ _cpu._reg_AB;
-
-    // Save the old value of PC
+    // Exchange the value of PC, with the aid of AB
+    _cpu._reg_AB = _cpu._reg_PC;
+    reg::mergeTwoBytes(_cpu._reg_PC, _cpu._reg_DBB, _cpu._reg_DL);
     reg::splitTwoBytes(_cpu._reg_AB, _cpu._reg_DBB, _cpu._reg_DL);
+
     _cpu.push();
     _cpu._reg_DBB = _cpu._reg_DL;
     _cpu.push();
