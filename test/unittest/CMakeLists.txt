@@ -1,5 +1,8 @@
 
-include_directories(${ROM_ROOT_DIR})
+include_directories(
+    ${ROM_ROOT_DIR}
+    ${PROJECT_SOURCE_DIR}/test/roms
+)
 
 macro(add_unittest NAME)
     set(TEST_NAME ${NAME}_test)

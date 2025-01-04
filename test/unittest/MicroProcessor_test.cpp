@@ -9,7 +9,7 @@
 #include "MicroProcessor.h"
 
 #include "roms.h"
-#include "CpuRegParser.hpp"
+#include "RomParser.hpp"
 
 using namespace tones;
 
@@ -25,13 +25,18 @@ protected:
         _pram.attach(_mbus);
     }
 
+    std::string hint(const RomParser::Line &line)
+    {
+        return std::string("Line ") + std::to_string(line.num) + ": " + line.code;
+    }
+
     Bus _mbus, _vbus;
     RandomAccessMemory _pram;
 
     MicroProcessor _cpu;
     MicroProcessor::Registers_t _regs;
 
-    CpuRegParser _parser;
+    RomParser _parser;
 };
 
 TEST_F(MicroProcessorTest, Reset)
@@ -73,15 +78,20 @@ TEST_P(MicroProcessorTest, Instructions)
         _cpu.step();
         _cpu.dump(_regs);
 
-        auto *regs = _parser.regs();
-        ASSERT_NE(regs, nullptr);
+        auto line = _parser.line();
 
-        ASSERT_EQ(_regs.A, regs->A)   << _parser.code();
-        ASSERT_EQ(_regs.X, regs->X)   << _parser.code();
-        ASSERT_EQ(_regs.Y, regs->Y)   << _parser.code();
-        ASSERT_EQ(_regs.S, regs->S)   << _parser.code();
-        ASSERT_EQ(_regs.P, regs->P)   << _parser.code();
-        ASSERT_EQ(_regs.PC, regs->PC) << _parser.code();
+        if (RomParser::hasRam(line)) {
+            uint8_t val;
+            _pram.read(line.ramAddr, val);
+            EXPECT_EQ(val, line.ramValue) << hint(line);
+        }
+
+        ASSERT_EQ(_regs.A, line.regs.A)   << hint(line);
+        ASSERT_EQ(_regs.X, line.regs.X)   << hint(line);
+        ASSERT_EQ(_regs.Y, line.regs.Y)   << hint(line);
+        ASSERT_EQ(_regs.S, line.regs.S)   << hint(line);
+        ASSERT_EQ(_regs.P, line.regs.P)   << hint(line);
+        ASSERT_EQ(_regs.PC, line.regs.PC) << hint(line);
 
         _parser.next();
     }

@@ -283,23 +283,9 @@ private:
     //! Run the operation
     inline void execute();
 
-    //! Load the content of memory
-    inline void load();
-
-    //! Store to memory
-    inline void save();
-
     // TODO: A better way?
     //! Execute operations of accumulate addressing mode
     inline void accumulate(void (ArithmeticAndLogicUnit::*executor)());
-
-    /* Helper Functions */
-
-    inline static bool hasOperands(const Operation_t *operation);
-
-    inline static bool needsToLoad(const Operation_t *operation);
-
-    inline static bool needsToSave(const Operation_t *operation);
 
 private:
 
@@ -443,13 +429,13 @@ private:
     uint8_t  _reg_S;  // stack pointer
     uint16_t _reg_PC; // program counter
 
+    reg::Bitwise_t _reg_P; // processor status register
+
     /* Internal Registers */
     uint8_t  _reg_IR;  // instruction register
     uint8_t  _reg_DL;  // data latch
     uint8_t  _reg_DBB; // data bus buffer
     uint16_t _reg_AB;  // adress buffer
-
-    reg::Bitwise_t _reg_P; // processor status register
 
     cpu::InstructionDecoder _decoder;
     cpu::ArithmeticAndLogicUnit _alu;

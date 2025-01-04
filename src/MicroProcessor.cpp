@@ -189,18 +189,6 @@ inline void InstructionDecoder::execute()
     (this->*(_operation->type->executor))();
 }
 
-inline void InstructionDecoder::load()
-{
-    if (hasOperands(_operation) && needsToLoad(_operation))
-        _cpu.read();
-}
-
-inline void InstructionDecoder::save()
-{
-    if (hasOperands(_operation) && needsToSave(_operation))
-        _cpu.write();
-}
-
 inline void InstructionDecoder::accumulate(void (ArithmeticAndLogicUnit::*executor)())
 {
     if (cpu::code::Accumulator == _operation->mode->kind) {
@@ -227,6 +215,7 @@ void InstructionDecoder::AND()
 void InstructionDecoder::ASL()
 {
     accumulate(&ArithmeticAndLogicUnit::ASL);
+    _cpu.write();
 }
 
 void InstructionDecoder::BCC()
@@ -366,6 +355,8 @@ void InstructionDecoder::DEC()
     _cpu._reg_A = _cpu._reg_DBB;
     _alu.DEC();
     _cpu._reg_DBB = _cpu._reg_A;
+
+    _cpu.write();
 }
 
 void InstructionDecoder::DEX()
@@ -392,6 +383,8 @@ void InstructionDecoder::INC()
     _cpu._reg_A = _cpu._reg_DBB;
     _alu.INC();
     _cpu._reg_DBB = _cpu._reg_A;
+
+    _cpu.write();
 }
 
 void InstructionDecoder::INX()
@@ -448,6 +441,7 @@ void InstructionDecoder::LDY()
 void InstructionDecoder::LSR()
 {
     accumulate(&ArithmeticAndLogicUnit::LSR);
+    _cpu.write();
 }
 
 void InstructionDecoder::NOP()
@@ -488,11 +482,13 @@ void InstructionDecoder::PLP()
 void InstructionDecoder::ROL()
 {
     accumulate(&ArithmeticAndLogicUnit::ROL);
+    _cpu.write();
 }
 
 void InstructionDecoder::ROR()
 {
     accumulate(&ArithmeticAndLogicUnit::ROR);
+    _cpu.write();
 }
 
 void InstructionDecoder::RTI()
@@ -533,16 +529,19 @@ void InstructionDecoder::SEI()
 void InstructionDecoder::STA()
 {
     _cpu._reg_DBB = _cpu._reg_A;
+    _cpu.write();
 }
 
 void InstructionDecoder::STX()
 {
     _cpu._reg_DBB = _cpu._reg_X;
+    _cpu.write();
 }
 
 void InstructionDecoder::STY()
 {
     _cpu._reg_DBB = _cpu._reg_Y;
+    _cpu.write();
 }
 
 void InstructionDecoder::TAX()
@@ -578,21 +577,6 @@ void InstructionDecoder::TYA()
 {
     _alu.setZeroNegative(_cpu._reg_Y);
     _cpu._reg_A = _cpu._reg_Y;
-}
-
-inline bool InstructionDecoder::hasOperands(const Operation_t *operation)
-{
-    return operation->mode->operands;
-}
-
-inline bool InstructionDecoder::needsToLoad(const Operation_t *operation)
-{
-    return operation->type->kind & InstructionReadMask;
-}
-
-inline bool InstructionDecoder::needsToSave(const Operation_t *operation)
-{
-    return operation->type->kind & InstructionWriteMask;
 }
 
 } // namespace cpu
@@ -662,10 +646,7 @@ void MicroProcessor::_tick()
     // Fetch oprands
     fetch();
 
-    // Execute
-    _decoder.load();
     _decoder.execute();
-    _decoder.save();
 }
 
 inline void MicroProcessor::read()
@@ -714,32 +695,38 @@ void MicroProcessor::fetchAbsolute()
 {
     fetchTwo();
     reg::mergeTwoBytes(_reg_AB, _reg_DBB, _reg_DL);
+    read();
 }
 
 void MicroProcessor::fetchZeroPage()
 {
     fetchOne();
     _reg_AB = _reg_DBB;
+    read();
 }
 
 void MicroProcessor::fetchIndexedZeroPageX()
 {
     fetchIndexedZeroPage(_reg_X);
+    read();
 }
 
 void MicroProcessor::fetchIndexedZeroPageY()
 {
     fetchIndexedZeroPage(_reg_Y);
+    read();
 }
 
 void MicroProcessor::fetchIndexedAbsoluteX()
 {
     fetchIndexedAbsolute(_reg_X);
+    read();
 }
 
 void MicroProcessor::fetchIndexedAbsoluteY()
 {
     fetchIndexedAbsolute(_reg_Y);
+    read();
 }
 
 void MicroProcessor::fetchRelative()
@@ -762,6 +749,7 @@ void MicroProcessor::fetchIndexedIndirect()
     read();
 
     reg::mergeTwoBytes(_reg_AB, _reg_DBB, _reg_DL);
+    read();
 }
 
 void MicroProcessor::fetchIndirectIndexed()
@@ -780,6 +768,7 @@ void MicroProcessor::fetchIndirectIndexed()
 
     reg::mergeTwoBytes(_reg_AB, _reg_DBB, _reg_DL);
     _reg_AB += _reg_Y;
+    read();
 }
 
 void MicroProcessor::fetchAbsoluteIndirect()
@@ -797,6 +786,7 @@ void MicroProcessor::fetchAbsoluteIndirect()
     read();
 
     reg::mergeTwoBytes(_reg_AB, _reg_DBB, _reg_DL);
+    read();
 }
 
 inline void MicroProcessor::popTwo()

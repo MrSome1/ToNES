@@ -26,6 +26,11 @@ inline QString toHexString(uint8_t byte)
     return QString("%1").arg(byte, 2, 16, HexPrefix);
 }
 
+inline QString toHexString(uint16_t num)
+{
+    return QString("%1").arg(num, 4, 16, HexPrefix);
+}
+
 Simulator::Simulator(QWidget *parent)
     : QMainWindow(parent)
     , _ui(new Ui::MainWindow)

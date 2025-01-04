@@ -25,77 +25,77 @@ const AddressingMode_t INVALID = { &MicroProcessor::fetchNull, code::Implied, 0,
 
 /* Instructions */
 
-const Instruction_t ADC = { &InstructionDecoder::ADC, code::ADC, code::R , "ADC" };
-const Instruction_t AND = { &InstructionDecoder::AND, code::AND, code::R , "AND" };
-const Instruction_t ASL = { &InstructionDecoder::ASL, code::ASL, code::RW, "ASL" };
+const Instruction_t ADC = { &InstructionDecoder::ADC, code::ADC, "ADC" };
+const Instruction_t AND = { &InstructionDecoder::AND, code::AND, "AND" };
+const Instruction_t ASL = { &InstructionDecoder::ASL, code::ASL, "ASL" };
 
-const Instruction_t BCC = { &InstructionDecoder::BCC, code::BCC, code::R , "BCC" };
-const Instruction_t BCS = { &InstructionDecoder::BCS, code::BCS, code::R , "BCS" };
-const Instruction_t BEQ = { &InstructionDecoder::BEQ, code::BEQ, code::R , "BEQ" };
-const Instruction_t BIT = { &InstructionDecoder::BIT, code::BIT, code::R , "BIT" };
-const Instruction_t BMI = { &InstructionDecoder::BMI, code::BMI, code::R , "BMI" };
-const Instruction_t BNE = { &InstructionDecoder::BNE, code::BNE, code::R , "BNE" };
-const Instruction_t BPL = { &InstructionDecoder::BPL, code::BPL, code::R , "BPL" };
-const Instruction_t BRK = { &InstructionDecoder::BRK, code::BRK, code::NO, "BRK" };
-const Instruction_t BVC = { &InstructionDecoder::BVC, code::BVC, code::R , "BVC" };
-const Instruction_t BVS = { &InstructionDecoder::BVS, code::BVS, code::R , "BVS" };
+const Instruction_t BCC = { &InstructionDecoder::BCC, code::BCC, "BCC" };
+const Instruction_t BCS = { &InstructionDecoder::BCS, code::BCS, "BCS" };
+const Instruction_t BEQ = { &InstructionDecoder::BEQ, code::BEQ, "BEQ" };
+const Instruction_t BIT = { &InstructionDecoder::BIT, code::BIT, "BIT" };
+const Instruction_t BMI = { &InstructionDecoder::BMI, code::BMI, "BMI" };
+const Instruction_t BNE = { &InstructionDecoder::BNE, code::BNE, "BNE" };
+const Instruction_t BPL = { &InstructionDecoder::BPL, code::BPL, "BPL" };
+const Instruction_t BRK = { &InstructionDecoder::BRK, code::BRK, "BRK" };
+const Instruction_t BVC = { &InstructionDecoder::BVC, code::BVC, "BVC" };
+const Instruction_t BVS = { &InstructionDecoder::BVS, code::BVS, "BVS" };
 
-const Instruction_t CLC = { &InstructionDecoder::CLC, code::CLC, code::NO, "CLC" };
-const Instruction_t CLD = { &InstructionDecoder::CLD, code::CLD, code::NO, "CLD" };
-const Instruction_t CLI = { &InstructionDecoder::CLI, code::CLI, code::NO, "CLI" };
-const Instruction_t CLV = { &InstructionDecoder::CLV, code::CLV, code::NO, "CLV" };
-const Instruction_t CMP = { &InstructionDecoder::CMP, code::CMP, code::R , "CMP" };
-const Instruction_t CPX = { &InstructionDecoder::CPX, code::CPX, code::R , "CPX" };
-const Instruction_t CPY = { &InstructionDecoder::CPY, code::CPY, code::R , "CPY" };
+const Instruction_t CLC = { &InstructionDecoder::CLC, code::CLC, "CLC" };
+const Instruction_t CLD = { &InstructionDecoder::CLD, code::CLD, "CLD" };
+const Instruction_t CLI = { &InstructionDecoder::CLI, code::CLI, "CLI" };
+const Instruction_t CLV = { &InstructionDecoder::CLV, code::CLV, "CLV" };
+const Instruction_t CMP = { &InstructionDecoder::CMP, code::CMP, "CMP" };
+const Instruction_t CPX = { &InstructionDecoder::CPX, code::CPX, "CPX" };
+const Instruction_t CPY = { &InstructionDecoder::CPY, code::CPY, "CPY" };
 
-const Instruction_t DEC = { &InstructionDecoder::DEC, code::DEC, code::RW, "DEC" };
-const Instruction_t DEX = { &InstructionDecoder::DEX, code::DEX, code::NO, "DEX" };
-const Instruction_t DEY = { &InstructionDecoder::DEY, code::DEY, code::NO, "DEY" };
+const Instruction_t DEC = { &InstructionDecoder::DEC, code::DEC, "DEC" };
+const Instruction_t DEX = { &InstructionDecoder::DEX, code::DEX, "DEX" };
+const Instruction_t DEY = { &InstructionDecoder::DEY, code::DEY, "DEY" };
 
-const Instruction_t EOR = { &InstructionDecoder::EOR, code::EOR, code::R , "EOR" };
+const Instruction_t EOR = { &InstructionDecoder::EOR, code::EOR, "EOR" };
 
-const Instruction_t INC = { &InstructionDecoder::INC, code::INC, code::RW, "INC" };
-const Instruction_t INX = { &InstructionDecoder::INX, code::INX, code::NO, "INX" };
-const Instruction_t INY = { &InstructionDecoder::INY, code::INY, code::NO, "INY" };
+const Instruction_t INC = { &InstructionDecoder::INC, code::INC, "INC" };
+const Instruction_t INX = { &InstructionDecoder::INX, code::INX, "INX" };
+const Instruction_t INY = { &InstructionDecoder::INY, code::INY, "INY" };
 
-const Instruction_t JMP = { &InstructionDecoder::JMP, code::JMP, code::R , "JMP" };
-const Instruction_t JSR = { &InstructionDecoder::JSR, code::JSR, code::R , "JSR" };
+const Instruction_t JMP = { &InstructionDecoder::JMP, code::JMP, "JMP" };
+const Instruction_t JSR = { &InstructionDecoder::JSR, code::JSR, "JSR" };
 
-const Instruction_t LDA = { &InstructionDecoder::LDA, code::LDA, code::R , "LDA" };
-const Instruction_t LDX = { &InstructionDecoder::LDX, code::LDX, code::R , "LDX" };
-const Instruction_t LDY = { &InstructionDecoder::LDY, code::LDY, code::R , "LDY" };
-const Instruction_t LSR = { &InstructionDecoder::LSR, code::LSR, code::RW, "LSR" };
+const Instruction_t LDA = { &InstructionDecoder::LDA, code::LDA, "LDA" };
+const Instruction_t LDX = { &InstructionDecoder::LDX, code::LDX, "LDX" };
+const Instruction_t LDY = { &InstructionDecoder::LDY, code::LDY, "LDY" };
+const Instruction_t LSR = { &InstructionDecoder::LSR, code::LSR, "LSR" };
 
-const Instruction_t NOP = { &InstructionDecoder::NOP, code::NOP, code::NO, "NOP" };
+const Instruction_t NOP = { &InstructionDecoder::NOP, code::NOP, "NOP" };
 
-const Instruction_t ORA = { &InstructionDecoder::ORA, code::ORA, code::R , "ORA" };
+const Instruction_t ORA = { &InstructionDecoder::ORA, code::ORA, "ORA" };
 
-const Instruction_t PHA = { &InstructionDecoder::PHA, code::PHA, code::NO, "PHA" };
-const Instruction_t PHP = { &InstructionDecoder::PHP, code::PHP, code::NO, "PHP" };
-const Instruction_t PLA = { &InstructionDecoder::PLA, code::PLA, code::NO, "PLA" };
-const Instruction_t PLP = { &InstructionDecoder::PLP, code::PLP, code::NO, "PLP" };
+const Instruction_t PHA = { &InstructionDecoder::PHA, code::PHA, "PHA" };
+const Instruction_t PHP = { &InstructionDecoder::PHP, code::PHP, "PHP" };
+const Instruction_t PLA = { &InstructionDecoder::PLA, code::PLA, "PLA" };
+const Instruction_t PLP = { &InstructionDecoder::PLP, code::PLP, "PLP" };
 
-const Instruction_t ROL = { &InstructionDecoder::ROL, code::ROL, code::RW, "ROL" };
-const Instruction_t ROR = { &InstructionDecoder::ROR, code::ROR, code::RW, "ROR" };
-const Instruction_t RTI = { &InstructionDecoder::RTI, code::RTI, code::NO, "RTI" };
-const Instruction_t RTS = { &InstructionDecoder::RTS, code::RTS, code::NO, "RTS" };
+const Instruction_t ROL = { &InstructionDecoder::ROL, code::ROL, "ROL" };
+const Instruction_t ROR = { &InstructionDecoder::ROR, code::ROR, "ROR" };
+const Instruction_t RTI = { &InstructionDecoder::RTI, code::RTI, "RTI" };
+const Instruction_t RTS = { &InstructionDecoder::RTS, code::RTS, "RTS" };
 
-const Instruction_t SBC = { &InstructionDecoder::SBC, code::SBC, code::R , "SBC" };
-const Instruction_t SEC = { &InstructionDecoder::SEC, code::SEC, code::NO, "SEC" };
-const Instruction_t SED = { &InstructionDecoder::SED, code::SED, code::NO, "SED" };
-const Instruction_t SEI = { &InstructionDecoder::SEI, code::SEI, code::NO, "SEI" };
-const Instruction_t STA = { &InstructionDecoder::STA, code::STA, code::W , "STA" };
-const Instruction_t STX = { &InstructionDecoder::STX, code::STX, code::W , "STX" };
-const Instruction_t STY = { &InstructionDecoder::STY, code::STY, code::W , "STY" };
+const Instruction_t SBC = { &InstructionDecoder::SBC, code::SBC, "SBC" };
+const Instruction_t SEC = { &InstructionDecoder::SEC, code::SEC, "SEC" };
+const Instruction_t SED = { &InstructionDecoder::SED, code::SED, "SED" };
+const Instruction_t SEI = { &InstructionDecoder::SEI, code::SEI, "SEI" };
+const Instruction_t STA = { &InstructionDecoder::STA, code::STA, "STA" };
+const Instruction_t STX = { &InstructionDecoder::STX, code::STX, "STX" };
+const Instruction_t STY = { &InstructionDecoder::STY, code::STY, "STY" };
 
-const Instruction_t TAX = { &InstructionDecoder::TAX, code::TAX, code::NO, "TAX" };
-const Instruction_t TAY = { &InstructionDecoder::TAY, code::TAY, code::NO, "TAY" };
-const Instruction_t TSX = { &InstructionDecoder::TSX, code::TSX, code::NO, "TSX" };
-const Instruction_t TXA = { &InstructionDecoder::TXA, code::TXA, code::NO, "TXA" };
-const Instruction_t TXS = { &InstructionDecoder::TXS, code::TXS, code::NO, "TXS" };
-const Instruction_t TYA = { &InstructionDecoder::TYA, code::TYA, code::NO, "TYA" };
+const Instruction_t TAX = { &InstructionDecoder::TAX, code::TAX, "TAX" };
+const Instruction_t TAY = { &InstructionDecoder::TAY, code::TAY, "TAY" };
+const Instruction_t TSX = { &InstructionDecoder::TSX, code::TSX, "TSX" };
+const Instruction_t TXA = { &InstructionDecoder::TXA, code::TXA, "TXA" };
+const Instruction_t TXS = { &InstructionDecoder::TXS, code::TXS, "TXS" };
+const Instruction_t TYA = { &InstructionDecoder::TYA, code::TYA, "TYA" };
 
-const Instruction_t UNKNOWN = { &InstructionDecoder::NOP, code::NOP, code::NO, "NIL"};
+const Instruction_t UNKNOWN = { &InstructionDecoder::NOP, code::NOP, "NIL"};
 
 /* Operations */
 

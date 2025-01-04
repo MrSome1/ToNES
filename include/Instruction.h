@@ -65,92 +65,77 @@ typedef enum AddressingKind {
     AbsoluteIndirect, // Indirect  
 } AddressingKind_t;
 
-/* Read and Write Mode
- *
- * This means if an instruction needs to read from or
- * write to the main memory. This is specific for each
- * instruction actually, so this mode was not defined
- * explicitly in the 6502 manual, defined it here just
- * for decoding the instructions conveniently
- */
-typedef enum ReadWriteMode {
-    NO,
-    R,
-    W,
-    RW
-} ReadWriteMode_t;
-
 /* Instructions */
 typedef enum InstructionKind {
-    ADC, // Add Memory to Accumulator with Carry
-    AND, // 'AND' Memory with Accumulator
-    ASL, // Shift Left One Bit (Memory or Accumulator)
+    ADC, // R   Add Memory to Accumulator with Carry
+    AND, // R   'AND' Memory with Accumulator
+    ASL, // RW  Shift Left One Bit (Memory or Accumulator)
 
-    BCC, // Branch on Carry Clear
-    BCS, // Branch on Carry Set
-    BEQ, // Branch on Result Zero
-    BIT, // Test Bits in Memory with Accumulator
-    BMI, // Branch on Result Minus
-    BNE, // Branch on Result not Zero
-    BPL, // Branch on Result Plus
-    BRK, // Force Break
-    BVC, // Branch on Overflow Clear
-    BVS, // Branch on Overflow Set
+    BCC, // R   Branch on Carry Clear
+    BCS, // R   Branch on Carry Set
+    BEQ, // R   Branch on Result Zero
+    BIT, // R   Test Bits in Memory with Accumulator
+    BMI, // R   Branch on Result Minus
+    BNE, // R   Branch on Result not Zero
+    BPL, // R   Branch on Result Plus
+    BRK, // -   Force Break
+    BVC, // R   Branch on Overflow Clear
+    BVS, // R   Branch on Overflow Set
 
-    CLC, // Clear Carry Flag
-    CLD, // Clear Decimal Mode
-    CLI, // Clear Interrupt Disable Bit
-    CLV, // Clear Overflow Flag
-    CMP, // Compare Memory and Accumulator
-    CPX, // Compare Memory and Index X
-    CPY, // Compare Memory and Index Y
+    CLC, // -   Clear Carry Flag
+    CLD, // -   Clear Decimal Mode
+    CLI, // -   Clear Interrupt Disable Bit
+    CLV, // -   Clear Overflow Flag
+    CMP, // R   Compare Memory and Accumulator
+    CPX, // R   Compare Memory and Index X
+    CPY, // R   Compare Memory and Index Y
 
-    DEC, // Decrement Memory by One
-    DEX, // Decrement Index X by One
-    DEY, // Decrement Index Y by One
+    DEC, // RW  Decrement Memory by One
+    DEX, // -   Decrement Index X by One
+    DEY, // -   Decrement Index Y by One
 
-    EOR, // 'Exclusive OR' with Accumulator
+    EOR, // R   'Exclusive OR' with Accumulator
 
-    INC, // Increment Memory by One
-    INX, // Increment Index X by One
-    INY, // Increment Index Y by One
+    INC, // RW  Increment Memory by One
+    INX, // -   Increment Index X by One
+    INY, // -   Increment Index Y by One
 
-    JMP, // Jump to New Location
-    JSR, // Jump to New Location Saving Return Address
+    JMP, // R   Jump to New Location
+    JSR, // R   Jump to New Location Saving Return Address
 
-    LDA, // Load Accumulator with Memory
-    LDX, // Load Index X with Memory
-    LDY, // Load Index Y with Memory
-    LSR, // Shift One Bit Right (Memory or Accumulator)
+    LDA, // R   Load Accumulator with Memory
+    LDX, // R   Load Index X with Memory
+    LDY, // R   Load Index Y with Memory
+    LSR, // RW  Shift One Bit Right (Memory or Accumulator)
 
-    NOP, // No Operation
+    NOP, // -   No Operation
 
-    ORA, // 'OR' Memory with Accumulator
+    ORA, // R   'OR' Memory with Accumulator
 
-    PHA, // Push Accumulator on Stack
-    PHP, // Push Processor Status on Stack
-    PLA, // Pull Accumulator from Stack
-    PLP, // Pull Processor Status on Stack
+    PHA, // -   Push Accumulator on Stack
+    PHP, // -   Push Processor Status on Stack
+    PLA, // -   Pull Accumulator from Stack
+    PLP, // -   Pull Processor Status on Stack
 
-    ROL, // Rotate one Bit Left (Memory or Accumulator)
-    ROR, // Rotate one Bit Right (Memory or Accumulator)
-    RTI, // Return from Interrupt
-    RTS, // Return from Subroutine
+    ROL, // RW  Rotate one Bit Left (Memory or Accumulator)
+    ROR, // RW  Rotate one Bit Right (Memory or Accumulator)
+    RTI, // -   Return from Interrupt
+    RTS, // -   Return from Subroutine
 
-    SBC, // Subtract Memory from Accumulator with Borrow
-    SEC, // Set Carry Flag
-    SED, // Set Decimal Mode
-    SEI, // Set Interrupt Disable Status
-    STA, // Store Accumulator in Memory
-    STX, // Store Index X in Memory
-    STY, // Store Index Y in Memory
+    SBC, // R   Subtract Memory from Accumulator with Borrow
+    SEC, // -   Set Carry Flag
+    SED, // -   Set Decimal Mode
+    SEI, // -   Set Interrupt Disable Status
+    STA, // W   Store Accumulator in Memory
+    STX, // W   Store Index X in Memory
+    STY, // W   Store Index Y in Memory
 
-    TAX, // Transfer Accumulator to Index X
-    TAY, // Transfer Accumulator to Index Y
-    TSX, // Transfer Stack Pointer to Index X
-    TXA, // Transfer Index X to Accumulator
-    TXS, // Transfer Index X to Stack Register
-    TYA, // Transfer Index Y to Accumulator
+    TAX, // -   Transfer Accumulator to Index X
+    TAY, // -   Transfer Accumulator to Index Y
+    TSX, // -   Transfer Stack Pointer to Index X
+    TXA, // -   Transfer Index X to Accumulator
+    TXS, // -   Transfer Index X to Stack Register
+    TYA, // -   Transfer Index Y to Accumulator
 } InstructionKind_t;
 
 } // namespace code
@@ -167,7 +152,6 @@ typedef struct AddressingMode {
 typedef struct Instruction {
     void (InstructionDecoder::*executor)();
     const code::InstructionKind_t kind;
-    const code::ReadWriteMode_t mode;
     const char* const name;
 } Instruction_t;
 
