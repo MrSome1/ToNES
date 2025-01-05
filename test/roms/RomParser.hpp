@@ -25,7 +25,9 @@ public:
         int ramAddr;
         int ramValue;
 
-        Line() : num(0), ramAddr(-1), ramValue(-1) {}
+        Line() : num(0), ramAddr(-1) {}
+
+        Line(int n, const std::string &s) : num(n), code(s), ramAddr(-1) {}
     };
 
     RomParser() : _line(_lines.end()) {}
@@ -70,18 +72,12 @@ void RomParser::load(const std::string &filepath)
     while (std::getline(file, line)) {
         ++num;
 
-        if (line.empty())
-            continue;
-
         auto flag = line.find(REG_FLAG);
         if (std::string::npos == flag)
             continue;
 
-        Line l;
-        if (parseReg(line.substr(flag), l.regs)) {
-            l.num = num;
-            l.code = line.substr(0, flag);
-        }
+        Line l(num, line.substr(0, flag));
+        parseReg(line.substr(flag), l.regs);
 
         flag = line.find(RAM_FLAG);
         if (std::string::npos != flag) {
@@ -110,7 +106,7 @@ void RomParser::parseRam(const std::string &str, int &ramAddr, int &ramValue)
 {
     uint16_t addr;
     uint8_t value;
-    if (2 == sscanf(str.c_str(), RAM_FLAG " Addr=0x%hx Value=0x%hhx", &addr, &value)) {
+    if (2 == sscanf(str.c_str(), RAM_FLAG " 0x%hx 0x%hhx", &addr, &value)) {
         ramAddr = addr;
         ramValue = value;
     }

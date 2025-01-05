@@ -104,11 +104,11 @@ private:
 
     /* Access Status Register */
 
-    inline void setZero(uint8_t &reg);
+    inline void setZero(uint8_t reg);
 
-    inline void setNegative(uint8_t &reg);
+    inline void setNegative(uint8_t reg);
 
-    inline void setZeroNegative(uint8_t &reg);
+    inline void setZeroNegative(uint8_t reg);
 
     inline void setCarry(uint8_t reg);
 

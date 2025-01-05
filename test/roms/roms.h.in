@@ -1,4 +1,6 @@
 
+#include <string>
+
 #define ROM_ROOT_DIR "@ROM_ROOT_DIR@/"
 
 const char *ROM_SRC_EXT = ".asm";
@@ -18,7 +20,9 @@ inline const std::string getRomBin(const std::string &rom)
 
 const char *ROM_NOP = "nop";
 const char *ROM_LOAD = "load";
+const char *ROM_STACK = "stack";
 const char *ROM_STATUS = "status";
+const char *ROM_BRANCH = "branch";
 const char *ROM_TRANSFER = "transfer";
 const char *ROM_ARITHMETIC = "arithmetic";
 const char *ROM_LOGIC = "logic";

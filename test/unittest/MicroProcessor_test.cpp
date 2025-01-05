@@ -25,9 +25,9 @@ protected:
         _pram.attach(_mbus);
     }
 
-    std::string hint(const RomParser::Line &line)
+    const std::string hint(const RomParser::Line &line)
     {
-        return std::string("Line ") + std::to_string(line.num) + ": " + line.code;
+        return "Line " + std::to_string(line.num) + ": " + line.code;
     }
 
     Bus _mbus, _vbus;
@@ -102,7 +102,9 @@ INSTANTIATE_TEST_SUITE_P(BasicTest,
                          testing::Values(
                             ROM_NOP,
                             ROM_LOAD,
+                            ROM_STACK,
                             ROM_STATUS,
+                            ROM_BRANCH,
                             ROM_TRANSFER,
                             ROM_ARITHMETIC,
                             ROM_LOGIC

@@ -117,17 +117,17 @@ void ArithmeticAndLogicUnit::CMP()
     setZeroNegative(_reg_A);
 }
 
-inline void ArithmeticAndLogicUnit::setZero(uint8_t &reg)
+inline void ArithmeticAndLogicUnit::setZero(uint8_t reg)
 {
     SET_BIT(_reg_P, StatusBit::Z, !reg);
 }
 
-inline void ArithmeticAndLogicUnit::setNegative(uint8_t &reg)
+inline void ArithmeticAndLogicUnit::setNegative(uint8_t reg)
 {
     SET_BIT(_reg_P, StatusBit::N, reg & 0x80);
 }
 
-inline void ArithmeticAndLogicUnit::setZeroNegative(uint8_t &reg)
+inline void ArithmeticAndLogicUnit::setZeroNegative(uint8_t reg)
 {
     setZero(reg);
     setNegative(reg);
@@ -244,8 +244,9 @@ void InstructionDecoder::BEQ()
 
 void InstructionDecoder::BIT()
 {
-    _alu.setZeroNegative(_cpu._reg_DBB);
-    _alu.setOverflow(_cpu._reg_DBB & 0x40); // TODO: ???
+    _alu.setNegative(_cpu._reg_DBB);
+    _alu.setOverflow(_cpu._reg_DBB & 0x40);
+    _alu.setZero(_cpu._reg_DBB & _cpu._reg_A);
 }
 
 void InstructionDecoder::BMI()
@@ -673,8 +674,7 @@ inline void MicroProcessor::pop()
 
 inline void MicroProcessor::branch()
 {
-    read(); // TODO: Need this read ?
-    _reg_PC += _reg_DBB;
+    _reg_PC += (int8_t)_reg_DBB;
 }
 
 inline void MicroProcessor::fetch()
