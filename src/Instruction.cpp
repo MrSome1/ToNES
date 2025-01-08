@@ -116,7 +116,7 @@ const Operation_t BRK_IMP = { &BRK, &IMP, 7};
 const Operation_t JSR_ABS = { &JSR, &ABS, 6};
 
 // RTI - 0100 0000
-const Operation_t RTI_IMP = { &BRK, &IMP, 6};
+const Operation_t RTI_IMP = { &RTI, &IMP, 6};
 
 // RTS - 0110 0000
 const Operation_t RTS_IMP = { &RTS, &IMP, 6};

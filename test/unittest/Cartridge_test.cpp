@@ -41,7 +41,7 @@ INSTANTIATE_TEST_SUITE_P(InvalidPathTest,
 TEST_F(CartridgeTest, iNES)
 {
     uint8_t buffer;
-    std::string filepath = getRomBin(ROM_NOP);
+    std::string filepath = getRomBin(ROM_JUMP);
 
     auto card = CartridgeFactory::createCartridge(filepath);
     ASSERT_NE(card, nullptr);

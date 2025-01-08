@@ -143,19 +143,111 @@ class InstructionDecoder
 
 public:
 
-    /* No Operation */
+    /* Load & Store */
 
-    void NOP();
+    void LDA();
 
-    /* Routine Instructions */
+    void LDX();
 
-    void BRK();
+    void LDY();
+
+    void STA();
+
+    void STX();
+
+    void STY();
+
+    /* Register Transfers */
+
+    void TAX();
+
+    void TAY();
+
+    void TXA();
+
+    void TYA();
+
+    /* Stack Instructions */
+
+    void PHA();
+
+    void PHP();
+
+    void PLA();
+
+    void PLP();
+
+    void TSX();
+
+    void TXS();
+
+    /* Status Instructions */
+
+    void CLC();
+
+    void CLD();
+
+    void CLI();
+
+    void CLV();
+
+    void SEC();
+
+    void SED();
+
+    void SEI();
+
+    /* Shift Instructions */
+
+    void ASL();
+
+    void LSR();
+
+    void ROL();
+
+    void ROR();
+
+    /* Increments & Decrements */
+
+    void DEC();
+
+    void DEX();
+
+    void DEY();
+
+    void INC();
+
+    void INX();
+
+    void INY();
+
+    /* Logical Instructions */
+
+    void AND();
+
+    void EOR();
+
+    void ORA();
+
+    void BIT();
+
+    /* Arithmetic Instructions */
+
+    void ADC();
+
+    void SBC();
+
+    void CMP();
+
+    void CPX();
+
+    void CPY();
+
+    /* Jumps & Calls */
 
     void JMP();
 
     void JSR();
-
-    void RTI();
 
     void RTS();
 
@@ -177,101 +269,13 @@ public:
 
     void BVS();
 
-    /* Stack Instructions */
+    /* System Functions */
 
-    void PHA();
+    void BRK();
 
-    void PHP();
+    void NOP();
 
-    void PLA();
-
-    void PLP();
-
-    /* Status Instructions */
-
-    void BIT();
-
-    void CLC();
-
-    void CLD();
-
-    void CLI();
-
-    void CLV();
-
-    void SEC();
-
-    void SED();
-
-    void SEI();
-
-    /* Load & Save Instructions */
-
-    void LDA();
-
-    void LDX();
-
-    void LDY();
-
-    void STA();
-
-    void STX();
-
-    void STY();
-
-    /* Transfer Instructions */
-
-    void TAX();
-
-    void TAY();
-
-    void TSX();
-
-    void TXA();
-
-    void TXS();
-
-    void TYA();
-
-    /* Arithmetic Instructions */
-
-    void ADC();
-
-    void CMP();
-
-    void CPX();
-
-    void CPY();
-
-    void DEC();
-
-    void DEX();
-
-    void DEY();
-
-    void INC();
-
-    void INX();
-
-    void INY();
-
-    void SBC();
-
-    /* Logic Instructions */
-
-    void AND();
-
-    void ASL();
-
-    void EOR();
-
-    void LSR();
-
-    void ORA();
-
-    void ROL();
-
-    void ROR();
+    void RTI();
 
 private:
 

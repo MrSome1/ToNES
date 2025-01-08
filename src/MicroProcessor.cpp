@@ -82,7 +82,6 @@ void ArithmeticAndLogicUnit::EOR()
 void ArithmeticAndLogicUnit::ADC()
 {
     // TODO: Without tmp?
-    // TODO: check 6502.txt
     uint16_t tmp = _reg_A + _reg_DBB + (getCarry() ? 1 : 0);
     if (getDecimal()) { // desimal mode
         // TODO
@@ -98,6 +97,7 @@ void ArithmeticAndLogicUnit::ADC()
 void ArithmeticAndLogicUnit::SBC()
 {
     // TODO: Without tmp?
+    // TODO: check 6502.txt
     uint16_t tmp = _reg_A - _reg_DBB + (getCarry() ? 1 : 0);
     if (getDecimal()) { // desimal mode
         // TODO
@@ -276,9 +276,7 @@ void InstructionDecoder::BPL()
 
 void InstructionDecoder::BRK()
 {
-    // TODO: ???
-    ++_cpu._reg_PC;
-
+    // TODO: 6502.txt says that PC++ ???
     // Save register PC to the stack
     reg::getMSB(_cpu._reg_PC, _cpu._reg_DBB);
     _cpu.push();
@@ -490,7 +488,7 @@ void InstructionDecoder::RTI()
     _cpu.pop();
     _cpu._reg_P = _cpu._reg_DBB;
     _cpu.popTwo();
-    JMP();
+    reg::mergeTwoBytes(_cpu._reg_PC, _cpu._reg_DBB, _cpu._reg_DL);
 }
 
 void InstructionDecoder::RTS()

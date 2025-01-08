@@ -100,7 +100,6 @@ TEST_P(MicroProcessorTest, Instructions)
 INSTANTIATE_TEST_SUITE_P(BasicTest,
                          MicroProcessorTest,
                          testing::Values(
-                            ROM_NOP,
                             ROM_LOAD,
                             ROM_STACK,
                             ROM_STATUS,
@@ -108,7 +107,8 @@ INSTANTIATE_TEST_SUITE_P(BasicTest,
                             ROM_BRANCH,
                             ROM_JUMP,
                             ROM_LOGIC,
-                            ROM_ARITHMETIC
+                            ROM_ARITHMETIC,
+                            ROM_INTERRUPT
                         ));
 
 int main(int argc, char **argv)
