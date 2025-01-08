@@ -19,14 +19,14 @@ ArithmeticAndLogicUnit::ArithmeticAndLogicUnit(tones::MicroProcessor &cpu)
 
 void ArithmeticAndLogicUnit::INC()
 {
-    ++_reg_A;
-    setZeroNegative(_reg_A);
+    ++_reg_DBB; // TODO: Register A change or not?
+    setZeroNegative(_reg_DBB);
 }
 
 void ArithmeticAndLogicUnit::DEC()
 {
-    --_reg_A;
-    setZeroNegative(_reg_A);
+    --_reg_DBB; // TODO: Register A change or not?
+    setZeroNegative(_reg_DBB);
 }
 
 void ArithmeticAndLogicUnit::ASL()
@@ -82,6 +82,7 @@ void ArithmeticAndLogicUnit::EOR()
 void ArithmeticAndLogicUnit::ADC()
 {
     // TODO: Without tmp?
+    // TODO: check 6502.txt
     uint16_t tmp = _reg_A + _reg_DBB + (getCarry() ? 1 : 0);
     if (getDecimal()) { // desimal mode
         // TODO
@@ -97,14 +98,14 @@ void ArithmeticAndLogicUnit::ADC()
 void ArithmeticAndLogicUnit::SBC()
 {
     // TODO: Without tmp?
-    uint16_t tmp = _reg_A - _reg_DBB - (getCarry() ? 0 : 1);
+    uint16_t tmp = _reg_A - _reg_DBB + (getCarry() ? 1 : 0);
     if (getDecimal()) { // desimal mode
         // TODO
     } else { // hex mode
         // TODO: Signed overflow ???
         setOverflow((_reg_A ^ tmp) & (~_reg_DBB ^ tmp) & 0x80);
         // TODO: Unsigned overflow ???
-        setCarry(tmp < 0x100);
+        // setCarry(tmp < 0x100);
         _reg_A = tmp & 0xff;
         setZeroNegative(_reg_A);
     }
@@ -112,9 +113,9 @@ void ArithmeticAndLogicUnit::SBC()
 
 void ArithmeticAndLogicUnit::CMP()
 {
-    _reg_A -= _reg_DBB;
-    setCarry(_reg_A & 0x80); // TODO: ???
-    setZeroNegative(_reg_A);
+    _reg_DBB = _reg_A - _reg_DBB; // TODO: Register A change or not?
+    setCarry(_reg_DBB & 0x80); // TODO: ???
+    setZeroNegative(_reg_DBB);
 }
 
 inline void ArithmeticAndLogicUnit::setZero(uint8_t reg)
@@ -353,25 +354,22 @@ void InstructionDecoder::CPY()
 
 void InstructionDecoder::DEC()
 {
-    _cpu._reg_A = _cpu._reg_DBB;
     _alu.DEC();
-    _cpu._reg_DBB = _cpu._reg_A;
-
     _cpu.write();
 }
 
 void InstructionDecoder::DEX()
 {
-    _cpu._reg_A = _cpu._reg_X;
+    _cpu._reg_DBB = _cpu._reg_X;
     _alu.DEC();
-    _cpu._reg_X = _cpu._reg_A;
+    _cpu._reg_X = _cpu._reg_DBB;
 }
 
 void InstructionDecoder::DEY()
 {
-    _cpu._reg_A = _cpu._reg_Y;
+    _cpu._reg_DBB = _cpu._reg_Y;
     _alu.DEC();
-    _cpu._reg_Y = _cpu._reg_A;
+    _cpu._reg_Y = _cpu._reg_DBB;
 }
 
 void InstructionDecoder::EOR()
@@ -381,40 +379,35 @@ void InstructionDecoder::EOR()
 
 void InstructionDecoder::INC()
 {
-    _cpu._reg_A = _cpu._reg_DBB;
     _alu.INC();
-    _cpu._reg_DBB = _cpu._reg_A;
-
     _cpu.write();
 }
 
 void InstructionDecoder::INX()
 {
-    _cpu._reg_A = _cpu._reg_X;
+    _cpu._reg_DBB = _cpu._reg_X;
     _alu.INC();
-    _cpu._reg_X = _cpu._reg_A;
+    _cpu._reg_X = _cpu._reg_DBB;
 }
 
 void InstructionDecoder::INY()
 {
-    _cpu._reg_A = _cpu._reg_Y;
+    _cpu._reg_DBB = _cpu._reg_Y;
     _alu.INC();
-    _cpu._reg_Y = _cpu._reg_A;
+    _cpu._reg_Y = _cpu._reg_DBB;
 }
 
 void InstructionDecoder::JMP()
 {
-    reg::mergeTwoBytes(_cpu._reg_PC, _cpu._reg_DBB, _cpu._reg_DL);
+    _cpu._reg_PC = _cpu._reg_AB;
 }
 
 void InstructionDecoder::JSR()
 {
-    ++_cpu._reg_PC; // TODO: PC-- in 6502.txt ?
+    --_cpu._reg_PC;
 
-    // Exchange the value of PC, with the aid of AB
-    _cpu._reg_AB = _cpu._reg_PC;
-    reg::mergeTwoBytes(_cpu._reg_PC, _cpu._reg_DBB, _cpu._reg_DL);
-    reg::splitTwoBytes(_cpu._reg_AB, _cpu._reg_DBB, _cpu._reg_DL);
+    reg::splitTwoBytes(_cpu._reg_PC, _cpu._reg_DBB, _cpu._reg_DL);
+    _cpu._reg_PC = _cpu._reg_AB;
 
     _cpu.push();
     _cpu._reg_DBB = _cpu._reg_DL;
@@ -503,8 +496,8 @@ void InstructionDecoder::RTI()
 void InstructionDecoder::RTS()
 {
     _cpu.popTwo();
-    JMP();
-    ++_cpu._reg_PC; // TODO: ???
+    reg::mergeTwoBytes(_cpu._reg_PC, _cpu._reg_DBB, _cpu._reg_DL);
+    ++_cpu._reg_PC;
 }
 
 void InstructionDecoder::SBC()

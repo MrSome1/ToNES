@@ -18,11 +18,12 @@ inline const std::string getRomBin(const std::string &rom)
 
 /* CPU Test ROMs */
 
-const char *ROM_NOP = "nop";
-const char *ROM_LOAD = "load";
-const char *ROM_STACK = "stack";
-const char *ROM_STATUS = "status";
-const char *ROM_BRANCH = "branch";
-const char *ROM_TRANSFER = "transfer";
+const char *ROM_NOP        = "nop";
+const char *ROM_LOAD       = "load";
+const char *ROM_STACK      = "stack";
+const char *ROM_STATUS     = "status";
+const char *ROM_TRANSFER   = "transfer";
+const char *ROM_BRANCH     = "branch";
+const char *ROM_JUMP       = "jump";
+const char *ROM_LOGIC      = "logic";
 const char *ROM_ARITHMETIC = "arithmetic";
-const char *ROM_LOGIC = "logic";
