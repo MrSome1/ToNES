@@ -53,10 +53,10 @@ TEST_F(CartridgeTest, iNES)
     EXPECT_EQ(buffer, 0xea);
 
     // ResetVector
-    _mbus.read(cpu::ResetVector, buffer);
+    _mbus.read(cpu::VectorRST, buffer);
     EXPECT_EQ(buffer, ReadOnlyMemory::RomLowerBankBase & 0xff);
 
-    _mbus.read(cpu::ResetVector + 1, buffer);
+    _mbus.read(cpu::VectorRST + 1, buffer);
     EXPECT_EQ(buffer, ReadOnlyMemory::RomLowerBankBase >> 8);
 }
 

@@ -16,10 +16,13 @@ class MicroProcessor;
 
 namespace cpu {
 
-// TODO: Where is this mentioned
-const uint16_t ResetVector  = 0xfffc;
-const uint16_t BreakVector  = 0xfffe;
-const uint8_t DefaultStack  = 0xfd;
+/* Interrupt Vectors */
+const uint16_t VectorNMI  = 0xfffa; // NMI
+const uint16_t VectorRST  = 0xfffc; // RESET
+const uint16_t VectorIRQ  = 0xfffe; // IRQ/BRK
+
+const uint16_t StackBase    = 0x100;
+const uint8_t DefaultStack  = 0xfd; // TODO: ???
 const uint8_t DefaultStatus = 0x24; // 0010 0100
 
 /**
@@ -334,6 +337,12 @@ public:
 
     void step();
 
+    //! Hardware interrupt request (IRQ)
+    void irq();
+
+    //! Hardware non-maskable interrupt (NMI)
+    void nmi();
+
     void dump(Registers_t &registers) const;
 
     /* Functions for addressing modes */
@@ -377,6 +386,9 @@ public:
 protected:
 
     void _tick() override;
+
+    //! Handle interrupt request
+    void interrupt(uint16_t vector);
 
     //! Read one byte from memory
     inline void read();

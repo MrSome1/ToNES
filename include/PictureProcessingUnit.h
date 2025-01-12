@@ -12,6 +12,8 @@ namespace tones {
 
 typedef std::tuple<uint8_t, uint8_t, uint8_t> RGB;
 
+typedef std::function<void(void)> VBlank;
+
 typedef std::function<void(void)> FrameEnd;
 
 typedef std::function<void(int x, int y, const RGB &color)> VideoOut;
@@ -201,6 +203,8 @@ public:
 
     void reset();
 
+    void setBlankHandler(VBlank handler);
+
     void setVideoOut(VideoOut output);
 
     void setFrameEnd(FrameEnd flush);
@@ -361,6 +365,8 @@ private:
     uint8_t _OAM[ppu::SpriteMemorySize];
 
     /* Callbacks */
+
+    VBlank _handler;
 
     VideoOut _output;
 

@@ -105,6 +105,11 @@ void PictureProcessingUnit::reset()
     /* TODO */
 }
 
+void PictureProcessingUnit::setBlankHandler(VBlank handler)
+{
+    _handler = handler;
+}
+
 void PictureProcessingUnit::setVideoOut(VideoOut output)
 {
     _output = output;
@@ -260,8 +265,9 @@ void PictureProcessingUnit::lineVBlank()
         return;
 
     SEL_BIT(_reg_STATUS, ppu::StatusBit::V);
-    if (GET_BIT(_reg_CTRL, ppu::ControllerBit::V)) {
+    if (GET_BIT(_reg_CTRL, ppu::ControllerBit::V) && _handler) {
         // TODO: NMI
+        _handler();
     }
 
     if (_flush) {

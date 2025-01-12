@@ -27,6 +27,8 @@ MotherBoard::MotherBoard()
 
     _cpu.attach(_clock);
     _ppu.attach(_clock);
+
+    _ppu.setBlankHandler([&] () { _cpu.nmi(); });
 }
 
 void MotherBoard::insert(CartridgePtr &card)

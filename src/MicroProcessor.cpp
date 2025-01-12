@@ -276,25 +276,8 @@ void InstructionDecoder::BPL()
 
 void InstructionDecoder::BRK()
 {
-    // TODO: 6502.txt says that PC++ ???
-    // Save register PC to the stack
-    reg::getMSB(_cpu._reg_PC, _cpu._reg_DBB);
-    _cpu.push();
-    reg::getLSB(_cpu._reg_PC, _cpu._reg_DBB);
-    _cpu.push();
-
-    SEL_BIT(_cpu._reg_P, StatusBit::B);
-
-    // Save register P to the stack
-    _cpu._reg_DBB = _cpu._reg_P;
-    _cpu.push();
-
-    SEL_BIT(_cpu._reg_P, StatusBit::I);
-
-    // Load PC from break vector
-    _cpu._reg_PC = cpu::BreakVector;
-    _cpu.fetchTwo();
-    reg::mergeTwoBytes(_cpu._reg_PC, _cpu._reg_DBB, _cpu._reg_DL);
+    ++_cpu._reg_PC; // 6502 quirk
+    _cpu.interrupt(cpu::VectorIRQ);
 }
 
 void InstructionDecoder::BVC()
@@ -597,7 +580,7 @@ void MicroProcessor::reset()
     _reg_P = cpu::DefaultStatus;
 
     // Load PC from reset vector
-    _reg_PC = cpu::ResetVector;
+    _reg_PC = cpu::VectorRST;
     fetchTwo();
     reg::mergeTwoBytes(_reg_PC, _reg_DBB, _reg_DL);
 }
@@ -609,6 +592,20 @@ void MicroProcessor::step()
     }
 
     _tick();
+}
+
+void MicroProcessor::MicroProcessor::irq()
+{
+    if (!GET_BIT(_reg_P, cpu::StatusBit::I)) {
+        interrupt(cpu::VectorIRQ);
+        // TODO: Cycle time
+    }
+}
+
+void MicroProcessor::MicroProcessor::nmi()
+{
+    interrupt(cpu::VectorNMI);
+    // TODO: Cycle time
 }
 
 void MicroProcessor::dump(Registers_t &registers) const
@@ -641,6 +638,28 @@ void MicroProcessor::_tick()
     _decoder.execute();
 }
 
+void MicroProcessor::interrupt(uint16_t vector)
+{
+    // Save register PC to the stack
+    reg::getMSB(_reg_PC, _reg_DBB);
+    push();
+    reg::getLSB(_reg_PC, _reg_DBB);
+    push();
+
+    SEL_BIT(_reg_P, cpu::StatusBit::B);
+
+    // Save register P to the stack
+    _reg_DBB = _reg_P;
+    push();
+
+    SEL_BIT(_reg_P, cpu::StatusBit::I);
+
+    // Load PC from break vector
+    _reg_PC = vector;
+    fetchTwo();
+    reg::mergeTwoBytes(_reg_PC, _reg_DBB, _reg_DL);
+}
+
 inline void MicroProcessor::read()
 {
     _bus.read(_reg_AB, _reg_DBB);
@@ -653,13 +672,13 @@ inline void MicroProcessor::write()
 
 inline void MicroProcessor::push()
 {
-    _reg_AB = _reg_S--;
+    _reg_AB = cpu::StackBase | _reg_S--;
     write();
 }
 
 inline void MicroProcessor::pop()
 {
-    _reg_AB = ++_reg_S;
+    _reg_AB = cpu::StackBase | ++_reg_S;
     read();
 }
 
