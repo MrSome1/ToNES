@@ -111,6 +111,20 @@ INSTANTIATE_TEST_SUITE_P(BasicTest,
                             ROM_INTERRUPT
                         ));
 
+INSTANTIATE_TEST_SUITE_P(AddressingModeTest,
+                         MicroProcessorTest,
+                         testing::Values(
+                            ROM_ZP,
+                            ROM_ZPX,
+                            ROM_ZPY,
+                            ROM_ABS,
+                            ROM_ABX,
+                            ROM_ABY,
+                            ROM_IDX,
+                            ROM_IDY,
+                            ROM_IND
+                        ));
+
 int main(int argc, char **argv)
 {
     testing::InitGoogleTest(&argc, argv);

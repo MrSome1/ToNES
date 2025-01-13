@@ -16,8 +16,7 @@ inline const std::string getRomBin(const std::string &rom)
     return ROM_ROOT_DIR + rom + ROM_BIN_EXT;
 }
 
-/* CPU Test ROMs */
-
+/* CPU Basic Test ROMs */
 const char *ROM_LOAD       = "load";
 const char *ROM_STACK      = "stack";
 const char *ROM_STATUS     = "status";
@@ -27,3 +26,18 @@ const char *ROM_JUMP       = "jump";
 const char *ROM_LOGIC      = "logic";
 const char *ROM_ARITHMETIC = "arithmetic";
 const char *ROM_INTERRUPT  = "interrupt";
+
+/* CPU Addressing Mode Test ROMs
+ *
+ * Implied, Accumulator, Immediate, and Relative
+ * modes are already covered in basic tests
+ */
+const char *ROM_ZP  = "zero_page";
+const char *ROM_ZPX = "zero_page_x";
+const char *ROM_ZPY = "zero_page_y";
+const char *ROM_ABS = "absolute";
+const char *ROM_ABX = "absolute_x";
+const char *ROM_ABY = "absolute_y";
+const char *ROM_IDX = "indirect_x";
+const char *ROM_IDY = "indirect_y";
+const char *ROM_IND = "indirect";
