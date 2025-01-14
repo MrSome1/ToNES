@@ -19,14 +19,14 @@ ArithmeticAndLogicUnit::ArithmeticAndLogicUnit(tones::MicroProcessor &cpu)
 
 void ArithmeticAndLogicUnit::INC()
 {
-    ++_reg_DBB; // TODO: Register A change or not?
-    setZeroNegative(_reg_DBB);
+    ++_reg_A;
+    setZeroNegative(_reg_A);
 }
 
 void ArithmeticAndLogicUnit::DEC()
 {
-    --_reg_DBB; // TODO: Register A change or not?
-    setZeroNegative(_reg_DBB);
+    --_reg_A;
+    setZeroNegative(_reg_A);
 }
 
 void ArithmeticAndLogicUnit::ASL()
@@ -113,9 +113,9 @@ void ArithmeticAndLogicUnit::SBC()
 
 void ArithmeticAndLogicUnit::CMP()
 {
-    _reg_DBB = _reg_A - _reg_DBB; // TODO: Register A change or not?
-    setCarry(_reg_DBB & 0x80); // TODO: ???
-    setZeroNegative(_reg_DBB);
+    _reg_A -= _reg_DBB;
+    setCarry(_reg_A & 0x80); // TODO: ???
+    setZeroNegative(_reg_A);
 }
 
 inline void ArithmeticAndLogicUnit::setZero(uint8_t reg)
@@ -195,9 +195,12 @@ inline void InstructionDecoder::accumulate(void (ArithmeticAndLogicUnit::*execut
     if (cpu::code::Accumulator == _operation->mode->kind) {
         (_alu.*executor)();
     } else {
+        _cpu._reg_DL = _cpu._reg_A;
         _cpu._reg_A = _cpu._reg_DBB;
         (_alu.*executor)();
         _cpu._reg_DBB = _cpu._reg_A;
+        _cpu._reg_A = _cpu._reg_DL;
+        _cpu.write();
     }
 }
 
@@ -216,7 +219,6 @@ void InstructionDecoder::AND()
 void InstructionDecoder::ASL()
 {
     accumulate(&ArithmeticAndLogicUnit::ASL);
-    _cpu.write();
 }
 
 void InstructionDecoder::BCC()
@@ -318,39 +320,53 @@ void InstructionDecoder::CLV()
 
 void InstructionDecoder::CMP()
 {
+    _cpu._reg_DL = _cpu._reg_A;
     _alu.CMP();
+    _cpu._reg_A = _cpu._reg_DL;
 }
 
 void InstructionDecoder::CPX()
 {
+    _cpu._reg_DL = _cpu._reg_A;
     _cpu._reg_A = _cpu._reg_X;
     _alu.CMP();
+    _cpu._reg_A = _cpu._reg_DL;
 }
 
 void InstructionDecoder::CPY()
 {
-    _cpu._reg_A = _cpu._reg_X;
+    _cpu._reg_DL = _cpu._reg_A;
+    _cpu._reg_A = _cpu._reg_Y;
     _alu.CMP();
+    _cpu._reg_A = _cpu._reg_DL;
 }
 
 void InstructionDecoder::DEC()
 {
+    _cpu._reg_DL = _cpu._reg_A;
+    _cpu._reg_A = _cpu._reg_DBB;
     _alu.DEC();
+    _cpu._reg_DBB = _cpu._reg_A;
+    _cpu._reg_A = _cpu._reg_DL;
     _cpu.write();
 }
 
 void InstructionDecoder::DEX()
 {
-    _cpu._reg_DBB = _cpu._reg_X;
+    _cpu._reg_DL = _cpu._reg_A;
+    _cpu._reg_A = _cpu._reg_X;
     _alu.DEC();
-    _cpu._reg_X = _cpu._reg_DBB;
+    _cpu._reg_X = _cpu._reg_A;
+    _cpu._reg_A = _cpu._reg_DL;
 }
 
 void InstructionDecoder::DEY()
 {
-    _cpu._reg_DBB = _cpu._reg_Y;
+    _cpu._reg_DL = _cpu._reg_A;
+    _cpu._reg_A = _cpu._reg_Y;
     _alu.DEC();
-    _cpu._reg_Y = _cpu._reg_DBB;
+    _cpu._reg_Y = _cpu._reg_A;
+    _cpu._reg_A = _cpu._reg_DL;
 }
 
 void InstructionDecoder::EOR()
@@ -360,22 +376,30 @@ void InstructionDecoder::EOR()
 
 void InstructionDecoder::INC()
 {
+    _cpu._reg_DL = _cpu._reg_A;
+    _cpu._reg_A = _cpu._reg_DBB;
     _alu.INC();
+    _cpu._reg_DBB = _cpu._reg_A;
+    _cpu._reg_A = _cpu._reg_DL;
     _cpu.write();
 }
 
 void InstructionDecoder::INX()
 {
-    _cpu._reg_DBB = _cpu._reg_X;
+    _cpu._reg_DL = _cpu._reg_A;
+    _cpu._reg_A = _cpu._reg_X;
     _alu.INC();
-    _cpu._reg_X = _cpu._reg_DBB;
+    _cpu._reg_X = _cpu._reg_A;
+    _cpu._reg_A = _cpu._reg_DL;
 }
 
 void InstructionDecoder::INY()
 {
-    _cpu._reg_DBB = _cpu._reg_Y;
+    _cpu._reg_DL = _cpu._reg_A;
+    _cpu._reg_A = _cpu._reg_Y;
     _alu.INC();
-    _cpu._reg_Y = _cpu._reg_DBB;
+    _cpu._reg_Y = _cpu._reg_A;
+    _cpu._reg_A = _cpu._reg_DL;
 }
 
 void InstructionDecoder::JMP()
@@ -416,7 +440,6 @@ void InstructionDecoder::LDY()
 void InstructionDecoder::LSR()
 {
     accumulate(&ArithmeticAndLogicUnit::LSR);
-    _cpu.write();
 }
 
 void InstructionDecoder::NOP()
@@ -457,13 +480,11 @@ void InstructionDecoder::PLP()
 void InstructionDecoder::ROL()
 {
     accumulate(&ArithmeticAndLogicUnit::ROL);
-    _cpu.write();
 }
 
 void InstructionDecoder::ROR()
 {
     accumulate(&ArithmeticAndLogicUnit::ROR);
-    _cpu.write();
 }
 
 void InstructionDecoder::RTI()
