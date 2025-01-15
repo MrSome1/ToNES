@@ -41,16 +41,16 @@ INSTANTIATE_TEST_SUITE_P(InvalidPathTest,
 TEST_F(CartridgeTest, iNES)
 {
     uint8_t buffer;
-    std::string filepath = getRomBin(ROM_JUMP);
+    std::string filepath = getRomBin(ROM_LOAD);
 
     auto card = CartridgeFactory::createCartridge(filepath);
     ASSERT_NE(card, nullptr);
 
     card->attach(_mbus, _vbus);
 
-    // NOP
+    // LDA
     _mbus.read(genRomAddr(0), buffer);
-    EXPECT_EQ(buffer, 0xea);
+    EXPECT_EQ(buffer, 0xa9);
 
     // ResetVector
     _mbus.read(cpu::VectorRST, buffer);

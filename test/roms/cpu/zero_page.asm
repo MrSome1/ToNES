@@ -1,4 +1,15 @@
 
+;; Instructions to test
+;;   + ADC AND ASL
+;;   + BIT
+;;   + CMP CPX CPY
+;;   + DEC
+;;   + EOR
+;;   + INC
+;;   + LDA LDX LDY LSR
+;;   + ORA ROL ROR
+;;   + SBC STA STX STY
+
 .segment "NES_FILE_HEADER"
 .byte "NES", $1A, 2
 
