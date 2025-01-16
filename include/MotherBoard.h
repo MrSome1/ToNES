@@ -29,7 +29,36 @@
 
 namespace tones {
 
-class MotherBoard;
+const int OAMDMA = 0x4014; // OAM DMA MMIO register address
+const int DMCDMA = 0x4015; // DMC DMA MMIO register address
+
+/**
+ * @brief The DMA Unit
+ *
+ */
+class DirectMemoryAccess final : public Device
+{
+
+public:
+
+    DirectMemoryAccess(uint16_t mmio, uint16_t dest, uint16_t len);
+
+    bool contains(uint16_t addr) const override;
+
+    void read(uint16_t address, uint8_t &buffer) const override;
+
+    void write(uint16_t address, uint8_t data) override;
+
+private:
+
+    const uint16_t _mmio; // MMIO register address
+    const uint16_t _dest; // address to copy to
+    const uint16_t _len;  // bytes to copy
+
+    uint8_t  _buff;
+    uint8_t  _page; // page number to copy from
+    uint16_t _addr; // base address to copy from
+};
 
 /**
  * @brief A base class to get the output signals
@@ -127,6 +156,9 @@ private:
     RandomAccessMemory _pram; // RAM of CPU
 
     VideoRandomAccessMemory _vram; // RAM of PPU
+
+    // TODO: DMC DMA
+    DirectMemoryAccess _odma; // OAM DMA
 
     CartridgePtr _card;
 

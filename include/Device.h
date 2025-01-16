@@ -34,7 +34,6 @@
  *                                                     ------------------------------------- $0000
  */
 
-
 #ifndef _TONES_DEVICE_H_
 #define _TONES_DEVICE_H_
 
@@ -130,8 +129,6 @@ public:
     static const int RamLowerBound = 0x0000;
     static const int RamUpperBound = 0x2000;
 
-    RandomAccessMemory();
-
     bool contains(uint16_t addr) const override;
 
     void read(uint16_t address, uint8_t &buffer) const override;
@@ -175,7 +172,6 @@ private:
 /* For PPU MMIO Registers */
 const int PpuMmioLowerBound  = 0x2000;
 const int PpuMmioUpperBound  = 0x4000;
-const int PpuMmioAddressMask = 0x07;   // 0000 0111
 
 /* Devices of PPU */
 
@@ -184,7 +180,7 @@ const int PpuMmioAddressMask = 0x07;   // 0000 0111
  * 
  * Memory of PPU, or so called Name Tables
  */
-class VideoRandomAccessMemory: public Device
+class VideoRandomAccessMemory : public Device
 {
 
 public:
@@ -193,8 +189,6 @@ public:
     static const int VramMask = 0x07ff;
     static const int VramLowerBound = 0x2000;
     static const int VramUpperBound = 0x3f00;
-
-    VideoRandomAccessMemory();
 
     bool contains(uint16_t addr) const override;
 

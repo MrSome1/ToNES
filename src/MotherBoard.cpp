@@ -12,18 +12,52 @@ using namespace std::chrono;
 
 static OutputPanel DefaultOuput;
 
+/* DirectMemoryAccess */
+
+DirectMemoryAccess::DirectMemoryAccess(uint16_t mmio, uint16_t dest, uint16_t len)
+    : _mmio(mmio)
+    , _dest(dest)
+    , _len(len)
+{
+
+}
+
+bool DirectMemoryAccess::contains(uint16_t addr) const
+{
+    return _mmio == addr;
+}
+
+void DirectMemoryAccess::read(uint16_t, uint8_t &buffer) const
+{
+    buffer = _page;
+}
+
+void DirectMemoryAccess::write(uint16_t, uint8_t data)
+{
+    _page = data;
+    _addr = (uint16_t)_page << 8;
+    for (int i = 0; i < _len; ++i) {
+        _bus->read(_addr, _buff);
+        _bus->write(_dest, _buff);
+        ++_addr;
+    }
+}
+
 /* MotherBoard */
 
 MotherBoard::MotherBoard() 
     : _frequency(29781) // TODO: frequency depending on video type
     , _cpu(_mbus)
     , _ppu(_vbus, _mbus)
+    , _odma(OAMDMA, ppu::OAMDATA, ppu::SpriteMemorySize)
     , _started(false)
     , _paused(true)
     , _output(&DefaultOuput)
 {
     _pram.attach(_mbus);
     _vram.attach(_vbus);
+
+    _odma.attach(_mbus);
 
     _cpu.attach(_clock);
     _ppu.attach(_clock);

@@ -71,8 +71,6 @@ void Device::write(uint8_t data)
 
 /* RandomAccessMemory */
 
-RandomAccessMemory::RandomAccessMemory() {}
-
 bool RandomAccessMemory::contains(uint16_t addr) const
 {
     return addr < RamUpperBound;
@@ -109,8 +107,6 @@ void ReadOnlyMemory::write(uint16_t address, uint8_t data)
 }
 
 /* VideoRandomAccessMemory */
-
-VideoRandomAccessMemory::VideoRandomAccessMemory() {}
 
 bool VideoRandomAccessMemory::contains(uint16_t addr) const
 {
