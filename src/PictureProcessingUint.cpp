@@ -32,7 +32,6 @@ bool Registers::contains(uint16_t addr) const
 
 void Registers::read(uint16_t address, uint8_t &buffer) const
 {
-    // switch (address & PpuMmioAddressMask) {
     switch (address) {
         case ppu::PPUSTATUS: _ppu.readPPUSTATUS(); break;
         case ppu::OAMDATA:   _ppu.readOAMDATA();   break;
@@ -46,7 +45,6 @@ void Registers::write(uint16_t address, uint8_t data)
 {
     _ppu._reg_DBB = data;
 
-    // switch (address & PpuMmioAddressMask) {
     switch (address) {
         case ppu::PPUCTRL:   _ppu.writePPUCTRL();   break;
         case ppu::PPUMASK:   _ppu.writePPUMASK();   break;

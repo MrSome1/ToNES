@@ -1,6 +1,4 @@
 
-#include <memory>
-
 #include <gtest/gtest.h>
 
 #include "Clock.h"
@@ -16,18 +14,20 @@ using namespace tones;
 class MicroProcessorTest : public ::testing::TestWithParam<std::string>
 {
 
-protected:
+public:
 
     MicroProcessorTest() : _cpu(_mbus) {}
-
-    void SetUp() override
-    {
-        _pram.attach(_mbus);
-    }
 
     const std::string hint(const RomParser::Line &line)
     {
         return "Line " + std::to_string(line.num) + ": " + line.code;
+    }
+
+protected:
+
+    void SetUp() override
+    {
+        _pram.attach(_mbus);
     }
 
     Bus _mbus, _vbus;
