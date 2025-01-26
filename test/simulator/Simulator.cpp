@@ -176,7 +176,12 @@ void Simulator::onShowFrame()
 
 void Simulator::onShowCartridge()
 {
-    // Show PROM
+    showPrgRom();
+    showChrRom();
+}
+
+void Simulator::showPrgRom()
+{
     QString prom;
 
     int argv = 0;
@@ -198,8 +203,62 @@ void Simulator::onShowCartridge()
     }
 
     _prom->setPlainText(prom);
+}
 
-    // TODO: Show CROM
+void Simulator::showChrRom()
+{
+    QImage limg(128, 128, QImage::Format_Grayscale8);
+    QImage rimg(128, 128, QImage::Format_Grayscale8);
+
+    bool status = PatternTables::TotalSize == _card->chrRom().size();
+
+    if (status) {
+        drawPatternTable(PatternTables::TableLowerBankBase, limg);
+        drawPatternTable(PatternTables::TableUpperBankBase, rimg);
+    } else {
+        // All black
+        limg.fill(0xff000000);
+        limg.fill(0xff000000);
+    }
+
+    _ltable.convertFromImage(limg);
+    _rtable.convertFromImage(rimg);
+
+    _ui->leftPatternTable->setPixmap(_ltable);
+    _ui->rightPatternTable->setPixmap(_rtable);
+
+    _ui->leftPatternTable->setEnabled(status);
+    _ui->rightPatternTable->setEnabled(status);
+
+    // limg.scaled(512, 512).save("left_patterns_table", "png");
+    // rimg.scaled(512, 512).save("right_patterns_table", "png");
+}
+
+void Simulator::drawPatternTable(int base, QImage &img)
+{
+    static const uint32_t alpha = 0xff000000;
+    static const uint32_t colors[4] = {0x00, 0xff, 0xff00, 0xff0000};
+
+    for (int cy = 0; cy <= 0x0f00; cy += 0x0100) { // coarse Y
+        for (int cx = 0; cx <= 0xf0; cx += 0x10) { // coarse X
+            for (int fy = 0; fy <= 0x07; ++fy) {   // fine Y
+                int addr = base | cy | cx | fy;
+                uint8_t p0 = _card->chrRom()[addr];
+                uint8_t p1 = _card->chrRom()[addr | 0x08];
+
+                for (int fx = 0x07; fx >= 0; --fx) { // fine X
+                    int i = ((p1 & 0x01) << 1) | (p0 & 0x01);
+
+                    img.setPixel((cx >> 1) | fx,     // x
+                                 (cy >> 5) | fy,     // y
+                                 alpha | colors[i]); // Alpha | RGB
+
+                    p0 >>= 1;
+                    p1 >>= 1;
+                }
+            }
+        }
+    }
 }
 
 void Simulator::showCurrentLine(uint16_t pc)

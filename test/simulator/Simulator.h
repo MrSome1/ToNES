@@ -77,6 +77,12 @@ protected:
 
     void showCurrentLine(uint16_t pc);
 
+    void showPrgRom();
+
+    void showChrRom();
+
+    void drawPatternTable(int base, QImage &img);
+
 private:
 
     Ui::MainWindow *_ui;
@@ -98,6 +104,10 @@ private:
     QString _cpuP;
 
     QTextDocument *_prom;
+
+    QPixmap _ltable;
+
+    QPixmap _rtable;
 };
 
 } // namespace tones
