@@ -102,7 +102,15 @@ PictureProcessingUnit::PictureProcessingUnit(Bus &vbus, Bus &mbus)
 
 void PictureProcessingUnit::reset()
 {
-    /* TODO */
+    _reg_CTRL    = 0x00;
+    _reg_MASK    = 0x00;
+    _reg_STATUS  = 0x80; // 1??x xxxx
+    _reg_OAMADDR = 0x00;
+
+    _reg_V = 0x00;
+    _reg_T = 0x00;
+    _reg_X = 0x00;
+    _reg_W = 0x00;
 }
 
 void PictureProcessingUnit::setBlankHandler(VBlank handler)
