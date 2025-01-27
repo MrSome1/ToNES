@@ -105,9 +105,7 @@ private:
 
     QTextDocument *_prom;
 
-    QPixmap _ltable;
-
-    QPixmap _rtable;
+    QImage _limg, _rimg; // pattern tables
 };
 
 } // namespace tones

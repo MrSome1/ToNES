@@ -1,6 +1,7 @@
 
 #include "Simulator.h"
 
+#include <QVector>
 #include <QFileDialog>
 #include <QTextBlock>
 #include <QTextCursor>
@@ -18,6 +19,8 @@ const char *Resume = "Resume";
 const char *CpuPHeader = "N    V    -    B    D    I    Z    C";
 const char *CpuPValue  = "0    0    0    0    0    0    0    0";
 const int CpuPSepLen = 5;
+
+static const QVector<QRgb> Colors = {0xff000000, 0xff0000ff, 0xff00ff00, 0xffff0000};
 
 const QLatin1Char HexPrefix('0');
 
@@ -37,6 +40,8 @@ Simulator::Simulator(QWidget *parent)
     , _videoBuffer(360, 320, QImage::Format_RGB888)
     , _cpuP(CpuPValue)
     , _prom(nullptr)
+    , _limg(128, 128, QImage::Format_Indexed8)
+    , _rimg(128, 128, QImage::Format_Indexed8)
 {
     _ui->setupUi(this);
 
@@ -61,6 +66,8 @@ void Simulator::setupView()
 {
     _ui->cpuPHeader->setText(CpuPHeader);
     _prom = _ui->programRom->document();
+    _limg.setColorTable(Colors);
+    _rimg.setColorTable(Colors);
 }
 
 void Simulator::setupConnections()
@@ -207,56 +214,44 @@ void Simulator::showPrgRom()
 
 void Simulator::showChrRom()
 {
-    QImage limg(128, 128, QImage::Format_Grayscale8);
-    QImage rimg(128, 128, QImage::Format_Grayscale8);
-
     bool status = PatternTables::TotalSize == _card->chrRom().size();
 
     if (status) {
-        drawPatternTable(PatternTables::TableLowerBankBase, limg);
-        drawPatternTable(PatternTables::TableUpperBankBase, rimg);
+        drawPatternTable(PatternTables::TableLowerBankBase, _limg);
+        drawPatternTable(PatternTables::TableUpperBankBase, _rimg);
     } else {
         // All black
-        limg.fill(0xff000000);
-        limg.fill(0xff000000);
+        _limg.fill(0x00);
+        _rimg.fill(0x00);
     }
 
-    _ltable.convertFromImage(limg);
-    _rtable.convertFromImage(rimg);
-
-    _ui->leftPatternTable->setPixmap(_ltable);
-    _ui->rightPatternTable->setPixmap(_rtable);
+    _ui->leftPatternTable->setPixmap(QPixmap::fromImage(_limg));
+    _ui->rightPatternTable->setPixmap(QPixmap::fromImage(_rimg));
 
     _ui->leftPatternTable->setEnabled(status);
     _ui->rightPatternTable->setEnabled(status);
 
-    // limg.scaled(512, 512).save("left_patterns_table", "png");
-    // rimg.scaled(512, 512).save("right_patterns_table", "png");
+    // _limg.scaled(512, 512).save("left_patterns_table", "png");
+    // _rimg.scaled(512, 512).save("right_patterns_table", "png");
 }
 
 void Simulator::drawPatternTable(int base, QImage &img)
 {
-    static const uint32_t alpha = 0xff000000;
-    static const uint32_t colors[4] = {0x00, 0xff, 0xff00, 0xff0000};
+    int addr, p0, p1;
 
-    for (int cy = 0; cy <= 0x0f00; cy += 0x0100) { // coarse Y
-        for (int cx = 0; cx <= 0xf0; cx += 0x10) { // coarse X
-            for (int fy = 0; fy <= 0x07; ++fy) {   // fine Y
-                int addr = base | cy | cx | fy;
-                uint8_t p0 = _card->chrRom()[addr];
-                uint8_t p1 = _card->chrRom()[addr | 0x08];
-
-                for (int fx = 0x07; fx >= 0; --fx) { // fine X
-                    int i = ((p1 & 0x01) << 1) | (p0 & 0x01);
-
-                    img.setPixel((cx >> 1) | fx,     // x
-                                 (cy >> 5) | fy,     // y
-                                 alpha | colors[i]); // Alpha | RGB
-
-                    p0 >>= 1;
-                    p1 >>= 1;
-                }
+    for (int y = 0; y <= 0x7f; ++y) {
+        for (int x = 0; x <= 0x7f; ++x) {
+            if (!(x & 0x07)) { // fine x
+                // table base | coarse y | coarse x | fine y
+                addr = base | (y & 0x78) << 5 | (x & 0x78) << 1 | (y & 0x07);
+                p0 = _card->chrRom()[addr];        // plane 0
+                p1 = _card->chrRom()[addr | 0x08]; // plane 1
             }
+
+            p0 <<= 1;
+            p1 <<= 1;
+
+            img.setPixel(x, y, ((p1 & 0x100) >> 7) | ((p0 & 0x100) >> 8));
         }
     }
 }
