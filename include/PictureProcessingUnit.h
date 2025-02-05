@@ -4,6 +4,7 @@
 #include <functional>
 #include <tuple>
 
+#include "Bus.h"
 #include "Clock.h"
 #include "Device.h"
 #include "Register.h"
@@ -109,7 +110,7 @@ enum class StatusBit {
  * 
  *  Access PPU registers in CPU addressing space
  */
-class MemoryMap : public Device
+class MemoryMap : public Accessible
 {
 
 public:
@@ -130,7 +131,7 @@ private:
 /**
  * @brief Color Palettes
  */
-class Palettes : public Device
+class Palettes : public Accessible
 {
 
 public:

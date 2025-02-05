@@ -5,8 +5,8 @@
 #include <cinttypes>
 #include <functional>
 
+#include "Bus.h"
 #include "Clock.h"
-#include "Device.h"
 #include "Register.h"
 #include "Instruction.h"
 

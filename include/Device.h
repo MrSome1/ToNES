@@ -41,76 +41,9 @@
 #include <array>
 #include <vector>
 
+#include "Bus.h"
+
 namespace tones {
-
-class Device;
-
-/**
- * @brief Abstraction of the system bus
- * 
- * This class inclues the Address Bus, Control Bus and
- * Data Bus, actually, and refers to all devices in the
- * system that can be accessed by the CPU
- */
-class Bus
-{
-
-public:
-
-    Bus();
-    ~Bus();
-
-    //! Abstraction of the Address Bus
-    uint16_t address() const;
-
-    //! Abstraction of the Data Bus, with Control Bus of read mode
-    void read(uint16_t address, uint8_t &buffer);
-
-    //! Abstraction of the Data Bus, with Control Bus of write mode
-    void write(uint16_t address, uint8_t data);
-
-protected:
-
-    friend class Device;
-
-    //! Mount a device
-    void attach(Device *device);
-
-    //! Unmount a device
-    void detach(Device *device);
-
-private:
-
-    uint16_t _address;
-
-    std::vector<Device*> _devices;
-};
-
-class Device
-{
-
-public:
-
-    virtual void attach(Bus &bus);
-
-    virtual void detach();
-
-    virtual bool contains(uint16_t addr) const = 0;
-
-    virtual void read(uint16_t address, uint8_t &buffer) const = 0;
-
-    virtual void write(uint16_t address, uint8_t data) = 0;
-
-protected:
-
-    friend class Bus;
-
-    virtual void read(uint8_t &buffer) const;
-
-    virtual void write(uint8_t data);
-
-    Bus *_bus;
-};
 
 /* Devices of CPU */
 
@@ -119,7 +52,7 @@ protected:
  * 
  * Main memory of CPU
  */
-class RandomAccessMemory: public Device
+class RandomAccessMemory: public Accessible
 {
 
 public:
@@ -145,7 +78,7 @@ private:
  * 
  * PRG-ROM of CPU
  */
-class ReadOnlyMemory: public Device
+class ReadOnlyMemory: public Accessible
 {
 
 public:
@@ -180,7 +113,7 @@ const int PpuMmioUpperBound  = 0x4000;
  * 
  * Memory of PPU, or so called Name Tables
  */
-class VideoRandomAccessMemory : public Device
+class VideoRandomAccessMemory : public Accessible
 {
 
 public:
@@ -206,7 +139,7 @@ private:
  * 
  * Mapped by a CHR-ROM or CHR-RAM of a cartridge
  */
-class PatternTables: public Device
+class PatternTables: public Accessible
 {
 
 public:

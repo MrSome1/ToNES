@@ -21,6 +21,7 @@
 #include <atomic>
 #include <functional>
 
+#include "Bus.h"
 #include "Clock.h"
 #include "Device.h"
 #include "MicroProcessor.h"
@@ -36,7 +37,7 @@ const int DMCDMA = 0x4015; // DMC DMA MMIO register address
  * @brief The DMA Unit
  *
  */
-class DirectMemoryAccess final : public Device
+class DirectMemoryAccess final : public Accessible
 {
 
 public:
