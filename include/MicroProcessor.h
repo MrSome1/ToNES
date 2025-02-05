@@ -333,9 +333,11 @@ public:
     MicroProcessor(Bus &bus);
     ~MicroProcessor();
 
-    void reset();
+    void tick() override;
 
     void step();
+
+    void reset();
 
     //! Hardware interrupt request (IRQ)
     void irq();
@@ -384,8 +386,6 @@ public:
     void fetchAbsoluteIndirect();
 
 protected:
-
-    void _tick() override;
 
     //! Handle interrupt request
     void interrupt(uint16_t vector);

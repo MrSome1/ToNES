@@ -5,48 +5,41 @@ namespace tones {
 
 /* Tickable */
 
-Tickable::Tickable(int multiplier)
-    : _multiplier(multiplier)
-    , _clock(nullptr)
-{
+Tickable::Tickable() : _clock(nullptr) {}
 
-}
-
-void Tickable::attach(Clock &clock)
+void Tickable::attach(Clock &clock, int multiplier)
 {
     _clock = &clock;
-    _clock->attach(this);
+    _clock->attach(this, multiplier);
 }
 
 void Tickable::detach()
 {
-    _clock->detach(this);
-    _clock = nullptr;
-}
-
-void Tickable::tick()
-{
-    for (int i = 0; i < _multiplier; ++i)
-        _tick();
+    if (_clock) {
+        _clock->detach(this);
+        _clock = nullptr;
+    }
 }
 
 /* Clock */
 
 void Clock::tick()
 {
-    for (auto it = _tickables.begin(); it != _tickables.end(); ++it)
-        (*it)->tick();
+    for (auto it = _tickables.begin(); it != _tickables.end(); ++it) {
+        for (int i = 0; i < it->second; ++i)
+            it->first->tick();
+    }
 }
 
-void Clock::attach(Tickable *tickable)
+void Clock::attach(Tickable *tickable, int multiplier)
 {
-    _tickables.push_back(tickable);
+    _tickables.emplace_back(std::make_pair(tickable, multiplier));
 }
 
 void Clock::detach(Tickable *tickable)
 {
     for (auto it = _tickables.begin(); it != _tickables.end(); ++it) {
-        if (*it == tickable) {
+        if (it->first == tickable) {
             _tickables.erase(it);
             break;
         }

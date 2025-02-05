@@ -10,15 +10,13 @@ class Counter : public Tickable
 
 public:
 
-    int value = 0;
-
-    Counter(int multiplier=1) : Tickable(multiplier) {}
+    void tick() override { ++value; }
 
     int operator()() { return value; }
 
 protected:
 
-    void _tick() override { ++value; }
+    int value = 0;
 };
 
 TEST(ClockTest, Tick)
@@ -28,10 +26,11 @@ TEST(ClockTest, Tick)
 
     Clock clock;
     Counter counter_1;
-    Counter counter_2(mul);
+    Counter counter_2;
 
-    counter_1.attach(clock);
-    counter_2.attach(clock);
+    counter_1.attach(clock, 1);
+    counter_2.attach(clock, mul);
+
     for (int i = 1; i <= num; ++i) {
         clock.tick();
         EXPECT_EQ(counter_1(), i);
@@ -44,15 +43,15 @@ TEST(ClockTest, Attatch)
     const int num = 10;
 
     Clock clock;
-    Counter counter_1(1);
-    Counter counter_2(1);
+    Counter counter_1;
+    Counter counter_2;
 
-    counter_1.attach(clock);
+    counter_1.attach(clock, 1);
     for (int i = 1; i <= num; ++i)
         clock.tick();
     EXPECT_EQ(counter_1(), num);
 
-    counter_2.attach(clock);
+    counter_2.attach(clock, 1);
     for (int i = 1; i <= num; ++i)
         clock.tick();
     EXPECT_EQ(counter_1(), 2 * num);
@@ -64,13 +63,13 @@ TEST(ClockTest, Detatch)
     const int num = 10;
 
     Clock clock;
-    Counter counter_1(1);
-    Counter counter_2(1);
-    Counter counter_3(1);
+    Counter counter_1;
+    Counter counter_2;
+    Counter counter_3;
 
-    counter_1.attach(clock);
-    counter_2.attach(clock);
-    counter_3.attach(clock);
+    counter_1.attach(clock, 1);
+    counter_2.attach(clock, 1);
+    counter_3.attach(clock, 1);
     for (int i = 1; i <= num; ++i)
         clock.tick();
 

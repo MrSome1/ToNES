@@ -71,7 +71,7 @@ public:
 
     /* Real Outputs */
 
-    virtual void onVideoDotRendered(int x, int y, const RGB &color)
+    virtual void onVideoDotRendered(int x, int y, uint32_t color)
     {
         (void)x;
         (void)y;

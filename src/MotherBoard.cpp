@@ -59,8 +59,8 @@ MotherBoard::MotherBoard()
 
     _odma.attach(_mbus);
 
-    _cpu.attach(_clock);
-    _ppu.attach(_clock);
+    _cpu.attach(_clock, 1);
+    _ppu.attach(_clock, 3);
 
     _ppu.setBlankHandler([&] () { _cpu.nmi(); });
 }
@@ -127,7 +127,7 @@ void MotherBoard::setOutputPanel(OutputPanel &output)
 {
     _output = &output;
 
-    _ppu.setVideoOut([this] (int x, int y, const RGB &color) {
+    _ppu.setVideoOut([this] (int x, int y, uint32_t color) {
         _output->onVideoDotRendered(x, y, color);
     });
 
@@ -139,6 +139,8 @@ void MotherBoard::setOutputPanel(OutputPanel &output)
 void MotherBoard::reset()
 {
     _cpu.reset();
+    _ppu.reset();
+
     dumpRegisters();
 }
 

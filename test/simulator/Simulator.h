@@ -31,7 +31,7 @@ public:
     Simulator(QWidget *parent=nullptr);
     ~Simulator();
 
-    void onVideoDotRendered(int x, int y, const RGB &color) override;
+    void onVideoDotRendered(int x, int y, uint32_t color) override;
 
     void onVideoFrameRendered() override;
 

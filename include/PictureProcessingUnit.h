@@ -10,13 +10,11 @@
 
 namespace tones {
 
-typedef std::tuple<uint8_t, uint8_t, uint8_t> RGB;
-
 typedef std::function<void(void)> VBlank;
 
 typedef std::function<void(void)> FrameEnd;
 
-typedef std::function<void(int x, int y, const RGB &color)> VideoOut;
+typedef std::function<void(int x, int y, uint32_t color)> VideoOut;
 
 class PictureProcessingUnit;
 
@@ -35,7 +33,9 @@ const int PictureHeight = 0x00f0; // 240
 const int NameTableBase = 0x2000;
 const int NameTableSize = 0x03c0; // 960
 
-const int ColorIndexMask = 0x03;
+const int ColorIndexMask   = 0x03;
+const int ColorPaletteMask = 0x3f;
+extern const uint32_t Colors[64];
 
 /* MMIO Register */
 typedef enum Register {
@@ -105,16 +105,16 @@ enum class StatusBit {
 };
 
 /**
- * @brief MMIO Registers
+ * @brief MMIO of PPU Registers
  * 
- *  PPU Registers mapped into CPU addressing space
+ *  Access PPU registers in CPU addressing space
  */
-class Registers : public Device
+class MemoryMap : public Device
 {
 
 public:
 
-    Registers(tones::PictureProcessingUnit &ppu);
+    MemoryMap(tones::PictureProcessingUnit &ppu);
 
     bool contains(uint16_t addr) const override;
 
@@ -201,6 +201,8 @@ public:
      */
     PictureProcessingUnit(Bus &vbus, Bus &mbus);
 
+    void tick() override;
+
     void reset();
 
     void setBlankHandler(VBlank handler);
@@ -210,8 +212,6 @@ public:
     void setFrameEnd(FrameEnd flush);
 
 protected:
-
-    void _tick() override;
 
     //! Next address of VRAM
     void next();
@@ -292,25 +292,21 @@ protected:
 
     /* Helper Functions */
 
-    bool showBackground();
+    inline bool showBackground();
 
-    bool showSprites();
+    inline bool showSprites();
 
-    void copyRender();
+    inline void copyBackground();
 
-    void copyHorizontal();
+    inline void copyHorizontal();
 
-    void copyVertical();
+    inline void copyVertical();
 
-    // void increaseHorizontal();
-
-    // void increaseVertical();
-
-    uint16_t getPatternTable(ppu::ControllerBit bit);
+    inline uint16_t getPatternTable(ppu::ControllerBit bit);
 
 private:
 
-    friend class ppu::Registers;
+    friend class ppu::MemoryMap;
 
     Bus &_vbus;
 
@@ -324,7 +320,8 @@ private:
     reg::Bitwise_t _reg_MASK;
     reg::Bitwise_t _reg_STATUS;
     uint8_t        _reg_OAMADDR;
-    ppu::Registers _registers;
+
+    ppu::MemoryMap _mmio;
 
     /* Internal Registers */
     uint16_t _reg_V;   // VRAM address / scroll position
@@ -332,24 +329,15 @@ private:
     uint8_t  _reg_X;   // fine-x position
     uint8_t  _reg_W;   // write toggle
 
-    /* Scroll Registers */
-    uint8_t      _reg_YX; // namge table
-    reg::Cycle_t _reg_CX; // coarse x
-    reg::Cycle_t _reg_CY; // coarse y
-    reg::Cycle_t _reg_FX; // fine x
-    reg::Cycle_t _reg_FY; // fine y
-
     /* Render Registers */
-    uint8_t _reg_AT;  // for attribute table
-    uint8_t _reg_BGL; // for background tile LSB
-    uint8_t _reg_BGH; // for background tile MSB
-
-    /* Color Registers */
-    // uint8_t      _reg_PC; // for the pixel
-    // reg::Shift_t _reg_BC; // for background
-    // reg::Shift_t _reg_SC; // for sprite
+    uint16_t _reg_AT;  // for attribute table
+    uint16_t _reg_BGL; // for background tile LSB
+    uint16_t _reg_BGH; // for background tile MSB
+    uint16_t _fx_mask;
+    uint16_t _fx_shift;
 
     /* Buffers */
+    uint16_t _reg_AB;  // adress buffer
     uint8_t _reg_DBB;  // data bus buffer
     uint8_t _reg_NTB;  // for name table
     uint8_t _reg_ATB;  // for attribute table
@@ -375,12 +363,12 @@ private:
 
 inline void PictureProcessingUnit::read()
 {
-    _vbus.read(_reg_V & ppu::VramAddressMask, _reg_DBB);
+    _vbus.read(_reg_AB & ppu::VramAddressMask, _reg_DBB);
 }
 
 inline void PictureProcessingUnit::write()
 {
-    _vbus.write(_reg_V & ppu::VramAddressMask, _reg_DBB);
+    _vbus.write(_reg_AB & ppu::VramAddressMask, _reg_DBB);
 } 
 
 inline void PictureProcessingUnit::next()
@@ -408,25 +396,25 @@ inline bool PictureProcessingUnit::showSprites()
     return GET_BIT(_reg_MASK, ppu::MaskBit::s);
 }
 
-inline void PictureProcessingUnit::copyRender()
+inline void PictureProcessingUnit::copyBackground()
 {
-    _reg_AT = _reg_ATB; 
-    _reg_BGL = _reg_BGLB;
-    _reg_BGH = _reg_BGHB;
+    reg::setLSB(_reg_BGL, _reg_BGLB);
+    reg::setLSB(_reg_BGH, _reg_BGHB);
+    reg::setMSB(_reg_AT, _reg_ATB);
 }
 
 inline void PictureProcessingUnit::copyHorizontal()
 {
-    SET_BIT(_reg_YX, ppu::ControllerBit::X, _reg_T & 0x0400);
-    _reg_CX = _reg_T & 0x001f;
-    _reg_FX = _reg_X;
+    // v: ....A.. ...BCDEF <- t: ....A.. ...BCDEF
+    _reg_V &= ~0x041f;
+    _reg_V |= _reg_T & 0x041f;
 }
 
 inline void PictureProcessingUnit::copyVertical()
 {
-    SET_BIT(_reg_YX, ppu::ControllerBit::Y, _reg_T & 0x0800);
-    _reg_CY = (_reg_T & 0x03e0) >> 5;
-    _reg_FY = (_reg_T & 0x7000) >> 12;
+    // v: GHIA.BC DEF..... <- t: GHIA.BC DEF.....
+    _reg_V &= ~0x7be0;
+    _reg_V |= _reg_T & 0x7be0;
 }
 
 inline uint16_t PictureProcessingUnit::getPatternTable(ppu::ControllerBit bit)

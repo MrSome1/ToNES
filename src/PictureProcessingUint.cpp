@@ -23,14 +23,14 @@ const FrameFormat_t Dendy = {
     0, // TODO
 };
 
-Registers::Registers(PictureProcessingUnit &ppu) : _ppu(ppu) {}
+MemoryMap::MemoryMap(PictureProcessingUnit &ppu) : _ppu(ppu) {}
 
-bool Registers::contains(uint16_t addr) const
+bool MemoryMap::contains(uint16_t addr) const
 {
     return addr >= PpuMmioLowerBound && addr < PpuMmioUpperBound;
 }
 
-void Registers::read(uint16_t address, uint8_t &buffer) const
+void MemoryMap::read(uint16_t address, uint8_t &buffer) const
 {
     switch (address) {
         case ppu::PPUSTATUS: _ppu.readPPUSTATUS(); break;
@@ -41,7 +41,7 @@ void Registers::read(uint16_t address, uint8_t &buffer) const
     buffer = _ppu._reg_DBB;
 }
 
-void Registers::write(uint16_t address, uint8_t data)
+void MemoryMap::write(uint16_t address, uint8_t data)
 {
     _ppu._reg_DBB = data;
 
@@ -80,9 +80,8 @@ void Palettes::write(uint16_t address, uint8_t data)
 /* PictureProcessingUnit */
 
 PictureProcessingUnit::PictureProcessingUnit(Bus &vbus, Bus &mbus)
-    : Tickable(3) // TODO: frequency depending on type
-    , _vbus(vbus)
-    , _registers(*this)
+    : _vbus(vbus)
+    , _mmio(*this)
     // TODO: Switch video mode
     , _mode(ppu::VideoMode::NTSC)
     , _format(ppu::NTSC)
@@ -91,13 +90,21 @@ PictureProcessingUnit::PictureProcessingUnit(Bus &vbus, Bus &mbus)
     _reg_line.reset(_format.lineEnd + 1);
     _reg_dot.reset(_format.dotEnd + 1);
 
-    _reg_CX.reset(ppu::TilesOnWidth);
-    _reg_CY.reset(ppu::TilesOnHeight);
-    _reg_FX.reset(ppu::TileSize);
-    _reg_FY.reset(ppu::TileSize);
-
-    _registers.attach(mbus);
+    _mmio.attach(mbus);
     _palettes.attach(_vbus);
+}
+
+void PictureProcessingUnit::tick()
+{
+    if (_reg_line < _format.linePost) {
+        lineRender();
+    } else if (_reg_line == _format.linePre) {
+        linePre();
+    } else if (_reg_line == _format.lineVBlank) {
+        lineVBlank();
+    } // Just idles for other scanlines
+
+    forward();
 }
 
 void PictureProcessingUnit::reset()
@@ -128,19 +135,6 @@ void PictureProcessingUnit::setFrameEnd(FrameEnd flush)
     _flush = flush;
 }
 
-void PictureProcessingUnit::_tick()
-{
-    if (_reg_line < _format.linePost) {
-        lineRender();
-    } else if (_reg_line == _format.linePre) {
-        linePre();
-    } else if (_reg_line == _format.lineVBlank) {
-        lineVBlank();
-    } // Just idles for other scanlines
-
-    forward();
-}
-
 void PictureProcessingUnit::readPPUSTATUS()
 {
     _reg_DBB = _reg_STATUS;
@@ -155,6 +149,7 @@ void PictureProcessingUnit::readOAMDATA()
 
 void PictureProcessingUnit::readPPUDATA()
 {
+    _reg_AB = _reg_V;
     read();
     next();
     // TODO: internal read buffer
@@ -202,6 +197,8 @@ void PictureProcessingUnit::writePPUSCROLL()
         _reg_T &= 0xffe0;         // T: ....... ...ABCDE <- DBB: ABCDE...
         _reg_T |= _reg_DBB >> 3;
         _reg_X  = _reg_DBB & 0x7; // X:              FGH <- DBB: .....FGH
+        _fx_mask = 0x8000 >> _reg_X;
+        _fx_shift = 7 - _reg_X;
     }
 
     _reg_W = !_reg_W;
@@ -214,7 +211,7 @@ void PictureProcessingUnit::writePPUADDR()
         _reg_V = _reg_T;
     } else { // first write
         reg::setMSB(_reg_T, _reg_DBB);  // T: .CDEFGH ........ <- DBB: ..CDEFGH
-        // _reg_V &= ppu::VramAddressMask; // T: Z...... ........ <- 0
+        _reg_V &= ppu::VramAddressMask; // T: Z...... ........ <- 0
     }
 
     _reg_W = !_reg_W;
@@ -222,6 +219,7 @@ void PictureProcessingUnit::writePPUADDR()
 
 void PictureProcessingUnit::writePPUDATA()
 {
+    _reg_AB = _reg_V;
     write();
     next();
 }
@@ -239,6 +237,9 @@ void PictureProcessingUnit::forward()
 
 void PictureProcessingUnit::linePre()
 {
+    if (!showBackground() && showSprites())
+        return;
+
     if (_reg_dot < _format.dotSprite) {
         clearStatus();
         dotRender();
@@ -255,6 +256,9 @@ void PictureProcessingUnit::linePre()
 
 void PictureProcessingUnit::lineRender()
 {
+    if (!showBackground() && showSprites())
+        return;
+
     if (_reg_dot < _format.dotSprite) {
         renderPixel();
         dotRender();
@@ -289,7 +293,6 @@ void PictureProcessingUnit::dotRender()
         return;
 
     fetchBackground();
-    scrollHorizontal();
     scrollVertical();
 }
 
@@ -302,7 +305,6 @@ void PictureProcessingUnit::dotSprite()
 void PictureProcessingUnit::dotTile()
 {
     fetchBackground();
-    scrollHorizontal();
 }
 
 void PictureProcessingUnit::dotFetch()
@@ -339,17 +341,12 @@ void PictureProcessingUnit::syncVertical()
 
 void PictureProcessingUnit::scrollHorizontal()
 {
-    if (_reg_dot & ppu::TileMask)
-        return;
-
-    if (_reg_FX.full()) {
-        if (_reg_CX.full())
-            _reg_YX ^= 0b01;
-        ++_reg_CX;
+    if ((_reg_V & 0x001F) == 31) { // if coarse X == 31
+        _reg_V &= ~0x001F;         // coarse X = 0
+        _reg_V ^= 0x0400;          // switch horizontal nametable
+    } else {
+        _reg_V += 1;               // increment coarse X
     }
-    ++_reg_FX;
-
-    copyRender(); // TODO
 }
 
 void PictureProcessingUnit::scrollVertical()
@@ -357,53 +354,65 @@ void PictureProcessingUnit::scrollVertical()
     if (_reg_dot != ppu::PictureWidth)
         return;
 
-    if (_reg_FY.full()) {
-        if (_reg_CY.full())
-            _reg_YX ^= 0b10;
-        ++_reg_CY;
+    if ((_reg_V & 0x7000) != 0x7000) {          // if fine Y < 7
+        _reg_V += 0x1000;                       // increment fine Y
+    } else {
+        _reg_V &= ~0x7000;                      // fine Y = 0
+        int y = (_reg_V & 0x03E0) >> 5;         // let y = coarse Y
+        if (y == 29) {
+            y = 0;                              // coarse Y = 0
+            _reg_V ^= 0x0800;                   // switch _reg_Vertical nametable
+        } else if (y == 31) {
+            y = 0;                              // coarse Y = 0, nametable not switched
+        } else {
+            y += 1;                             // increment coarse Y
+        }
+        _reg_V = (_reg_V & ~0x03E0) | (y << 5); // put coarse Y back into _reg_V
     }
-    ++_reg_FY;
 }
 
 void PictureProcessingUnit::fetchBackground()
 {
+    _reg_BGL <<= 1;
+    _reg_BGH <<= 1;
+
     switch (_reg_dot & ppu::TileMask) {
-        case 1: // Name table byte
-            _reg_V  = (_reg_YX << 10) | (_reg_CY << 5) | _reg_CX;
-            _reg_V |= ppu::NameTableBase;
-            break;
-        case 2:
+        case 2: // name table byte
+            _reg_AB = _reg_V & 0xfff | ppu::VramAddressMask;
             read();
             _reg_NTB = _reg_DBB;
             break;
-        case 3: // Attribute table byte
-            _reg_V  = (_reg_YX << 10) | ((_reg_CY >> 2) << 3) | (_reg_CX >> 2);
-            _reg_V |= ppu::NameTableBase | ppu::NameTableSize;
-            break;
-        case 4:
+        case 4: // attribute table byte
+            _reg_AB = (_reg_V & 0x0C00) | ((_reg_V >> 4) & 0x38) | ((_reg_V >> 2) & 0x07);
+            _reg_AB |= ppu::NameTableBase | ppu::NameTableSize;
             read();
-            _reg_ATB = _reg_DBB >> (((_reg_CY & 0x02) << 1 )| (_reg_CX & 0x02));
+            _reg_ATB = _reg_DBB >> (((_reg_V & 0x40) >> 4 ) | (_reg_V & 0x02));
+            _reg_ATB &= ppu::ColorIndexMask;
             break;
-        case 5: // Pattern table tile low
-            _reg_V  = _reg_NTB << 4 | _reg_FY;
-            _reg_V |= getPatternTable(ppu::ControllerBit::B);
-            break;
-        case 6:
+        case 6: // pattern table lower byte
+            _reg_AB = ((uint16_t)_reg_NTB << 4) | ((_reg_V & 0x7000) >> 12);
+            _reg_AB |= getPatternTable(ppu::ControllerBit::B);
             read();
             _reg_BGLB = _reg_DBB;
             break;
-        case 7: // Pattern table tile hight
-            _reg_V += ppu::TileSize; // TODO: Why not just +1
-            break;
-        case 0:
+        case 0: // pattern table higher byte
+            _reg_AB = ((uint16_t)_reg_NTB << 4) | ((_reg_V & 0x7000) >> 12) | ppu::TileSize;
+            _reg_AB |= getPatternTable(ppu::ControllerBit::B);
             read();
             _reg_BGHB = _reg_DBB;
+
+            _reg_AT >>= 8;
+            copyBackground();
+            scrollHorizontal();
+            break;
+        default:
             break;
     }
 }
 
 void PictureProcessingUnit::fetchSprite()
 {
+    return; // TODO
     switch (_reg_dot & ppu::TileMask) {
         case 1: // Garbage name table byte
             /* TODO: Addr */
@@ -438,41 +447,33 @@ void PictureProcessingUnit::fetchSprite()
 
 void PictureProcessingUnit::renderPixel()
 {
-    // Outputs of multiplexers
-    uint8_t pixelColor;
-    uint8_t spriteColor;
-    uint8_t backgroundColor;
+    // Background color
+    uint16_t bgColor = (_reg_BGH & _fx_mask) >> _fx_shift;
+    bgColor |= (_reg_BGL & _fx_mask) >> _fx_shift >> 1;
+    bgColor >>= 7;
+    bgColor |= ((_reg_AT & 0x03) << 2);
 
-    // Background color multiplexer
-    backgroundColor = (_reg_AT << 2) |
-                      GET_BIT(_reg_BGH, _reg_FX) << 1 |
-                      GET_BIT(_reg_BGL, _reg_FX);
-
-    // TODO: Sprite color multiplexer
-    spriteColor;
+    // TODO: Sprite color
+    uint8_t spColor = 0x10 | 0x00;
 
     // Prioriy multiplexer
-    if (backgroundColor & ppu::ColorIndexMask) {
-        if (spriteColor & ppu::ColorIndexMask) {
-            if (1) // TODO: priority
-                pixelColor = backgroundColor;
-            else
-                pixelColor = 0x10 | spriteColor;
+    uint16_t pixelColor;
+    if (bgColor & ppu::ColorIndexMask) {
+        if (spColor & ppu::ColorIndexMask) {
+            pixelColor = 1 ? bgColor : spColor;  // TODO: priority
         } else {
-            pixelColor = backgroundColor;
+            pixelColor = bgColor;
         }
     } else {
-        if (spriteColor & ppu::ColorIndexMask)
-            pixelColor = 0x10 | spriteColor;
-        else
-            pixelColor = 0x00;
+        // TODO: Or just pixelColor = spColor ?
+        pixelColor = spColor & ppu::ColorIndexMask ? spColor : 0x00;
     }
 
-    _reg_V = ppu::Palettes::PalettesUpperBound | pixelColor;
+    _reg_AB = ppu::Palettes::PalettesLowerBound | pixelColor;
     read();
 
     if (_output) {
-         _output(_reg_dot.value, _reg_line, std::make_tuple(_reg_DBB, _reg_DBB, _reg_DBB));
+        _output(_reg_dot.value, _reg_line, ppu::Colors[_reg_DBB & ppu::ColorPaletteMask]);
     }
 }
 

@@ -14,21 +14,15 @@ class Tickable
 
 public:
 
-    Tickable(int multiplier=1);
+    Tickable();
 
-    void attach(Clock &clock);
+    virtual void tick() = 0;
+
+    void attach(Clock &clock, int multiplier);
 
     void detach();
 
-    void tick();
-
-protected:
-
-    virtual void _tick() = 0;
-
 private:
-
-    int _multiplier;
 
     Clock *_clock;
 };
@@ -44,13 +38,13 @@ protected:
 
     friend class Tickable;
 
-    void attach(Tickable *tickable);
+    void attach(Tickable *tickable, int multiplier);
 
     void detach(Tickable *tickable);
 
 private:
 
-    std::vector<Tickable*> _tickables;
+    std::vector<std::pair<Tickable*, int>> _tickables;
 };
 
 } // namespace tones

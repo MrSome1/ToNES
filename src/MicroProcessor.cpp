@@ -580,8 +580,7 @@ void InstructionDecoder::TYA()
 /* MicroProcessor */
 
 MicroProcessor::MicroProcessor(Bus &bus)
-    : Tickable(1)
-    , _skip(0)
+    : _skip(0)
     , _decoder(*this)
     , _alu(*this)
     , _bus(bus)
@@ -589,6 +588,35 @@ MicroProcessor::MicroProcessor(Bus &bus)
 }
 
 MicroProcessor::~MicroProcessor() {}
+
+void MicroProcessor::tick()
+{
+    if (_skip) {
+        --_skip;
+        return;
+    }
+
+    // Fetch opration code
+    _reg_AB = _reg_PC++;
+    read();
+    _reg_IR = _reg_DBB;
+
+    _decoder.decode();
+
+    // Fetch oprands
+    fetch();
+
+    _decoder.execute();
+}
+
+void MicroProcessor::step()
+{
+    while (_skip) {
+        tick();
+    }
+
+    tick();
+}
 
 void MicroProcessor::reset()
 {
@@ -604,15 +632,6 @@ void MicroProcessor::reset()
     _reg_PC = cpu::VectorRST;
     fetchTwo();
     reg::mergeTwoBytes(_reg_PC, _reg_DBB, _reg_DL);
-}
-
-void MicroProcessor::step()
-{
-    while (_skip) {
-        _tick();
-    }
-
-    _tick();
 }
 
 void MicroProcessor::MicroProcessor::irq()
@@ -637,26 +656,6 @@ void MicroProcessor::dump(Registers_t &registers) const
     registers.S = _reg_S;
     registers.P = _reg_P;
     registers.PC = _reg_PC;
-}
-
-void MicroProcessor::_tick()
-{
-    if (_skip) {
-        --_skip;
-        return;
-    }
-
-    // Fetch opration code
-    _reg_AB = _reg_PC++;
-    read();
-    _reg_IR = _reg_DBB;
-
-    _decoder.decode();
-
-    // Fetch oprands
-    fetch();
-
-    _decoder.execute();
 }
 
 void MicroProcessor::interrupt(uint16_t vector)

@@ -84,7 +84,7 @@ TEST_F(PictureProcessingUnitTest, OamDma)
     }
 }
 
-TEST_F(PictureProcessingUnitTest, PpuDataReadWrite)
+TEST_F(PictureProcessingUnitTest, NameTableReadWrite)
 {
     uint8_t addr;
     uint8_t buff;
@@ -114,6 +114,39 @@ TEST_F(PictureProcessingUnitTest, PpuDataReadWrite)
 
         _vbus.read(VideoRandomAccessMemory::VramLowerBound + i, buff);
         ASSERT_EQ(buff, i & 0xff);
+    }
+}
+
+TEST_F(PictureProcessingUnitTest, PalleteReadWrite)
+{
+    uint8_t addr;
+    uint8_t buff;
+
+    // Init base address to write
+    reg::getMSB(ppu::Palettes::PalettesLowerBound, addr);
+    _mbus.write(ppu::PPUADDR, addr);
+
+    reg::getLSB(ppu::Palettes::PalettesLowerBound, addr);
+    _mbus.write(ppu::PPUADDR, addr);
+
+    for (int i = 0; i < ppu::Palettes::PalettesSize; ++i) {
+        buff = i & 0xff;
+        _mbus.write(ppu::PPUDATA, buff);
+    }
+
+    // Init base address to read
+    reg::getMSB(ppu::Palettes::PalettesLowerBound, addr);
+    _mbus.write(ppu::PPUADDR, addr);
+
+    reg::getLSB(ppu::Palettes::PalettesLowerBound, addr);
+    _mbus.write(ppu::PPUADDR, addr);
+
+    for (int i = 0; i < ppu::Palettes::PalettesSize; ++i) {
+        _mbus.read(ppu::PPUDATA, buff);
+        ASSERT_EQ(buff, i);
+
+        _vbus.read(VideoRandomAccessMemory::VramLowerBound + i, buff);
+        ASSERT_EQ(buff, i);
     }
 }
 
@@ -173,7 +206,7 @@ TEST_F(PictureProcessingUnitTest, ControllSpriteSize)
 // ControllerBit::V
 TEST_F(PictureProcessingUnitTest, ControllNmiEnable)
 {
-    const int size = (ppu::NTSC.lineEnd + 1) * (ppu::NTSC.dotEnd + 1) / 3;
+    const int size = (ppu::NTSC.lineEnd + 1) * (ppu::NTSC.dotEnd + 1);
 
     // NMI disabled
     for (int i = 0; i < size; ++i) {
@@ -199,7 +232,7 @@ TEST_F(PictureProcessingUnitTest, ControllNmiEnable)
 // TODO: Read PPUSTATUS
 TEST_F(PictureProcessingUnitTest, ReadStatus)
 {
-    const int size = (ppu::NTSC.lineEnd) * (ppu::NTSC.dotEnd + 1) / 3;
+    const int size = (ppu::NTSC.lineEnd) * (ppu::NTSC.dotEnd + 1);
 
     for (int i = 0; i < size; ++i) {
         _ppu.tick();

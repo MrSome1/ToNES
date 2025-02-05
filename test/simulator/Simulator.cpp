@@ -248,10 +248,10 @@ void Simulator::drawPatternTable(int base, QImage &img)
                 p1 = _card->chrRom()[addr | 0x08]; // plane 1
             }
 
+            img.setPixel(x, y, (p1 & 0x80) >> 6 | (p0 & 0x80) >> 7);
+
             p0 <<= 1;
             p1 <<= 1;
-
-            img.setPixel(x, y, ((p1 & 0x100) >> 7) | ((p0 & 0x100) >> 8));
         }
     }
 }
@@ -279,11 +279,9 @@ void Simulator::stop()
     }
 }
 
-void Simulator::onVideoDotRendered(int x, int y, const RGB &color)
+void Simulator::onVideoDotRendered(int x, int y, uint32_t color)
 {
-    _videoBuffer.setPixelColor(x, y, QColor::fromRgb(std::get<0>(color),
-                                                     std::get<1>(color),
-                                                     std::get<2>(color)));
+    _videoBuffer.setPixel(x, y, 0xff000000 | color);
 }
 
 void Simulator::onVideoFrameRendered()
