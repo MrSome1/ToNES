@@ -58,20 +58,18 @@ typedef enum Register {
  *   V  P  H  B  S  I  N  N
  */
 enum class ControllerBit {
-    X, // ???
-    Y, // ???
-    I, /* VRAM address increment per CPU read/write of PPUDATA
-          (0: add 1, going across; 1: add 32, going down) */
-    S, /* Sprite pattern table address for 8x8 sprites
-          (0: $0000; 1: $1000; ignored in 8x16 mode) */
-    B, /* Background pattern table address
-          (0: $0000; 1: $1000) */
-    H, /* Sprite size
-          (0: 8x8 pixels; 1: 8x16 pixels) */
-    P, /* PPU master/slave select
-          (0: read backdrop from EXT pins; 1: output color on EXT pins) */
-    V, /* Generate an NMI at the start of the  vertical blanking interval
-               (0: off; 1: on)*/
+    V = 0x01 << 7, /* Generate an NMI at the start of the  vertical blanking interval
+                      (0: off; 1: on)*/
+    P = 0x01 << 6, /* PPU master/slave select
+                      (0: read backdrop from EXT pins; 1: output color on EXT pins) */
+    H = 0x01 << 5, /* Sprite size
+                      (0: 8x8 pixels; 1: 8x16 pixels) */
+    B = 0x01 << 4, /* Background pattern table address
+                      (0: $0000; 1: $1000) */
+    S = 0x01 << 3, /* Sprite pattern table address for 8x8 sprites
+                      (0: $0000; 1: $1000; ignored in 8x16 mode) */
+    I = 0x01 << 2, /* VRAM address increment per CPU read/write of PPUDATA
+                      (0: add 1, going across; 1: add 32, going down) */
 };
 
 /**
@@ -82,14 +80,14 @@ enum class ControllerBit {
  *   B  G  R  s  b  M  m  g
  */
 enum class MaskBit {
-    g, // Greyscale (0: normal color, 1: produce a greyscale display)
-    m, // 1: Show background in leftmost 8 pixels of screen, 0: Hide
-    M, // 1: Show sprites in leftmost 8 pixels of screen, 0: Hide
-    b, // 1: Show background
-    s, // 1: Show sprites
-    R, // Emphasize red (green on PAL/Dendy)
-    G, // Emphasize green (red on PAL/Dendy)
-    B, // Emphasize blue
+    B = 0x01 << 7, // Emphasize blue
+    G = 0x01 << 6, // Emphasize green (red on PAL/Dendy)
+    R = 0x01 << 5, // Emphasize red (green on PAL/Dendy)
+    s = 0x01 << 4, // 1: Show sprites
+    b = 0x01 << 3, // 1: Show background
+    M = 0x01 << 2, // 1: Show sprites in leftmost 8 pixels of screen, 0: Hide
+    m = 0x01 << 1, // 1: Show background in leftmost 8 pixels of screen, 0: Hide
+    g = 0x01       // Greyscale (0: normal color, 1: produce a greyscale display)
 };
 
 /**
@@ -100,9 +98,9 @@ enum class MaskBit {
  *   V  S  O  .  .  .  .  .
  */
 enum class StatusBit {
-    O = 5, // Sprite overflow
-    S,     // Sprite 0 hit
-    V,     // 0: not in vblank; 1: in vblank
+    V = 0x01 << 7, // 0: not in vblank; 1: in vblank
+    S = 0x01 << 6, // Sprite 0 hit
+    O = 0x01 << 5, // Sprite overflow
 };
 
 /**
@@ -361,68 +359,6 @@ private:
 
     FrameEnd _flush;
 };
-
-inline void PictureProcessingUnit::read()
-{
-    _vbus.read(_reg_AB & ppu::VramAddressMask, _reg_DBB);
-}
-
-inline void PictureProcessingUnit::write()
-{
-    _vbus.write(_reg_AB & ppu::VramAddressMask, _reg_DBB);
-} 
-
-inline void PictureProcessingUnit::next()
-{
-    _reg_V += GET_BIT(_reg_CTRL, ppu::ControllerBit::I) ? 0x20 : 0x01;
-}
-
-inline void PictureProcessingUnit::readOAM()
-{
-    _reg_DBB = _OAM[_reg_OAMADDR];
-}
-
-inline void PictureProcessingUnit::writeOAM()
-{
-    _OAM[_reg_OAMADDR] = _reg_DBB;
-}
-
-inline bool PictureProcessingUnit::showBackground()
-{
-    return GET_BIT(_reg_MASK, ppu::MaskBit::b);
-}
-
-inline bool PictureProcessingUnit::showSprites()
-{
-    return GET_BIT(_reg_MASK, ppu::MaskBit::s);
-}
-
-inline void PictureProcessingUnit::copyBackground()
-{
-    reg::setLSB(_reg_BGL, _reg_BGLB);
-    reg::setLSB(_reg_BGH, _reg_BGHB);
-    reg::setMSB(_reg_AT, _reg_ATB);
-}
-
-inline void PictureProcessingUnit::copyHorizontal()
-{
-    // v: ....A.. ...BCDEF <- t: ....A.. ...BCDEF
-    _reg_V &= ~0x041f;
-    _reg_V |= _reg_T & 0x041f;
-}
-
-inline void PictureProcessingUnit::copyVertical()
-{
-    // v: GHIA.BC DEF..... <- t: GHIA.BC DEF.....
-    _reg_V &= ~0x7be0;
-    _reg_V |= _reg_T & 0x7be0;
-}
-
-inline uint16_t PictureProcessingUnit::getPatternTable(ppu::ControllerBit bit)
-{
-    return GET_BIT(_reg_CTRL, bit) ? PatternTables::TableUpperBankBase:
-                                     PatternTables::TableLowerBankBase;
-}
 
 } // namespace tones
 

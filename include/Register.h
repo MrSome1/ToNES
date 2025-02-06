@@ -4,17 +4,17 @@
 #include <array>
 #include <cinttypes>
 
-#define GET_BIT(bitwise, bit) \
-    tones::reg::getBit(bitwise, static_cast<int>(bit))
+#define GET_BIT(bitwise, mask) \
+    tones::reg::getBit(bitwise, static_cast<uint8_t>(mask))
 
-#define SEL_BIT(bitwise, bit) \
-    tones::reg::setBit(bitwise, static_cast<int>(bit), true)
+#define SEL_BIT(bitwise, mask) \
+    tones::reg::selBit(bitwise, static_cast<uint8_t>(mask))
 
-#define CLR_BIT(bitwise, bit) \
-    tones::reg::setBit(bitwise, static_cast<int>(bit), false)
+#define CLR_BIT(bitwise, mask) \
+    tones::reg::clrBit(bitwise, static_cast<uint8_t>(mask))
 
-#define SET_BIT(bitwise, bit, val) \
-    tones::reg::setBit(bitwise, static_cast<int>(bit), val)
+#define SET_BIT(bitwise, mask, val) \
+    tones::reg::setBit(bitwise, static_cast<uint8_t>(mask), val)
 
 namespace tones {
 namespace reg {
@@ -136,15 +136,24 @@ typedef struct Cycle: public Base<uint16_t> {
 
 } Cycle_t;
 
-inline void setBit(uint8_t &byte, int bit, bool val)
+inline void selBit(uint8_t &byte, uint8_t mask)
 {
-    uint8_t mask = 0x01 << bit;    
-    val ? byte |= mask : byte &= ~mask;
+    byte |= mask;
 }
 
-inline bool getBit(uint8_t byte, int bit)
+inline void clrBit(uint8_t &byte, uint8_t mask)
 {
-    return byte & (0x01 << bit);
+    byte &= ~mask;
+}
+
+inline void setBit(uint8_t &byte, uint8_t mask, bool val)
+{
+    val ? selBit(byte, mask) : clrBit(byte, mask);
+}
+
+inline bool getBit(uint8_t byte, uint8_t mask)
+{
+    return byte & mask;
 }
 
 inline void setMSB(uint16_t &value, uint8_t msb)

@@ -33,14 +33,13 @@ const uint8_t DefaultStatus = 0x24; // 0010 0100
  *   N  V  .  B  D  I  Z  C
  */
 enum class StatusBit {
-    C, // Carry
-    Z, // Zero
-    I, // Interupt
-    D, // Decimal
-    B, // Break
-    n, // Null
-    V, // Overflow
-    N, // Negative
+    N = 0x01 << 7, // Negative
+    V = 0x01 << 6, // Overflow
+    B = 0x01 << 4, // Break
+    D = 0x01 << 3, // Decimal
+    I = 0x01 << 2, // Interupt
+    Z = 0x01 << 1, // Zero
+    C = 0x01       // Carry
 };
 
 class InstructionDecoder;

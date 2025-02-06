@@ -237,7 +237,7 @@ void PictureProcessingUnit::forward()
 
 void PictureProcessingUnit::linePre()
 {
-    if (!showBackground() && showSprites())
+    if (!showBackground() && !showSprites())
         return;
 
     if (_reg_dot < _format.dotSprite) {
@@ -256,7 +256,7 @@ void PictureProcessingUnit::linePre()
 
 void PictureProcessingUnit::lineRender()
 {
-    if (!showBackground() && showSprites())
+    if (!showBackground() && !showSprites())
         return;
 
     if (_reg_dot < _format.dotSprite) {
@@ -475,6 +475,68 @@ void PictureProcessingUnit::renderPixel()
     if (_output) {
         _output(_reg_dot.value, _reg_line, ppu::Colors[_reg_DBB & ppu::ColorPaletteMask]);
     }
+}
+
+inline void PictureProcessingUnit::read()
+{
+    _vbus.read(_reg_AB & ppu::VramAddressMask, _reg_DBB);
+}
+
+inline void PictureProcessingUnit::write()
+{
+    _vbus.write(_reg_AB & ppu::VramAddressMask, _reg_DBB);
+}
+
+inline void PictureProcessingUnit::next()
+{
+    _reg_V += GET_BIT(_reg_CTRL, ppu::ControllerBit::I) ? 0x20 : 0x01;
+}
+
+inline void PictureProcessingUnit::readOAM()
+{
+    _reg_DBB = _OAM[_reg_OAMADDR];
+}
+
+inline void PictureProcessingUnit::writeOAM()
+{
+    _OAM[_reg_OAMADDR] = _reg_DBB;
+}
+
+inline bool PictureProcessingUnit::showBackground()
+{
+    return GET_BIT(_reg_MASK, ppu::MaskBit::b);
+}
+
+inline bool PictureProcessingUnit::showSprites()
+{
+    return GET_BIT(_reg_MASK, ppu::MaskBit::s);
+}
+
+inline void PictureProcessingUnit::copyBackground()
+{
+    reg::setLSB(_reg_BGL, _reg_BGLB);
+    reg::setLSB(_reg_BGH, _reg_BGHB);
+    reg::setMSB(_reg_AT, _reg_ATB);
+}
+
+inline void PictureProcessingUnit::copyHorizontal()
+{
+    // v: ....A.. ...BCDEF <- t: ....A.. ...BCDEF
+    _reg_V &= ~0x041f;
+    _reg_V |= _reg_T & 0x041f;
+}
+
+inline void PictureProcessingUnit::copyVertical()
+{
+    // v: GHIA.BC DEF..... <- t: GHIA.BC DEF.....
+    _reg_V &= ~0x7be0;
+    _reg_V |= _reg_T & 0x7be0;
+}
+
+inline uint16_t PictureProcessingUnit::getPatternTable(ppu::ControllerBit bit)
+{
+    return GET_BIT(_reg_CTRL, bit) ? PatternTables::TableUpperBankBase:
+                                     PatternTables::TableLowerBankBase;
 }
 
 } // namespace tones
