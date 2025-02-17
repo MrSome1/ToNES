@@ -47,7 +47,78 @@ protected:
 
     PictureProcessingUnit _ppu;
     DirectMemoryAccess _odma;
+
+    PictureProcessingUnit::Registers_t _regs;
 };
+
+TEST_F(PictureProcessingUnitTest, Reset)
+{
+    uint8_t buff;
+
+    _ppu.dump(_regs);
+    EXPECT_EQ(_regs.T, 0x0000);
+    EXPECT_EQ(_regs.V, 0x0000);
+    EXPECT_EQ(_regs.X, 0x00);
+    EXPECT_EQ(_regs.W, 0x00);
+
+    EXPECT_EQ(_regs.CTRL, 0x00);
+    EXPECT_EQ(_regs.MASK, 0x00);
+
+    _mbus.read(ppu::PPUDATA, buff);
+    EXPECT_EQ(buff, 0x00);
+
+    _mbus.read(ppu::PPUSTATUS, buff);
+    EXPECT_EQ(buff & 0x80, 0x80);
+}
+
+TEST_F(PictureProcessingUnitTest, InternalRegisters)
+{
+    uint8_t buff;
+
+    // Write PPUCTRL & PPUSCROLL
+    _mbus.write(ppu::PPUCTRL, 0x02);
+
+    _mbus.write(ppu::PPUSCROLL, 0x7d);
+    _mbus.write(ppu::PPUSCROLL, 0x5e);
+
+    _ppu.dump(_regs);
+    EXPECT_EQ(_regs.V, 0x0000);
+    EXPECT_EQ(_regs.T, 0x696f);
+    EXPECT_EQ(_regs.X, 0x05);
+    EXPECT_EQ(_regs.W, 0x00);
+
+    // Write PPUADDR
+    _mbus.write(ppu::PPUADDR, 0x3d);
+    _mbus.write(ppu::PPUADDR, 0xf0);
+
+    _ppu.dump(_regs);
+    EXPECT_EQ(_regs.V, 0x3df0);
+    EXPECT_EQ(_regs.T, 0x3df0);
+    EXPECT_EQ(_regs.X, 0x05);
+    EXPECT_EQ(_regs.W, 0x00);
+
+    // Read PPUSTATUS will clear W
+    _mbus.write(ppu::PPUSCROLL, 0x7c);
+    _ppu.dump(_regs);
+    EXPECT_EQ(_regs.V, 0x3df0);
+    EXPECT_EQ(_regs.T, 0x3def);
+    EXPECT_EQ(_regs.X, 0x04);
+    EXPECT_EQ(_regs.W, 0x01);
+
+    _mbus.read(ppu::PPUSTATUS, buff);
+    _ppu.dump(_regs);
+    EXPECT_EQ(_regs.V, 0x3df0);
+    EXPECT_EQ(_regs.T, 0x3def);
+    EXPECT_EQ(_regs.X, 0x04);
+    EXPECT_EQ(_regs.W, 0x00);
+
+    _mbus.write(ppu::PPUADDR, 0x3c);
+    _ppu.dump(_regs);
+    EXPECT_EQ(_regs.V, 0x3df0);
+    EXPECT_EQ(_regs.T, 0x3cef);
+    EXPECT_EQ(_regs.X, 0x04);
+    EXPECT_EQ(_regs.W, 0x01);
+}
 
 TEST_F(PictureProcessingUnitTest, OamReadWrite)
 {
@@ -82,6 +153,37 @@ TEST_F(PictureProcessingUnitTest, OamDma)
         _mbus.read(ppu::OAMDATA, buff);
         ASSERT_EQ(addr, buff);
     }
+}
+
+TEST_F(PictureProcessingUnitTest, VRamAddress)
+{
+    const uint16_t base = VideoRandomAccessMemory::VramLowerBound;
+
+    uint8_t addr;
+    uint8_t buff;
+
+    reg::getMSB(VideoRandomAccessMemory::VramLowerBound, addr);
+    _mbus.write(ppu::PPUADDR, addr);
+
+    _ppu.dump(_regs);
+    EXPECT_EQ(_regs.W, 0x01);
+
+    reg::getLSB(VideoRandomAccessMemory::VramLowerBound, addr);
+    _mbus.write(ppu::PPUADDR, addr);
+
+    _ppu.dump(_regs);
+    EXPECT_EQ(_regs.V, base);
+    EXPECT_EQ(_regs.T, base);
+    EXPECT_EQ(_regs.W, 0x00);
+
+    for (int i = 0; i < 16; ++i) {
+        buff = i & 0xff;
+        _mbus.write(ppu::PPUDATA, buff);
+    }
+
+    _ppu.dump(_regs);
+    EXPECT_EQ(_regs.V, base + 16);
+    EXPECT_EQ(_regs.T, base);
 }
 
 TEST_F(PictureProcessingUnitTest, NameTableReadWrite)
@@ -150,8 +252,6 @@ TEST_F(PictureProcessingUnitTest, PalleteReadWrite)
     }
 }
 
-// TODO: Write PPUCTRL
-
 // ControllerBit::XY
 TEST_F(PictureProcessingUnitTest, ControllNametableBase)
 {
@@ -208,15 +308,17 @@ TEST_F(PictureProcessingUnitTest, ControllNmiEnable)
 {
     const int size = (ppu::NTSC.lineEnd + 1) * (ppu::NTSC.dotEnd + 1);
 
-    // NMI disabled
+    // NMI enabled
+    _mbus.write(ppu::PPUCTRL, 0x80);
+
     for (int i = 0; i < size; ++i) {
         _ppu.tick();
     }
 
-    EXPECT_EQ(_count, 0);
+    EXPECT_EQ(_count, 1);
 
-    // NMI enabled
-    _mbus.write(ppu::PPUCTRL, 0x80);
+    // NMI disabled
+    _mbus.write(ppu::PPUCTRL, 0x00);
 
     for (int i = 0; i < size; ++i) {
         _ppu.tick();
@@ -226,6 +328,15 @@ TEST_F(PictureProcessingUnitTest, ControllNmiEnable)
 }
 
 // TODO: Write PPUMASK
+TEST_F(PictureProcessingUnitTest, Mask)
+{
+    _mbus.write(ppu::PPUMASK, 0x18);
+    _ppu.dump(_regs);
+
+    EXPECT_EQ(_regs.MASK, 0x18);
+    EXPECT_TRUE(GET_BIT(_regs.MASK, ppu::MaskBit::s));
+    EXPECT_TRUE(GET_BIT(_regs.MASK, ppu::MaskBit::b));
+}
 
 // TODO: Write PPUSCROLL
 
@@ -243,6 +354,29 @@ TEST_F(PictureProcessingUnitTest, ReadStatus)
     EXPECT_TRUE(buff & 0x80) << "PPUSTATUS: " << (int)buff;
     _mbus.read(ppu::PPUSTATUS, buff);
     EXPECT_FALSE(buff & 0x80) << "PPUSTATUS: " << (int)buff;
+}
+
+TEST_F(PictureProcessingUnitTest, RenderDisabledWrite)
+{
+    uint8_t addr;
+    uint8_t buff;
+
+    // Init base address to write
+    reg::getMSB(VideoRandomAccessMemory::VramLowerBound, addr);
+    _mbus.write(ppu::PPUADDR, addr);
+
+    reg::getLSB(VideoRandomAccessMemory::VramLowerBound, addr);
+    _mbus.write(ppu::PPUADDR, addr);
+
+    for (int i = 0; i < VideoRandomAccessMemory::VramSize; ++i) {
+        _ppu.tick();
+
+        buff = i & 0xff;
+        _mbus.write(ppu::PPUDATA, buff);
+
+        _vbus.read(VideoRandomAccessMemory::VramLowerBound + i, buff);
+        ASSERT_EQ(buff, i & 0xff);
+    }
 }
 
 int main(int argc, char **argv)

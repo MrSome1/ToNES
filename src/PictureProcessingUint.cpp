@@ -118,6 +118,8 @@ void PictureProcessingUnit::reset()
     _reg_T = 0x00;
     _reg_X = 0x00;
     _reg_W = 0x00;
+
+    _reg_DBB = 0x00;
 }
 
 void PictureProcessingUnit::setBlankHandler(VBlank handler)
@@ -133,6 +135,16 @@ void PictureProcessingUnit::setVideoOut(VideoOut output)
 void PictureProcessingUnit::setFrameEnd(FrameEnd flush)
 {
     _flush = flush;
+}
+
+void PictureProcessingUnit::dump(Registers_t &registers) const
+{
+    registers.T = _reg_T;
+    registers.V = _reg_V;
+    registers.X = _reg_X;
+    registers.W = _reg_W;
+    registers.CTRL = _reg_CTRL;
+    registers.MASK = _reg_MASK;
 }
 
 void PictureProcessingUnit::readPPUSTATUS()
@@ -211,7 +223,7 @@ void PictureProcessingUnit::writePPUADDR()
         _reg_V = _reg_T;
     } else { // first write
         reg::setMSB(_reg_T, _reg_DBB);  // T: .CDEFGH ........ <- DBB: ..CDEFGH
-        _reg_V &= ppu::VramAddressMask; // T: Z...... ........ <- 0
+        _reg_T &= ppu::VramAddressMask; // T: Z...... ........ <- 0
     }
 
     _reg_W = !_reg_W;

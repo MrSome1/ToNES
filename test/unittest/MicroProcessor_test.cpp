@@ -59,6 +59,22 @@ TEST_F(MicroProcessorTest, Reset)
     EXPECT_EQ(_regs.PC, pc);
 }
 
+TEST_F(MicroProcessorTest, NMI)
+{
+    std::string filepath = getRomBin(ROM_INTERRUPT);
+    auto card = CartridgeFactory::createCartridge(filepath);
+    ASSERT_NE(card, nullptr);
+
+    card->attach(_mbus, _vbus);
+    _cpu.reset();
+
+    _cpu.nmi();
+    _cpu.dump(_regs);
+
+    EXPECT_EQ(_regs.S, 0xfa);
+    EXPECT_EQ(_regs.PC, 0x8002);
+}
+
 TEST_P(MicroProcessorTest, Instructions)
 {
     std::string rom = GetParam();

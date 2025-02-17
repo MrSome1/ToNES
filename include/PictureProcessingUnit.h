@@ -194,6 +194,18 @@ class PictureProcessingUnit : public Tickable
 
 public:
 
+    /* Internal Registers for Debug*/
+    typedef struct Registers {
+        uint16_t V;
+        uint16_t T;
+        uint8_t  X;
+        uint8_t  W;
+        uint8_t  CTRL;
+        uint8_t  MASK;
+    } Registers_t;
+
+public:
+
     /** Constructor
      * @param vbus bus of the ppu
      * @param mbus bus of the cpu
@@ -209,6 +221,8 @@ public:
     void setVideoOut(VideoOut output);
 
     void setFrameEnd(FrameEnd flush);
+
+    void dump(Registers_t &registers) const;
 
 protected:
 
