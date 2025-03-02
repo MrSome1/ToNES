@@ -1,0 +1,8 @@
+Log Start
+A:00 X:00 Y:00 S:FD P:nvubdIzc   $8000: 4C 04 80 JMP $8004
+A:00 X:00 Y:00 S:FD P:nvubdIzc   $8004: A9 7F    LDA #$7F
+A:7F X:00 Y:00 S:FD P:nvubdIzc   $8006: 85 00    STA $00 = #$00
+A:7F X:00 Y:00 S:FD P:nvubdIzc   $8008: 20 0C 80 JSR $800C
+A:7F X:00 Y:00 S:FB P:nvubdIzc     $800C: E6 00    INC $00 = #$7F
+A:7F X:00 Y:00 S:FB P:NvubdIzc     $800E: 60       RTS (from $800C)
+A:7F X:00 Y:00 S:FD P:NvubdIzc   $800B: EA       NOP

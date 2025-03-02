@@ -25,3 +25,9 @@ configure_file(roms.h.in ${CMAKE_CURRENT_BINARY_DIR}/roms.h)
 # Roms for CPU
 file(GLOB CPU_ROM_SRC cpu/*.asm)
 add_roms(CpuRoms "${CPU_ROM_SRC}")
+
+# Copy results
+If(NOT EXISTS ${CMAKE_CURRENT_BINARY_DIR}/result)
+    file(GLOB ROM_LOG_FILES result/*.log)
+    file(COPY ${ROM_LOG_FILES} DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/result)
+endif()

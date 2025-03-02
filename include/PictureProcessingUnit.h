@@ -1,6 +1,7 @@
 #ifndef _TONES_PICTUREPROCESSINGUNIT_H_
 #define _TONES_PICTUREPROCESSINGUNIT_H_
 
+#include <array>
 #include <functional>
 #include <tuple>
 
@@ -147,6 +148,8 @@ public:
 
     void write(uint16_t address, uint8_t data) override;
 
+    void dump(std::array <uint8_t, PalettesSize> &colors) const;
+
 private:
 
     std::array <uint8_t, PalettesSize> _memory;
@@ -223,6 +226,8 @@ public:
     void setFrameEnd(FrameEnd flush);
 
     void dump(Registers_t &registers) const;
+
+    void dumpPalettes(std::array<uint8_t, ppu::Palettes::PalettesSize> &colors);
 
 protected:
 

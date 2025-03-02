@@ -8,6 +8,7 @@
 
 #include "roms.h"
 #include "RomParser.hpp"
+#include "LogParser.hpp"
 
 using namespace tones;
 
@@ -36,7 +37,8 @@ protected:
     MicroProcessor _cpu;
     MicroProcessor::Registers_t _regs;
 
-    RomParser _parser;
+    RomParser _romParser;
+    LogParser _logParser;
 };
 
 TEST_F(MicroProcessorTest, Reset)
@@ -79,9 +81,14 @@ TEST_P(MicroProcessorTest, Instructions)
 {
     std::string rom = GetParam();
 
+    Registers_t truth;
+    std::string romLog = getRomLog(rom);
+    _logParser.load(romLog);
+    _logParser.next(truth); // skip the initial state
+
     std::string romSrc = getRomSrc(rom);
-    _parser.load(romSrc);
-    ASSERT_NE(_parser.size(), 0);
+    _romParser.load(romSrc);
+    ASSERT_NE(_romParser.size(), 0);
 
     std::string romBin = getRomBin(rom);
     auto card = CartridgeFactory::createCartridge(romBin);
@@ -90,11 +97,12 @@ TEST_P(MicroProcessorTest, Instructions)
     card->attach(_mbus, _vbus);
     _cpu.reset();
 
-    for (int i = 0; i < _parser.size(); ++i) {
+    for (int i = 0; i < _romParser.size(); ++i) {
         _cpu.step();
         _cpu.dump(_regs);
 
-        auto line = _parser.line();
+        auto line = _romParser.line();
+        _romParser.next();
 
         if (RomParser::hasRam(line)) {
             uint8_t val;
@@ -102,14 +110,21 @@ TEST_P(MicroProcessorTest, Instructions)
             EXPECT_EQ(val, line.ramValue) << hint(line);
         }
 
-        ASSERT_EQ(_regs.A, line.regs.A)   << hint(line);
-        ASSERT_EQ(_regs.X, line.regs.X)   << hint(line);
-        ASSERT_EQ(_regs.Y, line.regs.Y)   << hint(line);
-        ASSERT_EQ(_regs.S, line.regs.S)   << hint(line);
-        ASSERT_EQ(_regs.P, line.regs.P)   << hint(line);
+        ASSERT_EQ(_regs.A,  line.regs.A)  << hint(line);
+        ASSERT_EQ(_regs.X,  line.regs.X)  << hint(line);
+        ASSERT_EQ(_regs.Y,  line.regs.Y)  << hint(line);
+        ASSERT_EQ(_regs.S,  line.regs.S)  << hint(line);
+        ASSERT_EQ(_regs.P,  line.regs.P)  << hint(line);
         ASSERT_EQ(_regs.PC, line.regs.PC) << hint(line);
 
-        _parser.next();
+        // _romParser.next();
+        _logParser.next(truth);
+        ASSERT_EQ(_regs.A,  truth.A)  << hint(line);
+        ASSERT_EQ(_regs.X,  truth.X)  << hint(line);
+        ASSERT_EQ(_regs.Y,  truth.Y)  << hint(line);
+        ASSERT_EQ(_regs.S,  truth.S)  << hint(line);
+        ASSERT_EQ(_regs.P,  truth.P)  << hint(line);
+        ASSERT_EQ(_regs.PC, truth.PC) << hint(line);
     }
 }
 
@@ -117,27 +132,27 @@ INSTANTIATE_TEST_SUITE_P(BasicTest,
                          MicroProcessorTest,
                          testing::Values(
                             ROM_LOAD,
-                            ROM_STACK,
+                            ROM_STACK, // F
                             ROM_STATUS,
                             ROM_TRANSFER,
                             ROM_BRANCH,
                             ROM_JUMP,
-                            ROM_LOGIC,
-                            ROM_ARITHMETIC,
-                            ROM_INTERRUPT
+                            ROM_LOGIC, // F
+                            ROM_ARITHMETIC, //F
+                            ROM_INTERRUPT // F
                         ));
 
 INSTANTIATE_TEST_SUITE_P(AddressingModeTest,
                          MicroProcessorTest,
                          testing::Values(
-                            ROM_ZP,
-                            ROM_ZPX,
+                            ROM_ZP, // F
+                            ROM_ZPX, // F
                             ROM_ZPY,
-                            ROM_ABS,
-                            ROM_ABX,
-                            ROM_ABY,
-                            ROM_IDX,
-                            ROM_IDY,
+                            ROM_ABS, // F
+                            ROM_ABX, // F
+                            ROM_ABY, // F
+                            ROM_IDX, // F
+                            ROM_IDY, // F
                             ROM_IND
                         ));
 

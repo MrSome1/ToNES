@@ -1,0 +1,14 @@
+Log Start
+A:00 X:00 Y:00 S:FD P:nvubdIzc   $8000: A9 5A    LDA #$5A
+A:5A X:00 Y:00 S:FD P:nvubdIzc   $8002: A0 01    LDY #$01
+A:5A X:00 Y:01 S:FD P:nvubdIzc   $8004: 8C 00 02 STY $0200 = #$00
+A:5A X:00 Y:01 S:FD P:nvubdIzc   $8007: 99 FF 07 STA $07FF,Y @ $0800 = #$00
+A:5A X:00 Y:01 S:FD P:nvubdIzc   $800A: BE FF 07 LDX $07FF,Y @ $0800 = #$5A
+A:5A X:5A Y:01 S:FD P:nvubdIzc   $800D: D9 FF 07 CMP $07FF,Y @ $0800 = #$5A
+A:5A X:5A Y:01 S:FD P:nvubdIZC   $8010: F9 FF 07 SBC $07FF,Y @ $0800 = #$5A
+A:00 X:5A Y:01 S:FD P:nvubdIZC   $8013: 79 FF 07 ADC $07FF,Y @ $0800 = #$5A
+A:5B X:5A Y:01 S:FD P:nvubdIzc   $8016: 59 FF 07 EOR $07FF,Y @ $0800 = #$5A
+A:01 X:5A Y:01 S:FD P:nvubdIzc   $8019: B9 FF 07 LDA $07FF,Y @ $0800 = #$5A
+A:5A X:5A Y:01 S:FD P:nvubdIzc   $801C: 19 FF 01 ORA $01FF,Y @ $0200 = #$01
+A:5B X:5A Y:01 S:FD P:nvubdIzc   $801F: 39 FF 07 AND $07FF,Y @ $0800 = #$5A
+A:5A X:5A Y:01 S:FD P:nvubdIzc   $8022: 00       BRK

@@ -75,6 +75,11 @@ void Palettes::write(uint16_t address, uint8_t data)
     _memory[address & PalettesMask] = data;
 }
 
+void Palettes::dump(std::array <uint8_t, PalettesSize> &colors) const
+{
+    std::copy(_memory.begin(), _memory.end(), colors.begin());
+}
+
 } // namespace ppu
 
 /* PictureProcessingUnit */
@@ -145,6 +150,12 @@ void PictureProcessingUnit::dump(Registers_t &registers) const
     registers.W = _reg_W;
     registers.CTRL = _reg_CTRL;
     registers.MASK = _reg_MASK;
+}
+
+void PictureProcessingUnit::dumpPalettes(
+        std::array<uint8_t, ppu::Palettes::PalettesSize> &colors)
+{
+    _palettes.dump(colors);
 }
 
 void PictureProcessingUnit::readPPUSTATUS()

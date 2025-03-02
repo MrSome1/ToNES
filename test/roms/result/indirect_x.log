@@ -1,0 +1,17 @@
+Log Start
+A:00 X:00 Y:00 S:FD P:nvubdIzc   $8000: A9 05    LDA #$05
+A:05 X:00 Y:00 S:FD P:nvubdIzc   $8002: 85 FE    STA $FE = #$FF
+A:05 X:00 Y:00 S:FD P:nvubdIzc   $8004: A9 07    LDA #$07
+A:07 X:00 Y:00 S:FD P:nvubdIzc   $8006: 85 FF    STA $FF = #$FF
+A:07 X:00 Y:00 S:FD P:nvubdIzc   $8008: A0 0A    LDY #$0A
+A:07 X:00 Y:0A S:FD P:nvubdIzc   $800A: 8C 05 07 STY $0705 = #$FF
+A:07 X:00 Y:0A S:FD P:nvubdIzc   $800D: A2 0E    LDX #$0E
+A:07 X:0E Y:0A S:FD P:nvubdIzc   $800F: 01 F0    ORA ($F0,X) @ $0705 = #$0A
+A:0F X:0E Y:0A S:FD P:nvubdIzc   $8011: C1 F0    CMP ($F0,X) @ $0705 = #$0A
+A:0F X:0E Y:0A S:FD P:nvubdIzC   $8013: E1 F0    SBC ($F0,X) @ $0705 = #$0A
+A:05 X:0E Y:0A S:FD P:nvubdIzC   $8015: 81 F0    STA ($F0,X) @ $0705 = #$0A
+A:05 X:0E Y:0A S:FD P:nvubdIzC   $8017: 61 F0    ADC ($F0,X) @ $0705 = #$05
+A:0B X:0E Y:0A S:FD P:nvubdIzc   $8019: 21 F0    AND ($F0,X) @ $0705 = #$05
+A:01 X:0E Y:0A S:FD P:nvubdIzc   $801B: A1 F0    LDA ($F0,X) @ $0705 = #$05
+A:05 X:0E Y:0A S:FD P:nvubdIzc   $801D: 41 F0    EOR ($F0,X) @ $0705 = #$05
+A:00 X:0E Y:0A S:FD P:nvubdIZc   $801F: 00       BRK

@@ -1,0 +1,20 @@
+Log Start
+A:00 X:00 Y:00 S:FD P:nvubdIzc   $8000: A9 5A    LDA #$5A
+A:5A X:00 Y:00 S:FD P:nvubdIzc   $8002: A2 01    LDX #$01
+A:5A X:01 Y:00 S:FD P:nvubdIzc   $8004: 95 FE    STA $FE,X @ $00FF = #$FF
+A:5A X:01 Y:00 S:FD P:nvubdIzc   $8006: F6 FE    INC $FE,X @ $00FF = #$5A
+A:5A X:01 Y:00 S:FD P:nvubdIzc   $8008: 16 FE    ASL $FE,X @ $00FF = #$5B
+A:5A X:01 Y:00 S:FD P:NvubdIzc   $800A: 36 FE    ROL $FE,X @ $00FF = #$B6
+A:5A X:01 Y:00 S:FD P:nvubdIzC   $800C: B4 FE    LDY $FE,X @ $00FF = #$6C
+A:5A X:01 Y:6C S:FD P:nvubdIzC   $800E: 94 FF    STY $FF,X @ $0000 = #$00
+A:5A X:01 Y:6C S:FD P:nvubdIzC   $8010: 76 FF    ROR $FF,X @ $0000 = #$6C
+A:5A X:01 Y:6C S:FD P:NvubdIzc   $8012: 56 FF    LSR $FF,X @ $0000 = #$B6
+A:5A X:01 Y:6C S:FD P:nvubdIzc   $8014: D6 FF    DEC $FF,X @ $0000 = #$5B
+A:5A X:01 Y:6C S:FD P:nvubdIzc   $8016: B5 FE    LDA $FE,X @ $00FF = #$6C
+A:6C X:01 Y:6C S:FD P:nvubdIzc   $8018: 55 FF    EOR $FF,X @ $0000 = #$5A
+A:36 X:01 Y:6C S:FD P:nvubdIzc   $801A: 35 FE    AND $FE,X @ $00FF = #$6C
+A:24 X:01 Y:6C S:FD P:nvubdIzc   $801C: 15 FF    ORA $FF,X @ $0000 = #$5A
+A:7E X:01 Y:6C S:FD P:nvubdIzc   $801E: D5 FF    CMP $FF,X @ $0000 = #$5A
+A:7E X:01 Y:6C S:FD P:nvubdIzC   $8020: F5 FE    SBC $FE,X @ $00FF = #$6C
+A:12 X:01 Y:6C S:FD P:nvubdIzC   $8022: 75 FF    ADC $FF,X @ $0000 = #$5A
+A:6D X:01 Y:6C S:FD P:nvubdIzc   $8024: 00       BRK

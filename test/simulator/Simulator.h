@@ -1,8 +1,10 @@
 #ifndef _TONES_SIMULATOR_H_
 #define _TONES_SIMULATOR_H_
 
+#include <array>
 #include <thread>
 
+#include <QDialog>
 #include <QMainWindow>
 #include <QImage>
 #include <QPixmap>
@@ -10,6 +12,7 @@
 #include <QTextDocument>
 
 #include "ui_mainwindow.h"
+#include "ui_ppuviewer.h"
 #include "MotherBoard.h"
 
 namespace tones {
@@ -37,7 +40,7 @@ public:
 
     void onAudioOutput() override;
 
-    void onCpuStepped(const MicroProcessor::Registers_t &regs) override;
+    void onRegistersChanged() override;
 
 Q_SIGNALS:
 
@@ -71,6 +74,8 @@ protected:
 
     void setupView();
 
+    void setupAllColors();
+
     void setupConnections();
 
     void changeStatus(Status s = Invalid);
@@ -81,17 +86,24 @@ protected:
 
     void showChrRom();
 
+    void showPalettes();
+
     void drawPatternTable(int base, QImage &img);
 
 private:
-
-    Ui::MainWindow *_ui;
 
     std::thread _thread;
 
     CartridgePtr _card;
 
     MotherBoard _engine;
+
+    /* UI classes */
+
+    Ui::MainWindow *_mainWindow;
+
+    QDialog *_ppuViewerDialog;
+    Ui::PpuViewer *_ppuViewer;
 
     /* Video Buffers */
 
@@ -103,9 +115,17 @@ private:
 
     QString _cpuP;
 
+    MicroProcessor::Registers _cpuRegisters;
+
     QTextDocument *_prom;
 
+    PictureProcessingUnit::Registers _ppuRegisters;
+
     QImage _limg, _rimg; // pattern tables
+
+    QVector<QLabel*> _colorLables;
+    QVector<QLabel*> _paletteLables;
+    std::array<uint8_t, ppu::Palettes::PalettesSize> _paletteColors;
 };
 
 } // namespace tones

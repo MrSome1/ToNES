@@ -1,0 +1,8 @@
+Log Start
+A:00 X:00 Y:00 S:FD P:nvubdIzc   $8000: A9 FF    LDA #$FF
+A:FF X:00 Y:00 S:FD P:NvubdIzc   $8002: 48       PHA
+A:FF X:00 Y:00 S:FC P:NvubdIzc   $8003: 08       PHP
+A:FF X:00 Y:00 S:FB P:NvubdIzc   $8004: A9 00    LDA #$00
+A:00 X:00 Y:00 S:FB P:nvubdIZc   $8006: 28       PLP
+A:00 X:00 Y:00 S:FC P:NvUBdIzc   $8007: 68       PLA
+A:FF X:00 Y:00 S:FD P:NvUBdIzc   $8008: 00       BRK

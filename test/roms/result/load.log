@@ -1,0 +1,11 @@
+Log Start
+A:00 X:00 Y:00 S:FD P:nvubdIzc   $8000: A9 01    LDA #$01
+A:01 X:00 Y:00 S:FD P:nvubdIzc   $8002: A2 02    LDX #$02
+A:01 X:02 Y:00 S:FD P:nvubdIzc   $8004: A0 03    LDY #$03
+A:01 X:02 Y:03 S:FD P:nvubdIzc   $8006: 85 01    STA $01 = #$00
+A:01 X:02 Y:03 S:FD P:nvubdIzc   $8008: 86 02    STX $02 = #$00
+A:01 X:02 Y:03 S:FD P:nvubdIzc   $800A: 84 03    STY $03 = #$00
+A:01 X:02 Y:03 S:FD P:nvubdIzc   $800C: A5 02    LDA $02 = #$02
+A:02 X:02 Y:03 S:FD P:nvubdIzc   $800E: A6 03    LDX $03 = #$03
+A:02 X:03 Y:03 S:FD P:nvubdIzc   $8010: A4 01    LDY $01 = #$01
+A:02 X:03 Y:01 S:FD P:nvubdIzc   $8012: 00       BRK

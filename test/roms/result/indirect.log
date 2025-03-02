@@ -1,0 +1,7 @@
+Log Start
+A:00 X:00 Y:00 S:FD P:nvubdIzc   $8000: A9 01    LDA #$01
+A:01 X:00 Y:00 S:FD P:nvubdIzc   $8002: 85 F0    STA $F0 = #$00
+A:01 X:00 Y:00 S:FD P:nvubdIzc   $8004: A9 CC    LDA #$CC
+A:CC X:00 Y:00 S:FD P:NvubdIzc   $8006: 85 F1    STA $F1 = #$00
+A:CC X:00 Y:00 S:FD P:NvubdIzc   $8008: 6C F0 00 JMP ($00F0) = $CC01
+A:CC X:00 Y:00 S:FD P:NvubdIzc   $CC01: 00       BRK

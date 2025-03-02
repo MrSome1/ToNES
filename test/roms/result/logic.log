@@ -1,0 +1,10 @@
+Log Start
+A:00 X:00 Y:00 S:FD P:nvubdIzc   $8000: A9 A9    LDA #$A9
+A:A9 X:00 Y:00 S:FD P:NvubdIzc   $8002: 0A       ASL
+A:52 X:00 Y:00 S:FD P:nvubdIzC   $8003: 4A       LSR
+A:29 X:00 Y:00 S:FD P:nvubdIzc   $8004: 6A       ROR
+A:14 X:00 Y:00 S:FD P:nvubdIzC   $8005: 2A       ROL
+A:29 X:00 Y:00 S:FD P:nvubdIzc   $8006: 29 3C    AND #$3C
+A:28 X:00 Y:00 S:FD P:nvubdIzc   $8008: 09 14    ORA #$14
+A:3C X:00 Y:00 S:FD P:nvubdIzc   $800A: 49 3C    EOR #$3C
+A:00 X:00 Y:00 S:FD P:nvubdIZc   $800C: 00       BRK

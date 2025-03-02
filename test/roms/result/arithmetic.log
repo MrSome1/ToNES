@@ -1,0 +1,17 @@
+Log Start
+A:00 X:00 Y:00 S:FD P:nvubdIzc   $8000: A9 01    LDA #$01
+A:01 X:00 Y:00 S:FD P:nvubdIzc   $8002: 85 00    STA $00 = #$00
+A:01 X:00 Y:00 S:FD P:nvubdIzc   $8004: E6 00    INC $00 = #$01
+A:01 X:00 Y:00 S:FD P:nvubdIzc   $8006: C6 00    DEC $00 = #$02
+A:01 X:00 Y:00 S:FD P:nvubdIzc   $8008: A2 01    LDX #$01
+A:01 X:01 Y:00 S:FD P:nvubdIzc   $800A: E8       INX
+A:01 X:02 Y:00 S:FD P:nvubdIzc   $800B: CA       DEX
+A:01 X:01 Y:00 S:FD P:nvubdIzc   $800C: A0 01    LDY #$01
+A:01 X:01 Y:01 S:FD P:nvubdIzc   $800E: C8       INY
+A:01 X:01 Y:02 S:FD P:nvubdIzc   $800F: 88       DEY
+A:01 X:01 Y:01 S:FD P:nvubdIzc   $8010: 69 0F    ADC #$0F
+A:10 X:01 Y:01 S:FD P:nvubdIzc   $8012: E9 0F    SBC #$0F
+A:00 X:01 Y:01 S:FD P:nvubdIZC   $8014: C5 00    CMP $00 = #$01
+A:00 X:01 Y:01 S:FD P:NvubdIzc   $8016: E4 00    CPX $00 = #$01
+A:00 X:01 Y:01 S:FD P:nvubdIZC   $8018: C4 00    CPY $00 = #$01
+A:00 X:01 Y:01 S:FD P:nvubdIZC   $801A: 00       BRK

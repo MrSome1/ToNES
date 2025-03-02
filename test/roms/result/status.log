@@ -1,0 +1,13 @@
+Log Start
+A:00 X:00 Y:00 S:FD P:nvubdIzc   $8000: 38       SEC
+A:00 X:00 Y:00 S:FD P:nvubdIzC   $8001: 18       CLC
+A:00 X:00 Y:00 S:FD P:nvubdIzc   $8002: 58       CLI
+A:00 X:00 Y:00 S:FD P:nvubdizc   $8003: 78       SEI
+A:00 X:00 Y:00 S:FD P:nvubdIzc   $8004: F8       SED
+A:00 X:00 Y:00 S:FD P:nvubDIzc   $8005: D8       CLD
+A:00 X:00 Y:00 S:FD P:nvubdIzc   $8006: B8       CLV
+A:00 X:00 Y:00 S:FD P:nvubdIzc   $8007: A9 C0    LDA #$C0
+A:C0 X:00 Y:00 S:FD P:NvubdIzc   $8009: 85 00    STA $00 = #$00
+A:C0 X:00 Y:00 S:FD P:NvubdIzc   $800B: A9 0C    LDA #$0C
+A:0C X:00 Y:00 S:FD P:nvubdIzc   $800D: 24 00    BIT $00 = #$C0
+A:0C X:00 Y:00 S:FD P:NVubdIZc   $800F: 00       BRK

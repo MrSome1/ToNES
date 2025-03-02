@@ -18,6 +18,7 @@
 #ifndef _TONES_MOTHERBOARD_H_
 #define _TONES_MOTHERBOARD_H_
 
+#include <array>
 #include <atomic>
 #include <functional>
 
@@ -85,10 +86,7 @@ public:
 
     /* Debug Infos */
 
-    virtual void onCpuStepped(const MicroProcessor::Registers_t &regs)
-    {
-        (void)regs;
-    }
+    virtual void onRegistersChanged() {}
 };
 
 /**
@@ -126,6 +124,12 @@ public:
 
     void reset();
 
+    void dumpCpuRegisters(MicroProcessor::Registers_t &regs);
+
+    void dumpPpuRegisters(PictureProcessingUnit::Registers_t &regs);
+
+    void dumpPpuPalettes(std::array<uint8_t, ppu::Palettes::PalettesSize> &colors);
+
     /* Callbacks */
 
     void setOutputPanel(OutputPanel &output);
@@ -135,8 +139,6 @@ protected:
     void eject();
 
     void run();
-
-    void dumpRegisters();
 
 private:
 
@@ -170,8 +172,6 @@ private:
     std::atomic<bool> _paused;
 
     /* Output */
-
-    MicroProcessor::Registers_t _cpuRegisters;
 
     OutputPanel *_output;
 };

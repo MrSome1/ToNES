@@ -1,0 +1,23 @@
+Log Start
+A:00 X:00 Y:00 S:FD P:nvubdIzc   $8000: 85 0F    STA $0F = #$FF
+A:00 X:00 Y:00 S:FD P:nvubdIzc   $8002: E6 0F    INC $0F = #$00
+A:00 X:00 Y:00 S:FD P:nvubdIzc   $8004: A6 0F    LDX $0F = #$01
+A:00 X:01 Y:00 S:FD P:nvubdIzc   $8006: 66 0F    ROR $0F = #$01
+A:00 X:01 Y:00 S:FD P:nvubdIZC   $8008: 46 0F    LSR $0F = #$00
+A:00 X:01 Y:00 S:FD P:nvubdIZc   $800A: A4 0F    LDY $0F = #$00
+A:00 X:01 Y:00 S:FD P:nvubdIZc   $800C: C6 0F    DEC $0F = #$00
+A:00 X:01 Y:00 S:FD P:NvubdIzc   $800E: A5 0F    LDA $0F = #$FF
+A:FF X:01 Y:00 S:FD P:NvubdIzc   $8010: 86 00    STX $00 = #$00
+A:FF X:01 Y:00 S:FD P:NvubdIzc   $8012: 84 FF    STY $FF = #$FF
+A:FF X:01 Y:00 S:FD P:NvubdIzc   $8014: E5 00    SBC $00 = #$01
+A:FD X:01 Y:00 S:FD P:NvubdIzC   $8016: 65 FF    ADC $FF = #$00
+A:FE X:01 Y:00 S:FD P:NvubdIzc   $8018: 45 0F    EOR $0F = #$FF
+A:01 X:01 Y:00 S:FD P:nvubdIzc   $801A: 24 FF    BIT $FF = #$00
+A:01 X:01 Y:00 S:FD P:nvubdIZc   $801C: 25 FF    AND $FF = #$00
+A:00 X:01 Y:00 S:FD P:nvubdIZc   $801E: 05 00    ORA $00 = #$01
+A:01 X:01 Y:00 S:FD P:nvubdIzc   $8020: 06 FF    ASL $FF = #$00
+A:01 X:01 Y:00 S:FD P:nvubdIZc   $8022: 26 FF    ROL $FF = #$00
+A:01 X:01 Y:00 S:FD P:nvubdIZc   $8024: C5 0F    CMP $0F = #$FF
+A:01 X:01 Y:00 S:FD P:nvubdIzc   $8026: E4 00    CPX $00 = #$01
+A:01 X:01 Y:00 S:FD P:nvubdIZC   $8028: C4 FF    CPY $FF = #$00
+A:01 X:01 Y:00 S:FD P:nvubdIZC   $802A: 00       BRK

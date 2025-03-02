@@ -1,0 +1,7 @@
+Log Start
+A:00 X:00 Y:00 S:FD P:nvubdIzc   $8000: A9 5A    LDA #$5A
+A:5A X:00 Y:00 S:FD P:nvubdIzc   $8002: 85 FF    STA $FF = #$FF
+A:5A X:00 Y:00 S:FD P:nvubdIzc   $8004: A0 01    LDY #$01
+A:5A X:00 Y:01 S:FD P:nvubdIzc   $8006: B6 FE    LDX $FE,Y @ $00FF = #$5A
+A:5A X:5A Y:01 S:FD P:nvubdIzc   $8008: 96 FF    STX $FF,Y @ $0000 = #$00
+A:5A X:5A Y:01 S:FD P:nvubdIzc   $800A: 00       BRK

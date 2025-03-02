@@ -1,0 +1,12 @@
+Log Start
+A:00 X:00 Y:00 S:FD P:nvubdIzc   $8000: A9 01    LDA #$01
+A:01 X:00 Y:00 S:FD P:nvubdIzc   $8002: AA       TAX
+A:01 X:01 Y:00 S:FD P:nvubdIzc   $8003: A8       TAY
+A:01 X:01 Y:01 S:FD P:nvubdIzc   $8004: A2 02    LDX #$02
+A:01 X:02 Y:01 S:FD P:nvubdIzc   $8006: 8A       TXA
+A:02 X:02 Y:01 S:FD P:nvubdIzc   $8007: A0 03    LDY #$03
+A:02 X:02 Y:03 S:FD P:nvubdIzc   $8009: 98       TYA
+A:03 X:02 Y:03 S:FD P:nvubdIzc   $800A: BA       TSX
+A:03 X:FD Y:03 S:FD P:NvubdIzc   $800B: A2 02    LDX #$02
+A:03 X:02 Y:03 S:FD P:nvubdIzc   $800D: 9A       TXS
+A:03 X:02 Y:03 S:02 P:nvubdIzc                              $800E: 00       BRK

@@ -88,13 +88,13 @@ void MotherBoard::stop()
 {
     _started = false;
     _paused = true;
-    dumpRegisters();
+    _output->onRegistersChanged();
 }
 
 void MotherBoard::pause()
 {
     _paused = true;
-    dumpRegisters();
+    _output->onRegistersChanged();
 }
 
 void MotherBoard::resume()
@@ -105,7 +105,7 @@ void MotherBoard::resume()
 void MotherBoard::step()
 {
     _cpu.step();
-    dumpRegisters();
+    _output->onRegistersChanged();
 }
 
 bool MotherBoard::isStarted() const
@@ -141,7 +141,7 @@ void MotherBoard::reset()
     _cpu.reset();
     _ppu.reset();
 
-    dumpRegisters();
+    _output->onRegistersChanged();
 }
 
 void MotherBoard::eject()
@@ -170,12 +170,20 @@ void MotherBoard::run()
     }
 }
 
-void MotherBoard::dumpRegisters()
+void MotherBoard::dumpCpuRegisters(MicroProcessor::Registers_t &regs)
 {
-    _cpu.dump(_cpuRegisters);
-    _output->onCpuStepped(_cpuRegisters);
-
-    // TODO: Dump PPU registers
+    _cpu.dump(regs);
 }
+
+void MotherBoard::dumpPpuRegisters(PictureProcessingUnit::Registers_t &regs)
+{
+    _ppu.dump(regs);
+}
+
+void MotherBoard::dumpPpuPalettes(std::array<uint8_t, ppu::Palettes::PalettesSize> &colors)
+{
+    _ppu.dumpPalettes(colors);
+}
+
 
 } // namespace tones

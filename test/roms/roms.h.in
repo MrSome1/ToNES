@@ -2,9 +2,11 @@
 #include <string>
 
 #define ROM_ROOT_DIR "@ROM_ROOT_DIR@/"
+#define RESULT_DIR ROM_ROOT_DIR"result/"
 
 const char *ROM_SRC_EXT = ".asm";
 const char *ROM_BIN_EXT = ".nes";
+const char *LOG_EXT     = ".log";
 
 inline const std::string getRomSrc(const std::string &rom)
 {
@@ -14,6 +16,11 @@ inline const std::string getRomSrc(const std::string &rom)
 inline const std::string getRomBin(const std::string &rom)
 {
     return ROM_ROOT_DIR + rom + ROM_BIN_EXT;
+}
+
+inline const std::string getRomLog(const std::string &rom)
+{
+    return RESULT_DIR + rom + LOG_EXT;
 }
 
 /* CPU Basic Test ROMs */

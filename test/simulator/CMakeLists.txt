@@ -7,7 +7,10 @@ set(CMAKE_AUTORCC ON)
 
 find_package(Qt5 COMPONENTS Core Widgets Gui REQUIRED)
 
-QT5_WRAP_UI(UI_FORMS mainwindow.ui)
+QT5_WRAP_UI(UI_FORMS
+    mainwindow.ui
+    ppuviewer.ui
+)
 
 add_executable(${PROJECT_NAME}
     ${UI_FORMS}
