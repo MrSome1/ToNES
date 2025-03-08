@@ -45,17 +45,17 @@ void ArithmeticAndLogicUnit::LSR()
 
 void ArithmeticAndLogicUnit::ROL()
 {
-    setCarry(_reg_A & 0x80);
     _reg_A <<= 1;
     _reg_A |= getCarry() ? 0x01 : 0x00;
+    setCarry(_reg_DBB & 0x80);
     setZeroNegative(_reg_A);
 }
 
 void ArithmeticAndLogicUnit::ROR()
 {
-    setCarry(_reg_A & 0x01);
     _reg_A >>= 1;
     _reg_A |= getCarry() ? 0x80 : 0x00;
+    setCarry(_reg_DBB & 0x01);
     setZeroNegative(_reg_A);
 }
 
@@ -96,16 +96,14 @@ void ArithmeticAndLogicUnit::ADC()
 
 void ArithmeticAndLogicUnit::SBC()
 {
+    // TODO: What does it mean ?
     // TODO: Without tmp?
-    // TODO: check 6502.txt
-    uint16_t tmp = _reg_A - _reg_DBB + (getCarry() ? 1 : 0);
+    uint16_t tmp = _reg_A - _reg_DBB - (getCarry() ? 0 : 1);
     if (getDecimal()) { // desimal mode
         // TODO
     } else { // hex mode
-        // TODO: Signed overflow ???
+        setCarry(!(tmp & 0x100));
         setOverflow((_reg_A ^ tmp) & (~_reg_DBB ^ tmp) & 0x80);
-        // TODO: Unsigned overflow ???
-        // setCarry(tmp < 0x100);
         _reg_A = tmp & 0xff;
         setZeroNegative(_reg_A);
     }
@@ -113,9 +111,13 @@ void ArithmeticAndLogicUnit::SBC()
 
 void ArithmeticAndLogicUnit::CMP()
 {
-    _reg_A -= _reg_DBB;
-    setCarry(_reg_A & 0x80); // TODO: ???
-    setZeroNegative(_reg_A);
+    // TODO: What does it mean ?
+    std::uint16_t tmp = _reg_A - _reg_DBB;
+    setCarry(!(tmp & 0x100));
+    setZeroNegative(tmp);
+    // _reg_A -= _reg_DBB;
+    // setCarry(_reg_A & 0x80); // TODO: ???
+    // setZeroNegative(_reg_A);
 }
 
 inline void ArithmeticAndLogicUnit::setZero(uint8_t reg)
@@ -193,6 +195,7 @@ inline void InstructionDecoder::execute()
 inline void InstructionDecoder::accumulate(void (ArithmeticAndLogicUnit::*executor)())
 {
     if (cpu::code::Accumulator == _operation->mode->kind) {
+        _cpu._reg_DBB = _cpu._reg_A;
         (_alu.*executor)();
     } else {
         _cpu._reg_DL = _cpu._reg_A;
@@ -279,7 +282,9 @@ void InstructionDecoder::BPL()
 void InstructionDecoder::BRK()
 {
     ++_cpu._reg_PC; // 6502 quirk
+    SEL_BIT(_cpu._reg_P, cpu::StatusBit::B);
     _cpu.interrupt(cpu::VectorIRQ);
+    CLR_BIT(_cpu._reg_P, cpu::StatusBit::B);
 }
 
 void InstructionDecoder::BVC()
@@ -460,7 +465,10 @@ void InstructionDecoder::PHA()
 
 void InstructionDecoder::PHP()
 {
+    // The break bit is always set, which is not defined
+    // in 6502.txt, but is consistent with FCEUX
     _cpu._reg_DBB = _cpu._reg_P;
+    SEL_BIT(_cpu._reg_DBB, cpu::StatusBit::B);
     _cpu.push();
 }
 
@@ -665,8 +673,6 @@ void MicroProcessor::interrupt(uint16_t vector)
     push();
     reg::getLSB(_reg_PC, _reg_DBB);
     push();
-
-    SEL_BIT(_reg_P, cpu::StatusBit::B);
 
     // Save register P to the stack
     _reg_DBB = _reg_P;

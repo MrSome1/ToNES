@@ -4,4 +4,3 @@ A:00 X:00 Y:00 S:FA P:nvubdIzc   $8004: 58       CLI
 A:00 X:00 Y:00 S:FA P:nvubdizc   $8005: EA       NOP
 A:00 X:00 Y:00 S:FA P:nvubdizc   $8006: 40       RTI
 A:00 X:00 Y:00 S:FD P:nvUBdIzc   $8002: EA       NOP
-A:00 X:00 Y:00 S:FD P:nvUBdIzc   $8003: 40       RTI

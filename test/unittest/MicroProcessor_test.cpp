@@ -117,7 +117,6 @@ TEST_P(MicroProcessorTest, Instructions)
         ASSERT_EQ(_regs.P,  line.regs.P)  << hint(line);
         ASSERT_EQ(_regs.PC, line.regs.PC) << hint(line);
 
-        // _romParser.next();
         _logParser.next(truth);
         ASSERT_EQ(_regs.A,  truth.A)  << hint(line);
         ASSERT_EQ(_regs.X,  truth.X)  << hint(line);
@@ -132,27 +131,27 @@ INSTANTIATE_TEST_SUITE_P(BasicTest,
                          MicroProcessorTest,
                          testing::Values(
                             ROM_LOAD,
-                            ROM_STACK, // F
+                            ROM_STACK,
                             ROM_STATUS,
                             ROM_TRANSFER,
                             ROM_BRANCH,
                             ROM_JUMP,
-                            ROM_LOGIC, // F
-                            ROM_ARITHMETIC, //F
-                            ROM_INTERRUPT // F
+                            ROM_LOGIC,
+                            ROM_ARITHMETIC,
+                            ROM_INTERRUPT
                         ));
 
 INSTANTIATE_TEST_SUITE_P(AddressingModeTest,
                          MicroProcessorTest,
                          testing::Values(
-                            ROM_ZP, // F
-                            ROM_ZPX, // F
+                            ROM_ZP,
+                            ROM_ZPX,
                             ROM_ZPY,
-                            ROM_ABS, // F
-                            ROM_ABX, // F
-                            ROM_ABY, // F
-                            ROM_IDX, // F
-                            ROM_IDY, // F
+                            ROM_ABS,
+                            ROM_ABX,
+                            ROM_ABY,
+                            ROM_IDX,
+                            ROM_IDY,
                             ROM_IND
                         ));
 
