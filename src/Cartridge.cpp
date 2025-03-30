@@ -1,7 +1,6 @@
 
-#include <iostream>
+#include <cstring>
 #include <fstream>
-#include <memory>
 
 #include "Cartridge.h"
 #include "Log.h"

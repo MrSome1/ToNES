@@ -6,4 +6,7 @@ set(ROM_ROOT_DIR ${TEST_ROOT_DIR}/roms)
 
 add_subdirectory(roms)
 add_subdirectory(unittest)
-add_subdirectory(simulator)
+
+if (${BUILD_DEBUGGER})
+    add_subdirectory(simulator)
+endif()
