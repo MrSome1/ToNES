@@ -1,4 +1,3 @@
-Log Start
 A:00 X:00 Y:00 S:FD P:nvubdIzc   $8000: 4C 04 80 JMP $8004
 A:00 X:00 Y:00 S:FD P:nvubdIzc   $8004: A9 7F    LDA #$7F
 A:7F X:00 Y:00 S:FD P:nvubdIzc   $8006: 85 00    STA $00 = #$00

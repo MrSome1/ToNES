@@ -1,4 +1,3 @@
-Log Start
 A:00 X:00 Y:00 S:FD P:nvubdIzc   $8000: 00       BRK
 A:00 X:00 Y:00 S:FA P:nvubdIzc   $8004: 58       CLI
 A:00 X:00 Y:00 S:FA P:nvubdizc   $8005: EA       NOP

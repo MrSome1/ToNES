@@ -14,14 +14,50 @@ using namespace tones;
 
 class MicroProcessorTest : public ::testing::TestWithParam<std::string>
 {
+public:
+
+    static const int StatusMask = 0b11001111;
 
 public:
 
     MicroProcessorTest() : _cpu(_mbus) {}
 
-    const std::string hint(const RomParser::Line &line)
+    void load_rom(const std::string &rom)
     {
-        return "Line " + std::to_string(line.num) + ": " + line.code;
+        _card = CartridgeFactory::createCartridge(getRomBin(rom));
+        ASSERT_NE(_card, nullptr);
+
+        _card->attach(_mbus, _vbus);
+        _cpu.reset();
+    }
+
+    void compare_step_by_step(LogParser *parser, int steps=0)
+    {
+        steps = !steps ? parser->size() : steps;
+        ASSERT_NE(steps, 0);
+
+        for (int i = 0; i < steps; ++i) {
+            std::string info = hint(i, parser->line());
+
+            _cpu.dump(_regs);
+
+            ASSERT_EQ(_regs.PC, parser->regs().PC) << info;
+            ASSERT_EQ(_regs.A,  parser->regs().A)  << info;
+            ASSERT_EQ(_regs.X,  parser->regs().X)  << info;
+            ASSERT_EQ(_regs.Y,  parser->regs().Y)  << info;
+            ASSERT_EQ(_regs.S,  parser->regs().S)  << info;
+
+            // We don't care about the break bit and the undefined bit
+            ASSERT_EQ(_regs.P & StatusMask,  parser->regs().P & StatusMask) << info;
+
+            _cpu.step();
+            parser->next();
+        }
+    }
+
+    std::string hint(int num, const std::string &line)
+    {
+        return "[Line " + std::to_string(++num) + "] " + line;
     }
 
 protected:
@@ -37,8 +73,7 @@ protected:
     MicroProcessor _cpu;
     MicroProcessor::Registers_t _regs;
 
-    RomParser _romParser;
-    LogParser _logParser;
+    CartridgePtr _card;
 };
 
 TEST_F(MicroProcessorTest, Reset)
@@ -81,50 +116,11 @@ TEST_P(MicroProcessorTest, Instructions)
 {
     std::string rom = GetParam();
 
-    Registers_t truth;
-    std::string romLog = getRomLog(rom);
-    _logParser.load(romLog);
-    _logParser.next(truth); // skip the initial state
+    FceuxLogParser parser;
+    parser.load(getRomLog(rom));
 
-    std::string romSrc = getRomSrc(rom);
-    _romParser.load(romSrc);
-    ASSERT_NE(_romParser.size(), 0);
-
-    std::string romBin = getRomBin(rom);
-    auto card = CartridgeFactory::createCartridge(romBin);
-    ASSERT_NE(card, nullptr);
-
-    card->attach(_mbus, _vbus);
-    _cpu.reset();
-
-    for (int i = 0; i < _romParser.size(); ++i) {
-        _cpu.step();
-        _cpu.dump(_regs);
-
-        auto line = _romParser.line();
-        _romParser.next();
-
-        if (RomParser::hasRam(line)) {
-            uint8_t val;
-            _pram.read(line.ramAddr, val);
-            EXPECT_EQ(val, line.ramValue) << hint(line);
-        }
-
-        ASSERT_EQ(_regs.A,  line.regs.A)  << hint(line);
-        ASSERT_EQ(_regs.X,  line.regs.X)  << hint(line);
-        ASSERT_EQ(_regs.Y,  line.regs.Y)  << hint(line);
-        ASSERT_EQ(_regs.S,  line.regs.S)  << hint(line);
-        ASSERT_EQ(_regs.P,  line.regs.P)  << hint(line);
-        ASSERT_EQ(_regs.PC, line.regs.PC) << hint(line);
-
-        _logParser.next(truth);
-        ASSERT_EQ(_regs.A,  truth.A)  << hint(line);
-        ASSERT_EQ(_regs.X,  truth.X)  << hint(line);
-        ASSERT_EQ(_regs.Y,  truth.Y)  << hint(line);
-        ASSERT_EQ(_regs.S,  truth.S)  << hint(line);
-        ASSERT_EQ(_regs.P,  truth.P)  << hint(line);
-        ASSERT_EQ(_regs.PC, truth.PC) << hint(line);
-    }
+    load_rom(rom);
+    compare_step_by_step(&parser);
 }
 
 INSTANTIATE_TEST_SUITE_P(BasicTest,
@@ -154,6 +150,20 @@ INSTANTIATE_TEST_SUITE_P(AddressingModeTest,
                             ROM_IDY,
                             ROM_IND
                         ));
+
+TEST_F(MicroProcessorTest, NesTest)
+{
+    std::string rom = "nestest";
+
+    NintendulatorLogParser parser;
+    parser.load(getRomLog(rom));
+
+    load_rom(rom);
+    _cpu.jump(0xc000); // jump to the main test function
+
+    // TODO: Use tick()
+    compare_step_by_step(&parser, 5004); // unofficial instructions after 5004
+}
 
 int main(int argc, char **argv)
 {

@@ -83,15 +83,12 @@ void ArithmeticAndLogicUnit::ADC()
 {
     // TODO: Without tmp?
     uint16_t tmp = _reg_A + _reg_DBB + (getCarry() ? 1 : 0);
-    if (getDecimal()) { // desimal mode
-        // TODO
-    } else { // hex mode
-        // Signed overflow is true when the result sign differs from both operands
-        setOverflow((_reg_A ^ tmp) & (_reg_DBB ^ tmp) & 0x80);
-        setCarry(tmp & 0x100); // unsigned overflow
-        _reg_A = tmp & 0xff;
-        setZeroNegative(_reg_A);
-    }
+    // Signed overflow is true when the result sign differs from both operands
+    setOverflow((_reg_A ^ tmp) & (_reg_DBB ^ tmp) & 0x80);
+    setCarry(tmp & 0x100); // unsigned overflow
+    _reg_A = tmp & 0xff;
+    setZeroNegative(_reg_A);
+    // No desimal mode in NES
 }
 
 void ArithmeticAndLogicUnit::SBC()
@@ -99,14 +96,11 @@ void ArithmeticAndLogicUnit::SBC()
     // TODO: What does it mean ?
     // TODO: Without tmp?
     uint16_t tmp = _reg_A - _reg_DBB - (getCarry() ? 0 : 1);
-    if (getDecimal()) { // desimal mode
-        // TODO
-    } else { // hex mode
-        setCarry(!(tmp & 0x100));
-        setOverflow((_reg_A ^ tmp) & (~_reg_DBB ^ tmp) & 0x80);
-        _reg_A = tmp & 0xff;
-        setZeroNegative(_reg_A);
-    }
+    setCarry(!(tmp & 0x100));
+    setOverflow((_reg_A ^ tmp) & (~_reg_DBB ^ tmp) & 0x80);
+    _reg_A = tmp & 0xff;
+    setZeroNegative(_reg_A);
+    // No desimal mode in NES
 }
 
 void ArithmeticAndLogicUnit::CMP()
@@ -136,14 +130,14 @@ inline void ArithmeticAndLogicUnit::setZeroNegative(uint8_t reg)
     setNegative(reg);
 }
 
-inline void ArithmeticAndLogicUnit::setCarry(uint8_t reg)
+inline void ArithmeticAndLogicUnit::setCarry(bool val)
 {
-    SET_BIT(_reg_P, StatusBit::C, reg);
+    SET_BIT(_reg_P, StatusBit::C, val);
 }
 
-inline void ArithmeticAndLogicUnit::setOverflow(uint8_t reg)
+inline void ArithmeticAndLogicUnit::setOverflow(bool val)
 {
-    SET_BIT(_reg_P, StatusBit::V, reg);
+    SET_BIT(_reg_P, StatusBit::V, val);
 }
 
 inline bool ArithmeticAndLogicUnit::getZero()
@@ -164,11 +158,6 @@ inline bool ArithmeticAndLogicUnit::getCarry()
 inline bool ArithmeticAndLogicUnit::getOverflow()
 {
     return GET_BIT(_reg_P, StatusBit::V);
-}
-
-inline bool ArithmeticAndLogicUnit::getDecimal()
-{
-    return GET_BIT(_reg_P, StatusBit::D);
 }
 
 /* InstructionDecoder */
@@ -482,7 +471,9 @@ void InstructionDecoder::PLA()
 void InstructionDecoder::PLP()
 {
     _cpu.pop();
-    _cpu._reg_P = _cpu._reg_DBB;
+    SET_BIT(_cpu._reg_DBB, cpu::StatusBit::B,
+            GET_BIT(_cpu._reg_P, cpu::StatusBit::B));
+    _cpu._reg_P = _cpu._reg_DBB | cpu::ClearedStatus;
 }
 
 void InstructionDecoder::ROL()
@@ -498,7 +489,7 @@ void InstructionDecoder::ROR()
 void InstructionDecoder::RTI()
 {
     _cpu.pop();
-    _cpu._reg_P = _cpu._reg_DBB;
+    _cpu._reg_P = _cpu._reg_DBB | cpu::ClearedStatus;
     _cpu.popTwo();
     reg::mergeTwoBytes(_cpu._reg_PC, _cpu._reg_DBB, _cpu._reg_DL);
 }
@@ -656,6 +647,16 @@ void MicroProcessor::MicroProcessor::nmi()
     // TODO: Cycle time
 }
 
+void MicroProcessor::wait(uint8_t ticks)
+{
+    _skip += ticks;
+}
+
+void MicroProcessor::jump(uint16_t addr)
+{
+    _reg_PC = addr;
+}
+
 void MicroProcessor::dump(Registers_t &registers) const
 {
     registers.A = _reg_A;
@@ -684,6 +685,8 @@ void MicroProcessor::interrupt(uint16_t vector)
     _reg_PC = vector;
     fetchTwo();
     reg::mergeTwoBytes(_reg_PC, _reg_DBB, _reg_DL);
+
+    _skip += 7;
 }
 
 inline void MicroProcessor::read()
@@ -775,13 +778,15 @@ void MicroProcessor::fetchIndexedIndirect()
     fetchOne();
 
     // Fetch ABL
-    _reg_AB = (uint8_t)(_reg_DBB + _reg_X);
+    _reg_AB = _reg_DBB + _reg_X;
+    _reg_AB &= 0xff;
     read();
 
     _reg_DL = _reg_DBB;
 
     // Fetch ABH
     ++_reg_AB;
+    _reg_AB &= 0xff;
     read();
 
     reg::mergeTwoBytes(_reg_AB, _reg_DBB, _reg_DL);
@@ -800,6 +805,7 @@ void MicroProcessor::fetchIndirectIndexed()
 
     // Fetch ABH
     ++_reg_AB;
+    _reg_AB &= 0xff;
     read();
 
     reg::mergeTwoBytes(_reg_AB, _reg_DBB, _reg_DL);
@@ -818,7 +824,11 @@ void MicroProcessor::fetchAbsoluteIndirect()
     _reg_DL = _reg_DBB;
 
     // Fetch ABH
-    ++_reg_AB;
+    // 6502 CPU has a bug, that when an indirect address begins at
+    // the last byte of one page, the second byte is fetched from
+    // the first byte of the page, rather than the next byte.
+    // So, just '++_reg_AB' will not work here.
+    _reg_AB = (_reg_AB & 0xff00) | ((_reg_AB + 1) & 0xff);
     read();
 
     reg::mergeTwoBytes(_reg_AB, _reg_DBB, _reg_DL);

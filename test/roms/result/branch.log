@@ -1,4 +1,3 @@
-Log Start
 A:00 X:00 Y:00 S:FD P:nvubdIzc   $8000: 90 01    BCC $8003
 A:00 X:00 Y:00 S:FD P:nvubdIzc   $8003: 50 01    BVC $8006
 A:00 X:00 Y:00 S:FD P:nvubdIzc   $8006: 10 01    BPL $8009

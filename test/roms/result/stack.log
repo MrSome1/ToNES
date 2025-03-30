@@ -1,4 +1,3 @@
-Log Start
 A:00 X:00 Y:00 S:FD P:nvubdIzc   $8000: A9 FF    LDA #$FF
 A:FF X:00 Y:00 S:FD P:NvubdIzc   $8002: 48       PHA
 A:FF X:00 Y:00 S:FC P:NvubdIzc   $8003: 08       PHP

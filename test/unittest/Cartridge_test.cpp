@@ -35,7 +35,7 @@ INSTANTIATE_TEST_SUITE_P(InvalidPathTest,
                             "",
                             ROM_ROOT_DIR,
                             ROM_LOAD + std::string(ROM_BIN_EXT),
-                            getRomSrc(ROM_LOAD)
+                            getRomLog(ROM_LOAD)
                          ));
 
 TEST_F(CartridgeTest, iNES)

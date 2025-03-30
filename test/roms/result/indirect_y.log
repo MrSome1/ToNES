@@ -1,4 +1,3 @@
-Log Start
 A:00 X:00 Y:00 S:FD P:nvubdIzc   $8000: A9 03    LDA #$03
 A:03 X:00 Y:00 S:FD P:nvubdIzc   $8002: 85 FE    STA $FE = #$FF
 A:03 X:00 Y:00 S:FD P:nvubdIzc   $8004: A9 07    LDA #$07

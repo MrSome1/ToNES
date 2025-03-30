@@ -1,4 +1,3 @@
-Log Start
 A:00 X:00 Y:00 S:FD P:nvubdIzc   $8000: A9 01    LDA #$01
 A:01 X:00 Y:00 S:FD P:nvubdIzc   $8002: A2 02    LDX #$02
 A:01 X:02 Y:00 S:FD P:nvubdIzc   $8004: A0 03    LDY #$03

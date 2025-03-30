@@ -1,6 +1,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <memory>
 
 #include "Cartridge.h"
 #include "Log.h"
@@ -54,10 +55,14 @@ bool iNESReader::load(const std::string &path)
     }
 
     // Load PRG-ROM
-    _prg_rom.resize(_header.prg * ReadOnlyMemory::RomBankSize);
-    if (!file.read((char*)_prg_rom.data(), _prg_rom.size())) {
+    _prg_rom.resize(std::max((int)_header.prg, 2) * ReadOnlyMemory::RomBankSize);
+    if (!file.read((char*)_prg_rom.data(), _header.prg * ReadOnlyMemory::RomBankSize)) {
         LOG_ERROR() << "Failed to load PRG-ROM from " << path;
         return false;
+    }
+    if (_header.prg == 1) { // mirror the single bank
+        memcpy((char*)_prg_rom.data() + ReadOnlyMemory::RomBankSize,
+               (char*)_prg_rom.data(), ReadOnlyMemory::RomBankSize);
     }
     LOG_DEBUG() << "16KB PRG-ROM Banks: " << (int)_header.prg;
 

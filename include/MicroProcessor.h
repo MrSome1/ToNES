@@ -24,6 +24,7 @@ const uint16_t VectorIRQ  = 0xfffe; // IRQ/BRK
 const uint16_t StackBase    = 0x100;
 const uint8_t DefaultStack  = 0xfd; // TODO: ???
 const uint8_t DefaultStatus = 0x24; // 0010 0100
+const uint8_t ClearedStatus = 0x20;
 
 /**
  * @brief Processor Status Register
@@ -112,9 +113,9 @@ private:
 
     inline void setZeroNegative(uint8_t reg);
 
-    inline void setCarry(uint8_t reg);
+    inline void setCarry(bool val);
 
-    inline void setOverflow(uint8_t reg);
+    inline void setOverflow(bool val);
 
     inline bool getZero();
 
@@ -123,8 +124,6 @@ private:
     inline bool getCarry();
 
     inline bool getOverflow();
-
-    inline bool getDecimal();
 
 private:
 
@@ -344,6 +343,15 @@ public:
     //! Hardware non-maskable interrupt (NMI)
     void nmi();
 
+    //! Block the CPU for a few ticks
+    void wait(uint8_t ticks);
+
+    /* Functions for debugging */
+
+    //! Set the register PC to a given address
+    void jump(uint16_t addr);
+
+    //! Copy all the inner registers
     void dump(Registers_t &registers) const;
 
     /* Functions for addressing modes */
