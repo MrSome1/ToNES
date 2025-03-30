@@ -3,13 +3,11 @@ cmake_minimum_required(VERSION 3.10)
 
 project(ToNES VERSION 0.1)
 
-set(CMAKE_BUILD_TYPE Debug)
-message("Build Type: ${CMAKE_BUILD_TYPE}")
-
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 option(BUILD_TESTING "Compile the test cases" OFF)
+option(BUILD_DEBUGGER "Compile the debugging simulator" OFF)
 
 INCLUDE_DIRECTORIES(./include)
 
@@ -21,9 +19,8 @@ add_library(tones SHARED
     ${SOURCES}
 )
 
-include(CTest)
-
 if (${BUILD_TESTING})
+    include(CTest)
     enable_testing()
     add_subdirectory(test)
 endif()
