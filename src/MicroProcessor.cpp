@@ -187,6 +187,7 @@ inline void InstructionDecoder::accumulate(void (ArithmeticAndLogicUnit::*execut
         _cpu._reg_DBB = _cpu._reg_A;
         (_alu.*executor)();
     } else {
+        _cpu.read();
         _cpu._reg_DL = _cpu._reg_A;
         _cpu._reg_A = _cpu._reg_DBB;
         (_alu.*executor)();
@@ -200,11 +201,13 @@ inline void InstructionDecoder::accumulate(void (ArithmeticAndLogicUnit::*execut
 
 void InstructionDecoder::ADC()
 {
+    _cpu.read();
     _alu.ADC();
 }
 
 void InstructionDecoder::AND()
 {
+    _cpu.read();
     _alu.AND();
 }
 
@@ -215,6 +218,7 @@ void InstructionDecoder::ASL()
 
 void InstructionDecoder::BCC()
 {
+    _cpu.read();
     if (!_alu.getCarry()) {
         // TODO: Dynamic clock
         _cpu.branch();
@@ -223,6 +227,7 @@ void InstructionDecoder::BCC()
 
 void InstructionDecoder::BCS()
 {
+    _cpu.read();
     if (_alu.getCarry()) {
         // TODO: Dynamic clock
         _cpu.branch();
@@ -231,6 +236,7 @@ void InstructionDecoder::BCS()
 
 void InstructionDecoder::BEQ()
 {
+    _cpu.read();
     if (_alu.getZero()) {
         // TODO: Dynamic clock
         _cpu.branch();
@@ -239,6 +245,7 @@ void InstructionDecoder::BEQ()
 
 void InstructionDecoder::BIT()
 {
+    _cpu.read();
     _alu.setNegative(_cpu._reg_DBB);
     _alu.setOverflow(_cpu._reg_DBB & 0x40);
     _alu.setZero(_cpu._reg_DBB & _cpu._reg_A);
@@ -246,6 +253,7 @@ void InstructionDecoder::BIT()
 
 void InstructionDecoder::BMI()
 {
+    _cpu.read();
     if (_alu.getNegative()) {
         // TODO: Dynamic clock
         _cpu.branch();
@@ -254,6 +262,7 @@ void InstructionDecoder::BMI()
 
 void InstructionDecoder::BNE()
 {
+    _cpu.read();
     if (!_alu.getZero()) {
         // TODO: Dynamic clock
         _cpu.branch();
@@ -262,6 +271,7 @@ void InstructionDecoder::BNE()
 
 void InstructionDecoder::BPL()
 {
+    _cpu.read();
     if (!_alu.getNegative()) {
         // TODO: Dynamic clock
         _cpu.branch();
@@ -278,6 +288,7 @@ void InstructionDecoder::BRK()
 
 void InstructionDecoder::BVC()
 {
+    _cpu.read();
     if (!_alu.getOverflow()) {
         // TODO: Dynamic clock
         _cpu.branch();
@@ -286,6 +297,7 @@ void InstructionDecoder::BVC()
 
 void InstructionDecoder::BVS()
 {
+    _cpu.read();
     if (_alu.getOverflow()) {
         // TODO: Dynamic clock
         _cpu.branch();
@@ -314,6 +326,7 @@ void InstructionDecoder::CLV()
 
 void InstructionDecoder::CMP()
 {
+    _cpu.read();
     _cpu._reg_DL = _cpu._reg_A;
     _alu.CMP();
     _cpu._reg_A = _cpu._reg_DL;
@@ -321,6 +334,7 @@ void InstructionDecoder::CMP()
 
 void InstructionDecoder::CPX()
 {
+    _cpu.read();
     _cpu._reg_DL = _cpu._reg_A;
     _cpu._reg_A = _cpu._reg_X;
     _alu.CMP();
@@ -329,6 +343,7 @@ void InstructionDecoder::CPX()
 
 void InstructionDecoder::CPY()
 {
+    _cpu.read();
     _cpu._reg_DL = _cpu._reg_A;
     _cpu._reg_A = _cpu._reg_Y;
     _alu.CMP();
@@ -337,6 +352,7 @@ void InstructionDecoder::CPY()
 
 void InstructionDecoder::DEC()
 {
+    _cpu.read();
     _cpu._reg_DL = _cpu._reg_A;
     _cpu._reg_A = _cpu._reg_DBB;
     _alu.DEC();
@@ -365,11 +381,13 @@ void InstructionDecoder::DEY()
 
 void InstructionDecoder::EOR()
 {
+    _cpu.read();
     _alu.EOR();
 }
 
 void InstructionDecoder::INC()
 {
+    _cpu.read();
     _cpu._reg_DL = _cpu._reg_A;
     _cpu._reg_A = _cpu._reg_DBB;
     _alu.INC();
@@ -398,11 +416,13 @@ void InstructionDecoder::INY()
 
 void InstructionDecoder::JMP()
 {
+    _cpu.read();
     _cpu._reg_PC = _cpu._reg_AB;
 }
 
 void InstructionDecoder::JSR()
 {
+    _cpu.read();
     --_cpu._reg_PC;
 
     reg::splitTwoBytes(_cpu._reg_PC, _cpu._reg_DBB, _cpu._reg_DL);
@@ -415,24 +435,28 @@ void InstructionDecoder::JSR()
 
 void InstructionDecoder::LDA()
 {
+    _cpu.read();
     _alu.setZeroNegative(_cpu._reg_DBB);
     _cpu._reg_A = _cpu._reg_DBB;
 }
 
 void InstructionDecoder::LDX()
 {
+    _cpu.read();
     _alu.setZeroNegative(_cpu._reg_DBB);
     _cpu._reg_X = _cpu._reg_DBB;
 }
 
 void InstructionDecoder::LDY()
 {
+    _cpu.read();
     _alu.setZeroNegative(_cpu._reg_DBB);
     _cpu._reg_Y = _cpu._reg_DBB;
 }
 
 void InstructionDecoder::LSR()
 {
+    _cpu.read();
     accumulate(&ArithmeticAndLogicUnit::LSR);
 }
 
@@ -443,6 +467,7 @@ void InstructionDecoder::NOP()
 
 void InstructionDecoder::ORA()
 {
+    _cpu.read();
     _alu.ORA();
 }
 
@@ -503,6 +528,7 @@ void InstructionDecoder::RTS()
 
 void InstructionDecoder::SBC()
 {
+    _cpu.read();
     _alu.SBC();
 }
 
@@ -727,45 +753,39 @@ void MicroProcessor::fetchNull() {
 
 void MicroProcessor::fetchImmediate()
 {
-    fetchOne();
+    _reg_AB = _reg_PC++;
 }
 
 void MicroProcessor::fetchAbsolute()
 {
     fetchTwo();
     reg::mergeTwoBytes(_reg_AB, _reg_DBB, _reg_DL);
-    read();
 }
 
 void MicroProcessor::fetchZeroPage()
 {
     fetchOne();
     _reg_AB = _reg_DBB;
-    read();
 }
 
 void MicroProcessor::fetchIndexedZeroPageX()
 {
     fetchIndexedZeroPage(_reg_X);
-    read();
 }
 
 void MicroProcessor::fetchIndexedZeroPageY()
 {
     fetchIndexedZeroPage(_reg_Y);
-    read();
 }
 
 void MicroProcessor::fetchIndexedAbsoluteX()
 {
     fetchIndexedAbsolute(_reg_X);
-    read();
 }
 
 void MicroProcessor::fetchIndexedAbsoluteY()
 {
     fetchIndexedAbsolute(_reg_Y);
-    read();
 }
 
 void MicroProcessor::fetchRelative()
@@ -790,7 +810,6 @@ void MicroProcessor::fetchIndexedIndirect()
     read();
 
     reg::mergeTwoBytes(_reg_AB, _reg_DBB, _reg_DL);
-    read();
 }
 
 void MicroProcessor::fetchIndirectIndexed()
@@ -810,7 +829,6 @@ void MicroProcessor::fetchIndirectIndexed()
 
     reg::mergeTwoBytes(_reg_AB, _reg_DBB, _reg_DL);
     _reg_AB += _reg_Y;
-    read();
 }
 
 void MicroProcessor::fetchAbsoluteIndirect()
@@ -832,7 +850,6 @@ void MicroProcessor::fetchAbsoluteIndirect()
     read();
 
     reg::mergeTwoBytes(_reg_AB, _reg_DBB, _reg_DL);
-    read();
 }
 
 inline void MicroProcessor::popTwo()
