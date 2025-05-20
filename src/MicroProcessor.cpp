@@ -673,7 +673,7 @@ void MicroProcessor::MicroProcessor::nmi()
     // TODO: Cycle time
 }
 
-void MicroProcessor::wait(uint8_t ticks)
+void MicroProcessor::wait(uint16_t ticks)
 {
     _skip += ticks;
 }

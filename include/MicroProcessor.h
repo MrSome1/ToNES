@@ -344,7 +344,7 @@ public:
     void nmi();
 
     //! Block the CPU for a few ticks
-    void wait(uint8_t ticks);
+    void wait(uint16_t ticks);
 
     /* Functions for debugging */
 
@@ -443,7 +443,7 @@ protected:
 
 private:
 
-    uint8_t _skip;
+    uint16_t _skip;
 
     /* Programmable Registers */
     uint8_t  _reg_A;  // accumulator

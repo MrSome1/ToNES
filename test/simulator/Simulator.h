@@ -13,6 +13,8 @@
 
 #include "ui_mainwindow.h"
 #include "ui_ppuviewer.h"
+#include "ui_memoryviewer.h"
+
 #include "MotherBoard.h"
 
 namespace tones {
@@ -32,7 +34,7 @@ public:
     };
 
     Simulator(QWidget *parent=nullptr);
-    ~Simulator();
+    ~Simulator() override;
 
     void onVideoDotRendered(int x, int y, uint32_t color) override;
 
@@ -72,11 +74,11 @@ protected:
 
     void stop();
 
-    void setupView();
+    void setupMainView();
 
-    void setupAllColors();
+    void setupPpuView();
 
-    void setupConnections();
+    void setupMemoryView();
 
     void changeStatus(Status s = Invalid);
 
@@ -87,6 +89,12 @@ protected:
     void showChrRom();
 
     void showPalettes();
+
+    void showMemoryMap();
+
+    void drawMemoryMap(QString name);
+
+    void drawMemoryHex(uint8_t *base, int size);
 
     void drawPatternTable(int base, QImage &img);
 
@@ -104,6 +112,9 @@ private:
 
     QDialog *_ppuViewerDialog;
     Ui::PpuViewer *_ppuViewer;
+
+    QDialog *_memViewerDialog;
+    Ui::MemoryViewer *_memViewer;
 
     /* Video Buffers */
 

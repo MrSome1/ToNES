@@ -1,4 +1,6 @@
 
+#include <cstring>
+
 #include "PictureProcessingUnit.h"
 #include "Register.h"
 #include "Log.h"
@@ -62,7 +64,7 @@ Palettes::Palettes() {}
 
 bool Palettes::contains(uint16_t addr) const
 {
-    return addr > PalettesLowerBound && addr < PalettesUpperBound;
+    return addr >= PalettesLowerBound && addr < PalettesUpperBound;
 }
 
 void Palettes::read(uint16_t address, uint8_t &buffer) const
@@ -158,6 +160,11 @@ void PictureProcessingUnit::dumpPalettes(
     _palettes.dump(colors);
 }
 
+void PictureProcessingUnit::dumpPpuOam(std::array<uint8_t, ppu::SpriteMemorySize> &oam)
+{
+    memcpy(oam.data(), _OAM, ppu::SpriteMemorySize);
+}
+
 void PictureProcessingUnit::readPPUSTATUS()
 {
     _reg_DBB = _reg_STATUS;
@@ -175,7 +182,7 @@ void PictureProcessingUnit::readPPUDATA()
     _reg_AB = _reg_V;
     read();
     next();
-    // TODO: internal read buffer
+    std::swap(_reg_DBB, _reg_IRB);
 }
 
 void PictureProcessingUnit::writePPUCTRL()
@@ -234,7 +241,7 @@ void PictureProcessingUnit::writePPUADDR()
         _reg_V = _reg_T;
     } else { // first write
         reg::setMSB(_reg_T, _reg_DBB);  // T: .CDEFGH ........ <- DBB: ..CDEFGH
-        _reg_T &= ppu::VramAddressMask; // T: Z...... ........ <- 0
+        _reg_T &= ppu::VBusAddressMask; // T: Z...... ........ <- 0
     }
 
     _reg_W = !_reg_W;
@@ -368,7 +375,7 @@ void PictureProcessingUnit::scrollHorizontal()
         _reg_V &= ~0x001F;         // coarse X = 0
         _reg_V ^= 0x0400;          // switch horizontal nametable
     } else {
-        _reg_V += 1;               // increment coarse X
+        ++_reg_V;                  // increment coarse X
     }
 }
 
@@ -401,7 +408,7 @@ void PictureProcessingUnit::fetchBackground()
 
     switch (_reg_dot & ppu::TileMask) {
         case 2: // name table byte
-            _reg_AB = _reg_V & 0xfff | ppu::VramAddressMask;
+            _reg_AB = _reg_V & 0xfff | ppu::VBusAddressMask;
             read();
             _reg_NTB = _reg_DBB;
             break;
@@ -502,12 +509,12 @@ void PictureProcessingUnit::renderPixel()
 
 inline void PictureProcessingUnit::read()
 {
-    _vbus.read(_reg_AB & ppu::VramAddressMask, _reg_DBB);
+    _vbus.read(_reg_AB & ppu::VBusAddressMask, _reg_DBB);
 }
 
 inline void PictureProcessingUnit::write()
 {
-    _vbus.write(_reg_AB & ppu::VramAddressMask, _reg_DBB);
+    _vbus.write(_reg_AB & ppu::VBusAddressMask, _reg_DBB);
 }
 
 inline void PictureProcessingUnit::next()

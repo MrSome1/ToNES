@@ -120,6 +120,47 @@ TEST_F(PictureProcessingUnitTest, InternalRegisters)
     EXPECT_EQ(_regs.W, 0x01);
 }
 
+TEST_F(PictureProcessingUnitTest, MemoryMap)
+{
+    // Write name table 0
+    for (uint16_t i = 0x2000; i < 0x2400; ++i) {
+        _vbus.write(i & ppu::VBusAddressMask, i & 0xff);
+    }
+
+    // Write name table 1
+    for (uint16_t i = 0x2400; i < 0x2800; ++i) {
+        _vbus.write(i & ppu::VBusAddressMask, (i & 0xff00) >> 8);
+    }
+
+    // Write palettes
+    for (uint16_t i = 0x3f00; i < 0x3f20; ++i) {
+        _vbus.write(i & ppu::VBusAddressMask, 0x3f20 - i);
+    }
+
+    uint8_t buff;
+    for (uint16_t n = 0; n < 4; ++n) {
+        uint16_t base = n * 0x4000;
+
+        // Check name table 0
+        for (uint16_t i = 0x2000; i < 0x2400; ++i) {
+            _vbus.read((base + i) & ppu::VBusAddressMask, buff);
+            EXPECT_EQ(buff, i & 0xff);
+        }
+
+        // Check name table 0
+        for (uint16_t i = 0x2400; i < 0x2800; ++i) {
+            _vbus.read((base + i) & ppu::VBusAddressMask, buff);
+            EXPECT_EQ(buff, (i & 0xff00) >> 8);
+        }
+
+        // Check palettes
+        for (uint16_t i = 0x3f00; i < 0x3f20; ++i) {
+            _vbus.read((base + i) & ppu::VBusAddressMask, buff);
+            EXPECT_EQ(buff, 0x3f20 - i);
+        }
+    }
+}
+
 TEST_F(PictureProcessingUnitTest, OamReadWrite)
 {
     uint8_t buff;
@@ -210,6 +251,7 @@ TEST_F(PictureProcessingUnitTest, NameTableReadWrite)
     reg::getLSB(VideoRandomAccessMemory::VramLowerBound, addr);
     _mbus.write(ppu::PPUADDR, addr);
 
+    _mbus.read(ppu::PPUDATA, buff); // drop the value of internal buffer
     for (int i = 0; i < VideoRandomAccessMemory::VramSize; ++i) {
         _mbus.read(ppu::PPUDATA, buff);
         ASSERT_EQ(buff, i & 0xff);
@@ -232,7 +274,7 @@ TEST_F(PictureProcessingUnitTest, PalleteReadWrite)
     _mbus.write(ppu::PPUADDR, addr);
 
     for (int i = 0; i < ppu::Palettes::PalettesSize; ++i) {
-        buff = i & 0xff;
+        buff = (ppu::Palettes::PalettesSize - i) & 0xff;
         _mbus.write(ppu::PPUDATA, buff);
     }
 
@@ -243,12 +285,13 @@ TEST_F(PictureProcessingUnitTest, PalleteReadWrite)
     reg::getLSB(ppu::Palettes::PalettesLowerBound, addr);
     _mbus.write(ppu::PPUADDR, addr);
 
+    _mbus.read(ppu::PPUDATA, buff); // drop the value of internal buffer
     for (int i = 0; i < ppu::Palettes::PalettesSize; ++i) {
         _mbus.read(ppu::PPUDATA, buff);
-        ASSERT_EQ(buff, i);
+        ASSERT_EQ(buff, ppu::Palettes::PalettesSize - i);
 
-        _vbus.read(VideoRandomAccessMemory::VramLowerBound + i, buff);
-        ASSERT_EQ(buff, i);
+        _vbus.read(VideoRandomAccessMemory::VramUpperBound + i, buff);
+        ASSERT_EQ(buff, ppu::Palettes::PalettesSize - i);
     }
 }
 

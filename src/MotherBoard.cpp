@@ -3,6 +3,7 @@
 
 #include <chrono>
 #include <thread>
+#include <memory>
 
 #include "Log.h"
 
@@ -41,6 +42,14 @@ void DirectMemoryAccess::write(uint16_t, uint8_t data)
         _bus->write(_dest, _buff);
         ++_addr;
     }
+
+    if (_handler)
+        _handler();
+}
+
+void DirectMemoryAccess::setHandler(std::function<void(void)> handler)
+{
+    _handler = handler;
 }
 
 /* MotherBoard */
@@ -55,9 +64,13 @@ MotherBoard::MotherBoard()
     , _output(&DefaultOuput)
 {
     _pram.attach(_mbus);
+    _sram.attach(_mbus);
     _vram.attach(_vbus);
 
     _odma.attach(_mbus);
+    _odma.setHandler([this] () {
+        _cpu.wait(513);
+    });
 
     _cpu.attach(_clock, 1);
     _ppu.attach(_clock, 3);
@@ -185,5 +198,23 @@ void MotherBoard::dumpPpuPalettes(std::array<uint8_t, ppu::Palettes::PalettesSiz
     _ppu.dumpPalettes(colors);
 }
 
+void MotherBoard::dumpCpuMemory(std::array<uint8_t, AddressSpace> &memory)
+{
+    for (int addr = 0; addr < AddressSpace; ++addr) {
+        _mbus.read(addr, memory[addr]);
+    }
+}
+
+void MotherBoard::dumpPpuMemory(std::array<uint8_t, AddressSpace> &memory)
+{
+    for (int addr = 0; addr < AddressSpace; ++addr) {
+        _vbus.read(addr & ppu::VBusAddressMask, memory[addr]);
+    }
+}
+
+void MotherBoard::dumpPpuOam(std::array<uint8_t, ppu::SpriteMemorySize> &oam)
+{
+    _ppu.dumpPpuOam(oam);
+}
 
 } // namespace tones

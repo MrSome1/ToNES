@@ -20,6 +20,23 @@ void RandomAccessMemory::write(uint16_t address, uint8_t data)
     _memory[address & RamMask] = data;
 }
 
+/* SaveRandomAccessMemory */
+
+bool SaveRandomAccessMemory::contains(uint16_t addr) const
+{
+    return addr >= SramLowerBound && addr < SramUpperBound;
+}
+
+void SaveRandomAccessMemory::read(uint16_t address, uint8_t &buffer) const
+{
+    buffer = _memory[address & SramMask];
+}
+
+void SaveRandomAccessMemory::write(uint16_t address, uint8_t data)
+{
+    _memory[address & SramMask] = data;
+}
+
 /* ReadOnlyMemory */
 
 ReadOnlyMemory::ReadOnlyMemory(const std::vector<uint8_t> &memory)

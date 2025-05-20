@@ -9,6 +9,8 @@ namespace tones {
 
 class Bus;
 
+const int AddressSpace = 0x10000;
+
 /**
  * @brief Abstraction of an device
  * 

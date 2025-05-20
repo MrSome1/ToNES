@@ -4,7 +4,7 @@
  * ------------------------------------- $10000        ------------------------------------- $10000
  *    Cartridge   | PRG-ROM Upper Bank                     Mirrors    | Mirrors $0000-$3FFF
  *                +--------------------- $C000         ---------------+--------------------- $4000
- *     PRG-ROM    | PRG-ROM Lower Bank                                | Mirrors $2000-$2007
+ *     PRG-ROM    | PRG-ROM Lower Bank                                | Mirrors $3F00-$3F1F
  * ---------------+--------------------- $8000                        +--------------------- $3F20
  *      SRAM      | Cartridge Save RAM                     Palettes   | Sprite Palette
  * ---------------+--------------------- $6000                        +--------------------- $3F10
@@ -71,6 +71,32 @@ public:
 private:
 
     std::array<uint8_t, RamSize> _memory;
+};
+
+/**
+ * @brief SRAM
+ *
+ * The save RAM in a cartridge
+ */
+class SaveRandomAccessMemory : public Accessible
+{
+
+public:
+
+    static const int SramSize = 0x2000;
+    static const int SramMask = 0x1fff;
+    static const int SramLowerBound = 0x6000;
+    static const int SramUpperBound = 0x8000;
+
+    bool contains(uint16_t addr) const override;
+
+    void read(uint16_t address, uint8_t &buffer) const override;
+
+    void write(uint16_t address, uint8_t data) override;
+
+private:
+
+    std::array<uint8_t, SramSize> _memory;
 };
 
 /**

@@ -1,6 +1,9 @@
 
 #include "Simulator.h"
 
+#include <sstream>
+#include <iomanip>
+
 #include <QVector>
 #include <QFileDialog>
 #include <QTextBlock>
@@ -12,6 +15,10 @@
 #include "Log.h"
 
 namespace tones {
+
+const char *Cpu = "CPU";
+const char *Ppu = "PPU";
+const char *Oam = "OAM";
 
 const char *Pause  = "Pause";
 const char *Resume = "Resume";
@@ -39,14 +46,17 @@ Simulator::Simulator(QWidget *parent)
     , _mainWindow(new Ui::MainWindow)
     , _ppuViewerDialog(new QDialog)
     , _ppuViewer(new Ui::PpuViewer)
+    , _memViewerDialog(new QDialog)
+    , _memViewer(new Ui::MemoryViewer)
     , _videoBuffer(360, 320, QImage::Format_RGB888)
     , _cpuP(CpuPValue)
     , _prom(nullptr)
     , _limg(128, 128, QImage::Format_Indexed8)
     , _rimg(128, 128, QImage::Format_Indexed8)
 {
-    setupView();
-    setupConnections();
+    setupMainView();
+    setupPpuView();
+    setupMemoryView();
     changeStatus();
 
     _engine.setOutputPanel(*this);
@@ -60,10 +70,9 @@ Simulator::~Simulator()
     delete _ppuViewerDialog;
 }
 
-void Simulator::setupView()
+void Simulator::setupMainView()
 {
     _mainWindow->setupUi(this);
-    _ppuViewer->setupUi(_ppuViewerDialog);
 
     // TODO: Load logo
     // _videoBuffer.load("/home/li/Pictures/fengling.jpeg")
@@ -76,6 +85,24 @@ void Simulator::setupView()
     _limg.setColorTable(Colors);
     _rimg.setColorTable(Colors);
 
+    // Actions
+    connect(_mainWindow->actionOpen, &QAction::triggered, this, &Simulator::onOpen);
+
+    // Buttons
+    connect(_mainWindow->startButton, &QPushButton::clicked, this, &Simulator::onStart);
+    connect(_mainWindow->stopButton, &QPushButton::clicked, this, &Simulator::onStop);
+    connect(_mainWindow->pauseButton, &QPushButton::clicked, this, &Simulator::onPause);
+    connect(_mainWindow->stepButton, &QPushButton::clicked, this, &Simulator::onStep);
+    connect(_mainWindow->resetButton, &QPushButton::clicked, this, &Simulator::onReset);
+
+    connect(this, &Simulator::showFrame, this, &Simulator::onShowFrame);
+    connect(this, &Simulator::showCartridge, this, &Simulator::onShowCartridge);
+}
+
+void Simulator::setupPpuView()
+{
+    _ppuViewer->setupUi(_ppuViewerDialog);
+
     _paletteLables = {
         _mainWindow->paletteB_0_0, _mainWindow->paletteB_0_1,  _mainWindow->paletteB_0_2,  _mainWindow->paletteB_0_3,
         _mainWindow->paletteB_1_0, _mainWindow->paletteB_1_1,  _mainWindow->paletteB_1_2,  _mainWindow->paletteB_1_3,
@@ -87,11 +114,6 @@ void Simulator::setupView()
         _mainWindow->paletteS_3_0, _mainWindow->paletteS_3_1,  _mainWindow->paletteS_3_2,  _mainWindow->paletteS_3_3,
     };
 
-    setupAllColors();
-}
-
-void Simulator::setupAllColors()
-{
     _colorLables = {
         _ppuViewer->color_00, _ppuViewer->color_01, _ppuViewer->color_02, _ppuViewer->color_03,
         _ppuViewer->color_04, _ppuViewer->color_05, _ppuViewer->color_06, _ppuViewer->color_07,
@@ -119,23 +141,25 @@ void Simulator::setupAllColors()
         p.setColor(QPalette::Background, 0xff000000 | ppu::Colors[i]);
         _colorLables[i]->setPalette(p);
     }
+
+    // Actions
+    connect(_mainWindow->actionPpu, &QAction::triggered, _ppuViewerDialog, &QDialog::open);
 }
 
-void Simulator::setupConnections()
+void Simulator::setupMemoryView()
 {
+    _memViewer->setupUi(_memViewerDialog);
+    _memViewer->selectBox->addItems({"CPU", "PPU", "OAM"});
+
     // Actions
-    connect(_mainWindow->actionOpen, &QAction::triggered, this, &Simulator::onOpen);
-    connect(_mainWindow->actionPpu, &QAction::triggered, _ppuViewerDialog, &QDialog::open);
+    connect(_mainWindow->actionMemory, &QAction::triggered, [this] () {
+        showMemoryMap();
+        _memViewerDialog->open();
+    });
 
     // Buttons
-    connect(_mainWindow->startButton, &QPushButton::clicked, this, &Simulator::onStart);
-    connect(_mainWindow->stopButton, &QPushButton::clicked, this, &Simulator::onStop);
-    connect(_mainWindow->pauseButton, &QPushButton::clicked, this, &Simulator::onPause);
-    connect(_mainWindow->stepButton, &QPushButton::clicked, this, &Simulator::onStep);
-    connect(_mainWindow->resetButton, &QPushButton::clicked, this, &Simulator::onReset);
-
-    connect(this, &Simulator::showFrame, this, &Simulator::onShowFrame);
-    connect(this, &Simulator::showCartridge, this, &Simulator::onShowCartridge);
+    connect(_memViewer->refreshButton, &QPushButton::clicked, this, &Simulator::showMemoryMap);
+    connect(_memViewer->selectBox, &QComboBox::currentTextChanged, this, &Simulator::drawMemoryMap);
 }
 
 void Simulator::changeStatus(Status s)
@@ -189,6 +213,7 @@ void Simulator::onOpen()
     if (filename.isEmpty())
         return;
 
+    onStop();
     _card = CartridgeFactory::createCartridge(filename.toStdString());
 
     changeStatus(Stopped);
@@ -280,14 +305,61 @@ void Simulator::showChrRom()
         _rimg.fill(0x00);
     }
 
-    _mainWindow->leftPatternTable->setPixmap(QPixmap::fromImage(_limg.scaled(256, 256)));
-    _mainWindow->rightPatternTable->setPixmap(QPixmap::fromImage(_rimg.scaled(256, 256)));
+    _ppuViewer->leftPattern->setPixmap(QPixmap::fromImage(_limg.scaled(256, 256)));
+    _ppuViewer->rightPattern->setPixmap(QPixmap::fromImage(_rimg.scaled(256, 256)));
 
-    _mainWindow->leftPatternTable->setEnabled(status);
-    _mainWindow->rightPatternTable->setEnabled(status);
+    _ppuViewer->leftPattern->setEnabled(status);
+    _ppuViewer->rightPattern->setEnabled(status);
 
     // _limg.scaled(512, 512).save("left_patterns_table", "png");
     // _rimg.scaled(512, 512).save("right_patterns_table", "png");
+}
+
+void Simulator::showMemoryMap()
+{
+    drawMemoryMap(_memViewer->selectBox->currentText());
+}
+
+void Simulator::drawMemoryMap(QString name)
+{
+    if (name == Cpu) {
+        // _memViewer->memoryMap->setText("CPU Seleted");
+        std::array<uint8_t, AddressSpace> mem;
+        _engine.dumpCpuMemory(mem);
+        drawMemoryHex(mem.data(), mem.size());
+    } else if (name == Ppu) {
+        // _memViewer->memoryMap->setText("PPU Seleted");
+        std::array<uint8_t, AddressSpace> mem;
+        _engine.dumpPpuMemory(mem);
+        drawMemoryHex(mem.data(), mem.size());
+    } else if (name == Oam) {
+        // _memViewer->memoryMap->setText("OAM Seleted");
+        std::array<uint8_t, ppu::SpriteMemorySize> mem;
+        _engine.dumpPpuOam(mem);
+        drawMemoryHex(mem.data(), mem.size());
+    }
+}
+
+void Simulator::drawMemoryHex(uint8_t *base, int size)
+{
+    std::stringstream content;
+    content << std::hex;
+
+    int n = 0;
+    const int lineSize = 16;
+    char text[lineSize + 1] = { 0 };
+
+    while (n < size) {
+        content << std::setw(4) << std::setfill('0') << n << " | ";
+        for (int i = 0; i < lineSize; ++i) {
+            uint8_t c = base[n++];
+            text[i] = (c > 31 && c < 127) ? (char)c : '.';
+            content << std::setw(2) << std::setfill('0') << (int)c << ' ';
+        }
+        content << "| " << text << '\n';
+    }
+
+    _memViewer->memoryMap->setPlainText(QString::fromStdString(content.str()));
 }
 
 void Simulator::drawPatternTable(int base, QImage &img)
@@ -367,7 +439,7 @@ void Simulator::onAudioOutput()
 
 void Simulator::onRegistersChanged()
 {
-    // Show CPU Registers
+    // Show CPU registers
     _engine.dumpCpuRegisters(_cpuRegisters);
 
     _mainWindow->cpuPC->setText(toHexString(_cpuRegisters.PC));
@@ -377,16 +449,25 @@ void Simulator::onRegistersChanged()
     _mainWindow->cpuX->setText(toHexString(_cpuRegisters.X));
     _mainWindow->cpuY->setText(toHexString(_cpuRegisters.Y));
 
+    // Show CPU status register
     for (int i = 0, mask = 0x80; mask; mask >>= 1) {
         _cpuP[i] = _cpuRegisters.P & mask ? '1' : '0';
         i += CpuPSepLen;
     }
     _mainWindow->cpuP->setText(_cpuP);
 
-    showCurrentLine(_cpuRegisters.PC);
-
     // TODO: Show PPU Registers
     _engine.dumpPpuRegisters(_ppuRegisters);
+    _mainWindow->ppuCtrl->setText(toHexString(_ppuRegisters.CTRL));
+    _mainWindow->ppuMask->setText(toHexString(_ppuRegisters.MASK));
+    // TODO: _mainWindow->ppuStat->setText(toHexString(_ppuRegisters.CTRL));
+    // TODO: _mainWindow->ppuAddr->setText(toHexString(_ppuRegisters.CTRL));
+    // TODO: _mainWindow->oamAddr->setText(toHexString(_ppuRegisters.CTRL));
+    _mainWindow->ppuX->setText(toHexString(_ppuRegisters.X));
+    // TODO: _mainWindow->ppuY->setText(toHexString(_ppuRegisters.CTRL));
+
+    // Show current line in the Rom view
+    showCurrentLine(_cpuRegisters.PC);
 }
 
 } // namespace tones

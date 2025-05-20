@@ -1942,74 +1942,102 @@
          <item>
           <layout class="QGridLayout" name="ppuStatusLayout_2">
            <item row="1" column="3">
-            <widget class="QLineEdit" name="lineEdit_5"/>
+            <widget class="QLineEdit" name="ppuAddr">
+             <property name="readOnly">
+              <bool>true</bool>
+             </property>
+            </widget>
            </item>
            <item row="0" column="2">
-            <widget class="QLabel" name="label_4">
+            <widget class="QLabel" name="labelOamAddr">
              <property name="text">
               <string>OAMADDR</string>
              </property>
             </widget>
            </item>
            <item row="0" column="1">
-            <widget class="QLineEdit" name="lineEdit_3"/>
+            <widget class="QLineEdit" name="ppuCtrl">
+             <property name="readOnly">
+              <bool>true</bool>
+             </property>
+            </widget>
            </item>
            <item row="2" column="1">
-            <widget class="QLineEdit" name="lineEdit"/>
+            <widget class="QLineEdit" name="ppuStat">
+             <property name="readOnly">
+              <bool>true</bool>
+             </property>
+            </widget>
            </item>
            <item row="0" column="3">
-            <widget class="QLineEdit" name="lineEdit_4"/>
+            <widget class="QLineEdit" name="oamAddr">
+             <property name="readOnly">
+              <bool>true</bool>
+             </property>
+            </widget>
            </item>
            <item row="0" column="4">
-            <widget class="QLabel" name="label_6">
+            <widget class="QLabel" name="labelPpuX">
              <property name="text">
               <string>X Scroll</string>
              </property>
             </widget>
            </item>
            <item row="1" column="2">
-            <widget class="QLabel" name="label_5">
+            <widget class="QLabel" name="labelPpuAddr">
              <property name="text">
               <string>PPUADDR</string>
              </property>
             </widget>
            </item>
            <item row="1" column="1">
-            <widget class="QLineEdit" name="lineEdit_2"/>
+            <widget class="QLineEdit" name="ppuMask">
+             <property name="readOnly">
+              <bool>true</bool>
+             </property>
+            </widget>
            </item>
            <item row="0" column="0">
-            <widget class="QLabel" name="label">
+            <widget class="QLabel" name="labelPpuCtrl">
              <property name="text">
               <string>PPUCTRL</string>
              </property>
             </widget>
            </item>
            <item row="2" column="0">
-            <widget class="QLabel" name="label_3">
+            <widget class="QLabel" name="labelPpuStat">
              <property name="text">
               <string>PPUSTAT</string>
              </property>
             </widget>
            </item>
            <item row="1" column="0">
-            <widget class="QLabel" name="label_2">
+            <widget class="QLabel" name="labelPpuMask">
              <property name="text">
               <string>PPUMASK</string>
              </property>
             </widget>
            </item>
            <item row="1" column="4">
-            <widget class="QLabel" name="label_7">
+            <widget class="QLabel" name="labelPpuY">
              <property name="text">
               <string>Y Scroll</string>
              </property>
             </widget>
            </item>
            <item row="0" column="5">
-            <widget class="QLineEdit" name="lineEdit_6"/>
+            <widget class="QLineEdit" name="ppuX">
+             <property name="readOnly">
+              <bool>true</bool>
+             </property>
+            </widget>
            </item>
            <item row="1" column="5">
-            <widget class="QLineEdit" name="lineEdit_7"/>
+            <widget class="QLineEdit" name="ppuY">
+             <property name="readOnly">
+              <bool>true</bool>
+             </property>
+            </widget>
            </item>
           </layout>
          </item>
@@ -2083,6 +2111,7 @@
    </attribute>
    <addaction name="actionOpen"/>
    <addaction name="actionPpu"/>
+   <addaction name="actionMemory"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <action name="actionOpen">
@@ -2093,6 +2122,11 @@
   <action name="actionPpu">
    <property name="text">
     <string>PPU</string>
+   </property>
+  </action>
+  <action name="actionMemory">
+   <property name="text">
+    <string>Memory</string>
    </property>
   </action>
  </widget>

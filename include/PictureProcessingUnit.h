@@ -22,7 +22,7 @@ class PictureProcessingUnit;
 
 namespace ppu {
 
-const int VramAddressMask  = 0x3fff; // 0011 1111 1111 1111
+const int VBusAddressMask  = 0x3fff; // 0011 1111 1111 1111
 const int SpriteMemorySize = 0x0100; // 256
 
 const int TileSize = 0x08;
@@ -227,6 +227,8 @@ public:
 
     void dump(Registers_t &registers) const;
 
+    void dumpPpuOam(std::array<uint8_t, ppu::SpriteMemorySize> &oam);
+
     void dumpPalettes(std::array<uint8_t, ppu::Palettes::PalettesSize> &colors);
 
 protected:
@@ -357,6 +359,7 @@ private:
     /* Buffers */
     uint16_t _reg_AB;  // adress buffer
     uint8_t _reg_DBB;  // data bus buffer
+    uint8_t _reg_IRB;  // internal read buffer
     uint8_t _reg_NTB;  // for name table
     uint8_t _reg_ATB;  // for attribute table
     uint8_t _reg_BGLB; // for background tile LSB

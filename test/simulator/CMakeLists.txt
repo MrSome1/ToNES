@@ -10,6 +10,7 @@ find_package(Qt5 COMPONENTS Core Widgets Gui REQUIRED)
 QT5_WRAP_UI(UI_FORMS
     mainwindow.ui
     ppuviewer.ui
+    memoryviewer.ui
 )
 
 add_executable(${PROJECT_NAME}

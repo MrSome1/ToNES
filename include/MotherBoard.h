@@ -51,6 +51,8 @@ public:
 
     void write(uint16_t address, uint8_t data) override;
 
+    void setHandler(std::function<void(void)> handler);
+
 private:
 
     const uint16_t _mmio; // MMIO register address
@@ -60,6 +62,8 @@ private:
     uint8_t  _buff;
     uint8_t  _page; // page number to copy from
     uint16_t _addr; // base address to copy from
+
+    std::function<void(void)> _handler;
 };
 
 /**
@@ -130,6 +134,12 @@ public:
 
     void dumpPpuPalettes(std::array<uint8_t, ppu::Palettes::PalettesSize> &colors);
 
+    void dumpCpuMemory(std::array<uint8_t, AddressSpace> &memory);
+
+    void dumpPpuMemory(std::array<uint8_t, AddressSpace> &memory);
+
+    void dumpPpuOam(std::array<uint8_t, ppu::SpriteMemorySize> &oam);
+
     /* Callbacks */
 
     void setOutputPanel(OutputPanel &output);
@@ -159,6 +169,8 @@ private:
     RandomAccessMemory _pram; // RAM of CPU
 
     VideoRandomAccessMemory _vram; // RAM of PPU
+
+    SaveRandomAccessMemory _sram; // Save RAM
 
     // TODO: DMC DMA
     DirectMemoryAccess _odma; // OAM DMA
