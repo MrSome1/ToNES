@@ -88,6 +88,8 @@ protected:
 
     void showChrRom();
 
+    void showRendering();
+
     void showPalettes();
 
     void showMemoryMap();
@@ -97,6 +99,8 @@ protected:
     void drawMemoryHex(uint8_t *base, int size);
 
     void drawPatternTable(int base, QImage &img);
+
+    void drawNameTable(const uint8_t *vram, int nbase, int pbase, QImage &img);
 
 private:
 

@@ -263,8 +263,10 @@ void Simulator::onShowFrame()
 
 void Simulator::onShowCartridge()
 {
-    showPrgRom();
-    showChrRom();
+    if (_card) {
+        showPrgRom();
+        showChrRom();
+    }
 }
 
 void Simulator::showPrgRom()
@@ -313,6 +315,28 @@ void Simulator::showChrRom()
 
     // _limg.scaled(512, 512).save("left_patterns_table", "png");
     // _rimg.scaled(512, 512).save("right_patterns_table", "png");
+}
+
+void Simulator::showRendering()
+{
+    if (!_card)
+        return;
+
+    QImage limg(256, 240, QImage::Format_RGB888);
+    QImage rimg(256, 240, QImage::Format_RGB888);
+
+    int pbase = GET_BIT(_ppuRegisters.CTRL, ppu::ControllerBit::B) ?
+                    tones::PatternTables::TableUpperBankBase :
+                    tones::PatternTables::TableLowerBankBase;
+
+    std::array<uint8_t, AddressSpace> mem;
+    _engine.dumpPpuMemory(mem);
+
+    drawNameTable(mem.data(), 0x2000, pbase, limg);
+    drawNameTable(mem.data(), 0x2400, pbase, rimg);
+
+    _mainWindow->leftPatternTable->setPixmap(QPixmap::fromImage(limg));
+    _mainWindow->rightPatternTable->setPixmap(QPixmap::fromImage(rimg));
 }
 
 void Simulator::showMemoryMap()
@@ -376,6 +400,44 @@ void Simulator::drawPatternTable(int base, QImage &img)
             }
 
             img.setPixel(x, y, (p1 & 0x80) >> 6 | (p0 & 0x80) >> 7);
+
+            p0 <<= 1;
+            p1 <<= 1;
+        }
+    }
+}
+
+void Simulator::drawNameTable(const uint8_t *vram, int nbase, int pbase, QImage &img)
+{
+    int addr, p0, p1;
+    uint32_t attr, color;
+
+    for (int y = 0; y < 240; ++y) {
+        for (int x = 0; x < 256; ++x) {
+            if (!(x & 0x07)) { // fine x
+                // name table index: table base | coarse y | coarse x
+                addr = nbase | (y & 0xf8) << 2 | (x & 0xf8) >> 3;
+                // pattern table index: fetched from name table
+                addr = vram[addr];
+                // color index: fetch from pattern table
+                addr = pbase | (addr << 4) | (y & 0x07); // fine y
+                p0 = _card->chrRom()[addr];              // plane 0
+                p1 = _card->chrRom()[addr | 0x08];       // plane 1
+
+                // attribute table index
+                addr = nbase | ppu::NameTableSize;
+                addr = addr | (y & 0xe0) >> 2 | (x & 0xe0) >> 5;
+                // palette index
+                attr = vram[addr];
+                attr = (attr >> ((y & 0x10) >> 2 | (x & 0x10) >> 3)) & 0x03;
+                addr = ppu::Palettes::PalettesLowerBound | (attr << 2);
+            }
+
+            // get color
+            addr = (addr & 0xfffc) | (p1 & 0x80) >> 6 | (p0 & 0x80) >> 7;
+            color = 0xff000000 | ppu::Colors[vram[addr] & 0x3f]; // ARGB
+
+            img.setPixel(x, y, color);
 
             p0 <<= 1;
             p1 <<= 1;
@@ -468,6 +530,8 @@ void Simulator::onRegistersChanged()
 
     // Show current line in the Rom view
     showCurrentLine(_cpuRegisters.PC);
+
+    showRendering();
 }
 
 } // namespace tones
